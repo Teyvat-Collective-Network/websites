@@ -1,0 +1,11 @@
+html {
+  --bg-main: #fff;
+  --bg-contrast: #eee;
+
+  --col-main: #207868;
+  --col-50: #90bcb4;
+  --col-20: #d2e4e1;
+
+  --txt-main: #293845;
+  --txt-contrast: #4b5c6b;
+}
