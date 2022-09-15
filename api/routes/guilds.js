@@ -24,7 +24,7 @@ export default function(fastify, opts, done) {
       if (!await fastify.db.guilds.exists({ [role]: before[role] })) await fastify.db.users.updateOne({ id: before[role] }, { $pull: { roles: role } });
     }
   }
-  
+
 
   fastify.get('/', async (request, reply) => {
     const docs = await fastify.db.guilds.find({});
@@ -40,16 +40,16 @@ export default function(fastify, opts, done) {
   });
 
   fastify.get('/:guild', { schema: schemas.get }, async (request, reply) => {
-    const doc = await fastify.guilds.findOne({ id: request.params.guild });
+    const doc = await fastify.db.guilds.findOne({ id: request.params.guild });
     if (!doc) return reply.code(404).send();
     return reply.send(doc.toObject());
   });
 
   fastify.patch('/:guild', { schema: schemas.get }, async (request, reply) => {
     if (!request.access(u => u.roles.includes('observer'))) return reply.code(403).send();
-    const doc = await fastify.guilds.findOne({ id: request.params.guild });
+    const doc = await fastify.db.guilds.findOne({ id: request.params.guild });
     if (!doc) return reply.code(404).send();
-    const updated = await doc.updateOne(request.body);
+    const updated = await fastify.db.guilds.findByIdAndUpdate(doc._id, request.body, { new: true });
     await updateRoles(doc, updated);
     return reply.send(updated.toObject());
   });

@@ -24,7 +24,7 @@ export const guilds = {
       additionalProperties: false,
     },
   },
-  
+
   patch: {
     params: {
       type: 'object',

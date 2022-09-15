@@ -24,7 +24,7 @@ export default function(fastify, opts, done) {
     if (!request.access(u => u.roles.includes('observer'))) return reply.code(403).send();
     const doc = await fastify.db.users.findOne({ id: request.params.user });
     if (!doc) return reply.code(404).send();
-    const updated = await doc.updateOne(request.body);
+    const updated = await fastify.db.users.findByIdAndUpdate(doc._id, request.body, { new: true });
     return reply.send(updated.toObject());
   });
 
@@ -41,10 +41,10 @@ export default function(fastify, opts, done) {
     if (!request.access(async u => u.roles.includes('observer') 
       || await fastify.db.guilds.exists({ id: request.body.guild, owner: u.id })
     )) return reply.code(403).send();
-    const doc = await fastify.db.users.updateOne(
+    const doc = await fastify.db.users.findOneAndUpdate(
       { id: request.params.user },
       { $addToSet: { guilds: request.body.guild } },
-      { upsert: true }
+      { upsert: true, new: true }
     );
     return reply.send(doc.toObject());
   });
@@ -59,7 +59,7 @@ export default function(fastify, opts, done) {
     ] })) return reply.code(409).send();
     const doc = await fastify.db.users.findOne({ id: request.params.user });
     if (!doc) return reply.code(204).send();
-    const updated = await doc.updateOne({ $pull: { guilds: request.body.guild } });
+    const updated = await doc.findByIdAndUpdate(doc._id, { $pull: { guilds: request.body.guild } }, { new: true });
     return reply.send(updated.toObject());
   });
 
@@ -67,10 +67,10 @@ export default function(fastify, opts, done) {
   fastify.put('/:user/roles', { schema: schemas.roles.put }, async (request, reply) => {
     if (!request.access(u => u.roles.includes('observer'))) return reply.code(403).send();
     if (['owner', 'advisor', 'voter'].includes(request.body.role)) return reply.code(400).send(new Error('that role may not be assigned through this endpoint'));
-    const doc = await fastify.db.users.updateOne(
+    const doc = await fastify.db.users.findOneAndUpdate(
       { id: request.params.user },
       { $addToSet: { roles: request.body.role } },
-      { upsert: true }
+      { upsert: true, new: true }
     );
     return reply.send(doc.toObject());
   });
@@ -84,7 +84,7 @@ export default function(fastify, opts, done) {
     );
     const doc = await fastify.db.users.findOne({ id: request.params.user });
     if (!doc) return reply.code(204).send();
-    const updated = await doc.updateOne({ $pull: { roles: request.body.role } });
+    const updated = await fastify.db.users.findByIdAndUpdate(doc._id, { $pull: { roles: request.body.role } }, { new: true });
     return reply.send(updated.toObject());
   });
 
