@@ -59,7 +59,7 @@ export default function(fastify, opts, done) {
     ] })) return reply.code(409).send();
     const doc = await fastify.db.users.findOne({ id: request.params.user });
     if (!doc) return reply.code(204).send();
-    const updated = await doc.findByIdAndUpdate(doc._id, { $pull: { guilds: request.body.guild } }, { new: true });
+    const updated = await fastify.db.users.findByIdAndUpdate(doc._id, { $pull: { guilds: request.body.guild } }, { new: true });
     return reply.send(updated.toObject());
   });
 
