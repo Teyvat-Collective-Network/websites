@@ -74,11 +74,11 @@ export default {
 
   form(form) {
     return check.type(form, 'object')
-      && (!form.id || check.type(form.id, 'string'))
-      && (!form.name || check.type(form.name, 'string'))
-      && (!form.description || check.type(form.description, 'string'))
-      && (!form.interactions || check.type(form.interactions, 'string'))
-      && (!form.flags || check.type(form.flags, 'number'))
+      && (!form.id            || check.type(form.id, 'string'))
+      && (!form.name          || check.type(form.name, 'string'))
+      && (!form.description   || check.type(form.description, 'string'))
+      && (!form.interactions  || check.type(form.interactions, 'string'))
+      && (!form.flags         || check.type(form.flags, 'number'))
   },
 
   formBody(body) {

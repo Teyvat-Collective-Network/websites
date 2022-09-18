@@ -16,7 +16,7 @@ export default function(fastify, opts, done) {
 
     for (const role of ['owner', 'advisor', 'voter']) {
       if (before[role] === after[role]) continue;
-      await fastify.db.users.updateOne(
+      after[role] && await fastify.db.users.updateOne(
         { id: after[role] },
         { $addToSet: { roles: role, guilds: before.id } },
         { upsert: true }
