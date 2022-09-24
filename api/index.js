@@ -2,6 +2,7 @@ import Database from './db/index.js';
 import JWT from './lib/jwt.js';
 import Fastify from 'fastify';
 import cookie from '@fastify/cookie';
+import cors from '@fastify/cors';
 import 'dotenv/config';
 
 import auth from './routes/auth.js';
@@ -31,7 +32,7 @@ fastify.decorateRequest('access', async function (f) {
 });
 
 fastify.addHook('preSerialization', async function removeMongoStuff(request, reply, payload) {
-  if (Array.isArray(payload)) return Promise.all(payload.map(item => removeMongoStuff(null, null, item)));
+  if (Array.isArray(payload)) return Promise.all(payload.map(item => removeMongoStuff(request, reply, item)));
   
   if (typeof payload === 'object') {
     const copy = { ...payload };
@@ -48,6 +49,7 @@ fastify.get('/', async (request, reply) => {
 });
 
 fastify.register(cookie);
+fastify.register(cors);
 fastify.register(auth, { prefix: '/auth' });
 fastify.register(guilds, { prefix: '/guilds' });
 fastify.register(users, { prefix: '/users' });
