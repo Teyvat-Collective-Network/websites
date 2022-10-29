@@ -12,7 +12,7 @@ async function partners() {
     <div class="partner">
       <img src="${getImage(guild.character)}" height="128px" width="128px">
       <h3>${guild.name}</h3>
-      <a class="button" href="https://discord.gg/${partner.invite}" target="_blank">Join</a>
+      <a class="button" href="https://discord.gg/${guild.invite}" target="_blank">Join</a>
     </div>
   `;
 
