@@ -1,0 +1,22 @@
+{
+  "name": "www",
+  "version": "2.0.0-dev",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx rollup -c && pug views/index.pug public/index.html"
+  },
+  "dependencies": {
+    "@fastify/static": "^6.5.0",
+    "dotenv": "^16.0.3",
+    "fastify": "^4.9.2",
+    "fzy.js": "^0.4.1",
+    "stage0": "^0.0.25"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-terser": "^0.1.0",
+    "rollup": "^3.2.3"
+  }
+}

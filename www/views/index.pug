@@ -1,0 +1,60 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    
+    title Teyvat Collective Network
+
+    link(rel='preconnect' href='https://fonts.googleapis.com')
+    link(rel='preconnect' href='https://fonts.gstatic.com' crossorigin)
+    link(href='https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap' rel='stylesheet')
+    script(src='https://kit.fontawesome.com/d649462fb3.js' crossorigin='anonymous')
+
+    link(rel='icon' type='image/png' href='assets/logo.png')
+    link(rel='stylesheet' href='styles/style.css')
+    link(rel='stylesheet' href='styles/light.css' id='themelink')
+    link(rel='stylesheet' href='dist/bundle.css')
+    
+    meta(property='og:title' content='Teyvat Collective Network')
+    meta(name='theme-color' content='#207868')
+
+    script(src='gallery.js') 
+    script(defer src='build/bundle.js')
+  
+  body
+    header
+      .brand
+        img(src='assets/logo.png' alt='TCN logo' height='128px' width='128px')
+        h1 Teyvat Collective Network
+      .links
+        .link(onclick='gallery.set(0)') Home
+        .link(onclick='gallery.set(1)') Partners
+        a.button(href='https://docs.google.com/forms/d/1BtV0mZvS9LX46rIhH-hVg1X8payfcswEfoHpeIejXl0' target='_blank') Apply Now
+    
+    script.
+      const gallery = new Gallery();
+      window.addEventListener('load', () => gallery.update('main > .tab'));
+    main
+      .tab
+        .intro
+          .light.block: h1 Welcome to the Teyvat Collective Network
+          .mid.block: h2 The mission of the TCN is to unite all mains servers across Teyvat and provide support and promote collaboration between partners.
+        .portal
+          .light.block
+            h4 The TCN is a network of over 40 Discord servers, each dedicated to a playable character from the game &ldquo;Genshin Impact&rdquo;.
+            a.button(onclick='gallery.set(1)') Our Partners
+          .light.block
+            h4 Do you own a Discord server dedicated to a playable Genshin Impact character, and want to join the TCN? Apply here:
+            a.button(href='https://docs.google.com/forms/d/1BtV0mZvS9LX46rIhH-hVg1X8payfcswEfoHpeIejXl0' target='_blank') Apply to Join
+      
+      .tab.partners
+        h1 Our Partners
+        #partners
+
+    footer
+      p.
+        &copy; 2022
+        #[a(href='https://github.com/msbukkuri') Swiftfyre],
+        #[a(href='https://github.com/AroLeaf') AroLeaf]
+      label#themeswitch
