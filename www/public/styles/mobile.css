@@ -1,0 +1,45 @@
+body {
+  padding: 0px 32px;
+}
+
+h1,h2 { font-size: 24px; }
+h3,h4 { font-size: 20px; }
+
+header {
+  grid-template-columns: 1fr;
+}
+
+header .brand {
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
+}
+
+header .links {
+  gap: 32px 64px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.intro {
+  grid-template-columns: 1fr;
+}
+
+.intro .block {
+  padding: 32px;
+}
+
+.portal {
+  grid-template-columns: 1fr;
+}
+
+.partners input {
+  max-width: 100%;
+  position: unset;
+  margin-top: 16px;
+}
+
+.partners .list {
+  grid-template-columns: 1fr;
+}

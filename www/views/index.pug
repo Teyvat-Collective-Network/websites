@@ -11,8 +11,9 @@ html(lang='en')
     link(href='https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap' rel='stylesheet')
     script(src='https://kit.fontawesome.com/d649462fb3.js' crossorigin='anonymous')
 
-    link(rel='icon' type='image/png' href='assets/logo.png')
+    link(rel='icon' type='image/png' href='assets/favicon.png')
     link(rel='stylesheet' href='styles/style.css')
+    link(rel='stylesheet' href='styles/mobile.css' media='screen and (max-width: 540px)')
     link(rel='stylesheet' href='styles/dark.css' id='themelink')
     
     meta(property='og:title' content='Teyvat Collective Network')
@@ -24,16 +25,13 @@ html(lang='en')
   body
     header
       .brand
-        img(src='assets/logo.png' alt='TCN logo' height='128px' width='128px')
+        img(src='assets/logo.png' alt='TCN logo' height='128px' width='128px' loading='lazy')
         h1 Teyvat Collective Network
       .links
         .link(onclick='gallery.set(0)') Home
         .link(onclick='gallery.set(1)') Partners
         a.button(href='https://docs.google.com/forms/d/1BtV0mZvS9LX46rIhH-hVg1X8payfcswEfoHpeIejXl0' target='_blank') Apply Now
-    
-    script.
-      const gallery = new Gallery();
-      window.addEventListener('load', () => gallery.update('main > .tab'));
+
     main
       .tab
         .intro

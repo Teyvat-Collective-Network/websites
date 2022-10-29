@@ -1,4 +1,4 @@
-class Gallery {
+export default class Gallery {
   constructor(query) {
     if (query) this.update(query);
   }

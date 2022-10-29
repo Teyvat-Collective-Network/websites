@@ -1,6 +1,8 @@
 import h from 'stage0';
-import images from './images.js';
+import { getImage } from './images.js';
+import Gallery from './gallery.js';
 import * as fzy from 'fzy.js';
+
 const $ = (...args) => document.querySelector(...args);
 
 async function partners() {
@@ -8,7 +10,7 @@ async function partners() {
 
   const partner = guild => /* html */`
     <div class="partner">
-      <img src="${images[guild.character]}" height="128px" width="128px">
+      <img src="${getImage(guild.character)}" height="128px" width="128px">
       <h3>${guild.name}</h3>
       <a class="button" href="https://discord.gg/${partner.invite}" target="_blank">Join</a>
     </div>
@@ -82,3 +84,5 @@ function themeswitch() {
 
 partners().then(root => $('#partners').appendChild(root));
 $('#themeswitch').appendChild(themeswitch());
+
+window.gallery = new Gallery('main > .tab');
