@@ -11,6 +11,6 @@ export function getImage(name) {
     traveler: mhy`PlayerBoy`,
     yanfei: mhy`Feiyan`,
     layla: 'https://i.imgur.com/tK8PdWF.png',
-    alhaitham: 'https://i.imgur.com/cQTYrEJ.png',
+    alhaitham: 'https://i.imgur.com/a7vHscr.png',
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
 }
