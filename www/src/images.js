@@ -9,5 +9,8 @@ export function getImage(name) {
     raiden: mhy`Shougun`,
     thoma: mhy`Tohma`,
     traveler: mhy`PlayerBoy`,
+    yanfei: mhy`Feiyan`,
+    layla: 'https://i.imgur.com/tK8PdWF.png',
+    alhaitham: 'https://i.imgur.com/cQTYrEJ.png',
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
 }
