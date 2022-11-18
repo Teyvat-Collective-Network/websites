@@ -59,6 +59,7 @@ export default function(fastify, opts, done) {
     const doc = await fastify.db.guilds.findOne({ id: request.params.guild });
     if (!doc) return reply.code(404).send();
     await doc.deleteOne();
+    await fastify.db.users.updateMany({ guilds: request.params.guild }, { $pull: { guilds: request.params.guild } });
     await updateRoles(doc, false);
     return reply.send(doc.toObject());
   });
