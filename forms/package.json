@@ -1,31 +1,21 @@
 {
-  "name": "forms",
-  "version": "2.0.0-dev",
+  "name": "api",
+  "version": "1.0.0-dev",
   "private": true,
   "type": "module",
-  "main": "backend/index.js",
+  "main": "index.js",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
     "start": "node ."
-  },
-  "devDependencies": {
-    "@rollup/plugin-commonjs": "^17.1.0",
-    "@rollup/plugin-node-resolve": "^11.2.1",
-    "rollup": "^2.75.7",
-    "rollup-plugin-css-only": "^3.1.0",
-    "rollup-plugin-livereload": "^2.0.5",
-    "rollup-plugin-svelte": "^7.1.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "svelte": "^3.48.0"
   },
   "dependencies": {
     "@fastify/static": "^6.4.0",
     "dotenv": "^16.0.1",
-    "fastify": "^4.2.0",
-    "fzy.js": "^0.4.1",
-    "mongoose": "^6.4.4",
-    "sortablejs": "^1.15.0",
-    "svelte-autosize": "^1.0.1"
+    "fastify": "^4.4.0",
+    "mongoose": "^6.4.4"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-terser": "^0.1.0",
+    "rollup": "^3.2.3"
   }
 }

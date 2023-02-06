@@ -35,5 +35,10 @@ export default function(fastify, opts, done) {
     return reply.code(user ? 200 : 401).send(user);
   });
 
+  fastify.get('/logout', async (request, reply) => {
+    reply.clearCookie('token', { sameSite: 'lax', domain: process.env.COOKIE_DOMAIN });
+    return reply.redirect(request.query.redirect || '/');
+  });
+
   done();
 }
