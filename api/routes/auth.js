@@ -20,7 +20,7 @@ export default function(fastify, opts, done) {
 
     const jwt = fastify.jwt.sign({ id: user.id });
 
-    reply.setCookie('token', jwt, { sameSite: 'lax', domain: process.env.COOKIE_DOMAIN });
+    reply.setCookie('token', jwt, { sameSite: 'lax', domain: process.env.COOKIE_DOMAIN, expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) });
     return reply.redirect(request.query.state || '/');
   });
 
