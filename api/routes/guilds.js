@@ -45,7 +45,7 @@ export default function(fastify, opts, done) {
     return reply.send(doc.toObject());
   });
 
-  fastify.patch('/:guild', { schema: schemas.get }, async (request, reply) => {
+  fastify.patch('/:guild', { schema: schemas.patch }, async (request, reply) => {
     if (!request.access(u => u.roles.includes('observer'))) return reply.code(403).send();
     const doc = await fastify.db.guilds.findOne({ id: request.params.guild });
     if (!doc) return reply.code(404).send();
