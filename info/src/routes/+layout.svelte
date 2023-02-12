@@ -1,3 +1,8 @@
+<script>
+    import Menu from "../lib/Menu.svelte";
+    import Splash from "../lib/Splash.svelte";
+</script>
+
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -24,10 +29,43 @@
         />
         <link rel="stylesheet" type="text/css" href="/styles/stylesheet.css" />
 
+        <style lang="scss" global>
+            @keyframes fade-from-left {
+                from {
+                    opacity: 0%;
+                    transform: translateX(-2%);
+                }
+
+                to {
+                    opacity: 100%;
+                    transform: translateY(0);
+                }
+            }
+
+            @for $index from 1 to 34 {
+                #main > :nth-child(#{$index}) {
+                    animation: fade-from-left 500ms calc(25ms * $index) backwards;
+                }
+            }
+        </style>
+
         <title>TCN Info</title>
     </head>
 
     <body>
+        <Menu />
+        <Splash />
         <slot />
+        <div style="height: calc(min(15vh, 12vw))" />
+        <div id="footer">
+            <div class="container">&copy; 2023 Teyvat Collective Network</div>
+        </div>
     </body>
 </html>
+
+<style lang="scss">
+    #footer {
+        padding: 1em 0;
+        background-color: var(--darker);
+    }
+</style>
