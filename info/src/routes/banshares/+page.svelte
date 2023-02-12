@@ -1,6 +1,7 @@
 <script lang="ts">
     import Callout from "../../lib/Callout.svelte";
     import Card from "../../lib/Card.svelte";
+    import Image from "../../lib/Image.svelte";
     import Linkable from "../../lib/Linkable.svelte";
     import Navigation from "../../lib/Navigation.svelte";
 </script>
@@ -52,11 +53,7 @@
                     button, it will log the action in your logging channel if you set it up. Here's
                     what the log message looks like:
                 </p>
-                <img
-                    src="https://i.imgur.com/WgKPMrs.png"
-                    alt="example banshare bot log"
-                    width="100%"
-                />
+                <Image src="https://i.imgur.com/WgKPMrs.png" alt="example banshare bot log" />
                 <p>
                     This is probably most appropriate for whatever channel your mods use commands in
                     instead of your mod action audit log, but you can put it wherever you want.
@@ -77,28 +74,30 @@
             </Callout>
             <ol>
                 <li>
-                    Use <b>/banshare post here</b> in your banshare channel. To disable banshares,
-                    use <b>/banshare post none</b>.
+                    Use <code>/banshare post here</code> in your banshare channel. To disable
+                    banshares, use <code>/banshare post none</code>.
                 </li>
                 <li>
-                    Use <b>/banshare log here</b> in your logging channel (optional). To disable
-                    this, use <b>/banshare log none</b>.
+                    Use <code>/banshare log here</code> in your logging channel (optional). To
+                    disable this, use <code>/banshare log none</code>.
                 </li>
                 <li>
                     The ban button is enabled by default and allows members with the <b
                         >Ban Members</b
                     >
                     permission to execute the banshare more easily. If you want to disable this, use
-                    <b>/banshare ban-button</b> to turn it off (or back on).
+                    <code>/banshare ban-button</code> to turn it off (or back on).
                 </li>
                 <li>
                     To enable auto-banning (the banshare will be executed on its own if it meets the
-                    threshold), use <b>/banshare autoban</b> (see below for what the severities mean).
+                    threshold), use <code>/banshare autoban</code> (see below for what the severities
+                    mean).
                 </li>
                 <li>
-                    If you use <b>Daedalus</b>, you can use <b>/banshare daedalus-integration</b> to
-                    enable/disable the integration, which allows the banshare bot to automatically add
-                    auto-bans and button bans to the targets' user history.
+                    If you use <b>Daedalus</b>, you can use
+                    <code>/banshare daedalus-integration</code> to enable/disable the integration, which
+                    allows the banshare bot to automatically add auto-bans and button bans to the targets'
+                    user history.
                 </li>
             </ol>
             <Linkable e="h2" id="severity" value="Severity" />

@@ -78,7 +78,7 @@
         <a href="/banshares" class="t2">Banshares</a>
         <a href="/global" class="t2">Global Chat</a>
         <a href="/staff-link" class="t2">Staff Link</a>
-        <a href="/bots" class="t2">Other Bots</a>
+        <a href="/other-bots" class="t2">Other Bots</a>
         <a href="/discord" class="t1">Discord Help</a>
     </div>
 </div>

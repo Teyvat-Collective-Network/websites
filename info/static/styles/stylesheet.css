@@ -130,3 +130,21 @@ a {
     padding: 1em;
     border-radius: 5px;
 }
+
+pre,
+code {
+    background-color: #ffffff11;
+    border-radius: 5px;
+}
+
+pre {
+    padding: 0.4em 0.8em;
+}
+
+code {
+    padding: 0.4em;
+}
+
+code.plain {
+    background-color: unset;
+}

@@ -15,17 +15,17 @@
                 on it.
             </p>
             <p>
-                To add a staff member manually, use <b>/staff add</b> (and to remove them,
-                <b>/staff remove</b>).
+                To add a staff member manually, use <code>/staff add</code> (and to remove them,
+                <code>/staff remove</code>).
             </p>
             <p>
-                To list a server's staff, use <b>/staff members</b>. Conversely, use
-                <b>/staff list</b> to list a staff's servers.
+                To list a server's staff, use <code>/staff members</code>. Conversely, use
+                <code>/staff list</code> to list a staff's servers.
             </p>
             <p>
-                To automatically sync staff, use <b>/autostaff add</b> to add a staff role,
-                <b>/autostaff remove</b>
-                to remove a staff role, and <b>/autostaff list</b> to list registered staff roles. Users
+                To automatically sync staff, use <code>/autostaff add</code> to add a staff role,
+                <code>/autostaff remove</code>
+                to remove a staff role, and <code>/autostaff list</code> to list registered staff roles. Users
                 with any of these roles will automatically be considered staff.
             </p>
             <p>

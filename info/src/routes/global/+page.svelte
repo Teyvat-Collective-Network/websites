@@ -71,7 +71,7 @@
                 </p>
             </Callout>
             <p>
-                Once your channel permissions are set up, use <b>/connect</b> and select the appropraite
+                Once your channel permissions are set up, use <code>/connect</code> and select the appropraite
                 global channel. If you see any channels not mentioned above, do not connect to it unless
                 you were given permission to. Global chat may be used by servers for things like event
                 channels, so don't disrupt their channels.
@@ -96,8 +96,8 @@
             </Callout>
             <Linkable e="h3" id="disconnecting" value="Disconnecting" />
             <p>
-                To disconnect, use <b>/disconnect</b> and the global channel will immediately stop relaying
-                messages both ways.
+                To disconnect, use <code>/disconnect</code> and the global channel will immediately stop
+                relaying messages both ways.
             </p>
             <Linkable e="h2" id="moderation" value="Moderation" />
             <Linkable e="h3" id="deleting" value="Deleting Messages" />
@@ -107,15 +107,15 @@
                 <b>Read Message History</b>, and <b>Manage Messages</b> in all of your global channels.
             </p>
             <p>
-                If purging didn't work, you can use <b>/purge</b> with the message URL to make the bot
-                try again.
+                If purging didn't work, you can use <code>/purge</code> with the message URL to make
+                the bot try again.
             </p>
             <Linkable e="h3" id="banning" value="Banning" />
             <p>
-                Use <b>/ban</b> to ban a user from global chat. This makes the bot stop relaying
-                messages from that user in the current global channel across all servers. You must
-                have <b>Ban Members</b> but no hierarchy check is performed. Use of this command is logged,
-                so use it responsibly.
+                Use <code>/ban</code> to ban a user from global chat. This makes the bot stop
+                relaying messages from that user in the current global channel across all servers.
+                You must have <b>Ban Members</b> but no hierarchy check is performed. Use of this command
+                is logged, so use it responsibly.
             </p>
             <p>
                 Note that the ban is per-channel, so make sure you run it in the right channel. You
@@ -124,12 +124,13 @@
                 server's admins/owner and/or an observer.
             </p>
             <p>
-                To get the ID of the author of a message, right click the message and select <b
-                    >Apps &gt; user</b
+                To get the ID of the author of a message, right click the message and select <code
+                    >Apps &gt; user</code
                 >
-                or run <b>/user</b> with the message URL (the URL of any copy of the message will work).
+                or run <code>/user</code> with the message URL (the URL of any copy of the message will
+                work).
             </p>
-            <p>To unban a user, just use <b>/unban</b>.</p>
+            <p>To unban a user, just use <code>/unban</code>.</p>
             <Linkable e="h3" id="panic-mode" value="Panic Mode" />
             <Callout style="red">
                 <p>
@@ -148,32 +149,33 @@
             </p>
             <Linkable e="h3" id="for-observers" value="For Observers" />
             <ul>
-                <li><b>/globals list</b> - show a list of existing global channels</li>
+                <li><code>/globals list</code> - show a list of existing global channels</li>
                 <li>
-                    <b>/globals remove</b> - delete a global channel (do <b>not</b> do this on channels
-                    unless it is agreed upon or it was a temporary channel that is no longer needed)
+                    <code>/globals remove</code> - delete a global channel (do <b>not</b> do this on
+                    channels unless it is agreed upon or it was a temporary channel that is no longer
+                    needed)
                 </li>
                 <li>
-                    <b>/globals add</b> - create a new global channel with a name (required) and log
-                    channel (optional)
+                    <code>/globals add</code> - create a new global channel with a name (required) and
+                    log channel (optional)
                 </li>
                 <li>
-                    <b>/globals logchannel</b> - change the log channel of a global channel
+                    <code>/globals logchannel</code> - change the log channel of a global channel
                 </li>
             </ul>
             <Linkable e="h3" id="other-commands" value="Other Commands" />
             <ul>
                 <li>
-                    <b>/faq</b> - Show some information about the bot. If someone asks what global
-                    chat is or why everyone is a bot (fairly common), use this with the
+                    <code>/faq</code> - Show some information about the bot. If someone asks what
+                    global chat is or why everyone is a bot (fairly common), use this with the
                     <b>public: true</b> option to show the info page.
                 </li>
                 <li>
-                    <b>/help</b> - Show one of three help pages:
+                    <code>/help</code> - Show one of three help pages:
                     <ul>
                         <li>
                             <b>mods</b> - Information relevant to moderators such as how to
-                            ban/unban users and <b>/panic</b>.
+                            ban/unban users and <code>/panic</code>.
                         </li>
                         <li>
                             <b>admins</b> - Information for server admins such as how to connect/disconnect
@@ -181,29 +183,29 @@
                         </li>
                         <li>
                             <b>execs</b> - Information for observers such as how to create/delete
-                            global channels and <b>/unpanic</b>.
+                            global channels and <code>/unpanic</code>.
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <b>/nickname</b> - Set your global nickname. Normally, your display name (nickname,
+                    <code>/nickname</code> - Set your global nickname. Normally, your display name (nickname,
                     or if none, username) will be shown to other servers. If you set this, it will override
                     your display name in all global channels from all servers.
                 </li>
                 <li>
-                    <b>/ping</b> - If you think the bot is unresponsive, use this command to check its
-                    ping (response time).
+                    <code>/ping</code> - If you think the bot is unresponsive, use this command to check
+                    its ping (response time).
                 </li>
                 <li>
-                    <b>/rules</b> - Show the global chat rules. Individual server rules still apply
-                    and moderation may be done by individual server staff, but a baseline set of
-                    rules exists. Use <b>public: true</b> to show it publicly in the channel (it is relayed
-                    to other servers).
+                    <code>/rules</code> - Show the global chat rules. Individual server rules still
+                    apply and moderation may be done by individual server staff, but a baseline set
+                    of rules exists. Use <b>public: true</b> to show it publicly in the channel (it is
+                    relayed to other servers).
                 </li>
                 <li>
-                    <b>/user</b> - Call this with a message link to get the ID of the author of the
-                    original message. You can also right-click the message and select
-                    <b>Apps &gt; user</b> but this sometimes doesn't work due to Discord issues.
+                    <code>/user</code> - Call this with a message link to get the ID of the author
+                    of the original message. You can also right-click the message and select
+                    <code>Apps &gt; user</code> but this sometimes doesn't work due to Discord issues.
                 </li>
             </ul>
         </div>

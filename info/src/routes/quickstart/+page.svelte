@@ -75,7 +75,7 @@
             <Linkable e="h3" id="staff-link" value="Staff Link" />
             <p>
                 You can add your staff to the API (which gives them the role in the TCN Hub and
-                allows them to publish banshares) using <b>/staff add</b> on the TCN bot. To make
+                allows them to publish banshares) using <code>/staff add</code> on the TCN bot. To make
                 things easier, you can also link roles to automatically add and remove staff. See
                 <a href="/staff-link">this page</a> for how to use this feature.
             </p>
@@ -87,53 +87,17 @@
                 >. Here is a list of them:
             </p>
             <Callout style="green">
-                <p>These bot are not TCN-exclusive, so feel free to use them in other servers!</p>
+                <p>These bots are not TCN-exclusive, so feel free to use them in other servers!</p>
             </Callout>
-            <Linkable e="h4" id="ruin-hunter" value="Ruin Hunter" />
-            <p>
-                Made by <b>Leaf#1950</b>, this is an anti-raid bot that detects large influxes of
-                new accounts and bans them to keep your server safe from raids. You can also turn
-                this on and off easily (such as if you are expecting a higher rate of incoming
-                users) and adjust the thresholds.
-            </p>
-            <Linkable e="h4" id="banhammer" value="Banhammer" />
-            <p>
-                This is a utility bot dedicated to massbanning by
-                <b>HyperNeutrino#1759</b>. It allows you to ban many users at once from an online
-                file of IDs such as a Pastebin raw file, which is useful if the number of users is
-                very high and copy-pasting them into chat would take many messages.
-            </p>
-            <Callout style="green">
-                <p>
-                    This feature also exists on <b>Daedalus</b>, which also includes many other
-                    features, and is much more comprehensive there.
-                </p>
-            </Callout>
-            <Linkable e="h4" id="daedalus" value="Daedalus" />
-            <p>
-                Daedalus is a modern, general-purpose bot containing a wide array of features for
-                all your server management needs, featuring full slash-command support, buttons and
-                dropdowns for a smooth experience, modals, high customizability, transparent
-                permissions, etc. It is developed by
-                <b>HyperNeutrino#1759</b>.
-            </p>
-            <Linkable e="h4" id="genshin-wizard" value="Genshin Wizard" />
-            <p>
-                <b>Genshin Wizard</b> - The TCN is officially partnered with Genshin Wizard, a
-                multi-purpose Genshin Impact bot with a comprehensive set of features allowing you
-                to view your in-game stats, flex your builds, view build guides and hundreds of
-                high-quality infographics, etc. To get more information or for setup, please contact
-                the support team on their
-                <a href="https://discord.gg/BTT5Zr7Dmp">Discord server</a> and open a ticket. Mention
-                that you are part of the TCN and would like help setting up.
-            </p>
-            <Callout style="info">
-                <p>
-                    This bot is not developed by a TCN council member, it is just a partner of the
-                    TCN. It is not exclusive to us and frequently partners with other servers as
-                    well.
-                </p>
-            </Callout>
+            <ul>
+                <li>
+                    <b>Genshin Wizard</b> [hatter#6666]
+                    <span style="color: #78f">Official Partner</span> - A Genshin Impact utility bot.
+                </li>
+                <li><b>Ruin Hunter</b> [Leaf#1950] - A configurable anti-raid bot.</li>
+                <li><b>Banhammer</b> [HyperNeutrino#1759] - A utility bot for massbanning.</li>
+                <li><b>Daedalus</b> [HyperNeutrino#1759] - A general-purpose bot.</li>
+            </ul>
         </div>
     </Navigation>
 </div>

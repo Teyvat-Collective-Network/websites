@@ -21,7 +21,7 @@
                         >.
                     </li>
                     <li>
-                        Use <b>/partners</b> on the TCN Global Chat bot.
+                        Use <code>/partners</code> on the TCN Global Chat bot.
                     </li>
                     <li>Set up autosync (instructions below the requirements).</li>
                 </ul>
@@ -111,23 +111,23 @@
                     <ul>
                         <li>
                             <b>Quick Setup:</b> Right click your current partner embed and select
-                            <b>Apps &gt; Set Target</b>. If this doesn't work, it will tell you why.
-                            Then, call <b>/autosync update</b> to call in an update.
+                            <code>Apps &gt; Set Target</code>. If this doesn't work, it will tell
+                            you why. Then, call <code>/autosync update</code> to call in an update.
                         </li>
-                        <li>Use <b>/autosync webhook set</b> with the webhook's URL.</li>
+                        <li>Use <code>/autosync webhook set</code> with the webhook's URL.</li>
                         <li>
-                            Use <b>/autosync message set</b> with the message URL that points to the
-                            current embed (if you don't have one, you can skip this step).
+                            Use <code>/autosync message set</code> with the message URL that points to
+                            the current embed (if you don't have one, you can skip this step).
                         </li>
                     </ul>
                 </li>
                 <li>
                     If you would like the message to be deleted and reposted each time instead of
-                    edited, use <b>/autosync mode repost</b>. To switch it back to edit mode
-                    (default), use <b>/autosync mode edit</b>.
+                    edited, use <code>/autosync mode repost</code>. To switch it back to edit mode
+                    (default), use <code>/autosync mode edit</code>.
                 </li>
                 <li>
-                    If your embed is out of date, use <b>/autosync update</b> to trigger an update.
+                    If your embed is out of date, use <code>/autosync update</code> to trigger an update.
                 </li>
             </ol>
             <p>

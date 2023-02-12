@@ -99,7 +99,7 @@
             <ul>
                 <li>
                     <u><b>announcements</b></u> - {@html full
-                        ? "Here, you can find news and updates for the network or the HQ server. You can pick up the ping role in <b>#react-roles</b> to be notified. We will ping <b>@everyone</b> when the partner embed changes to make sure everyone is aware of updates."
+                        ? "Here, you can find news and updates for the network or the HQ server. You can pick up the ping role in <b>#react-roles</b> to be notified. We will ping <code>@everyone</code> when the partner embed changes to make sure everyone is aware of updates."
                         : "important HQ news and announcements"}
                 </li>
                 <li>
@@ -122,8 +122,8 @@
                 </li>
                 <li>
                     <u><b>vote-suggestions</b></u> - {@html full
-                        ? "Here is where your suggestions can be posted. Some things may be implemented directly following approval of the suggestion; specifically, changes that do not require formal votes such as adding new channels to HQ. Other things may go to a formal vote instead. All non-standard votes must be suggested 24 hours before the vote opens and you do not need to use the suggestion system; you can bring it up in <b>#official-business</b> or <b>#tcn-discussion</b>, but this is an easy way to gauge the council's consensus. Use <b>/suggest</b> in <b>#bot-commands</b>."
-                        : "use <b>/suggest</b> in <b>bot-commands</b> to post a suggestion"}
+                        ? "Here is where your suggestions can be posted. Some things may be implemented directly following approval of the suggestion; specifically, changes that do not require formal votes such as adding new channels to HQ. Other things may go to a formal vote instead. All non-standard votes must be suggested 24 hours before the vote opens and you do not need to use the suggestion system; you can bring it up in <b>#official-business</b> or <b>#tcn-discussion</b>, but this is an easy way to gauge the council's consensus. Use <code>/suggest</code> in <b>#bot-commands</b>."
+                        : "use <code>/suggest</code> in <b>bot-commands</b> to post a suggestion"}
                 </li>
                 <li>
                     <u><b>elections</b></u> - {@html full

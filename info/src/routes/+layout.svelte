@@ -42,7 +42,7 @@
                 }
             }
 
-            @for $index from 1 to 34 {
+            @for $index from 1 to 40 {
                 #main > :nth-child(#{$index}) {
                     animation: fade-from-left 500ms calc(25ms * $index) backwards;
                 }
