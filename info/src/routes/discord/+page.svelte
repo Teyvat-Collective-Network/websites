@@ -5,7 +5,7 @@
 </script>
 
 <div class="container">
-    <Navigation last={["/quickstart", "Quickstart"]}>
+    <Navigation last={["/quickstart", "Quickstart"]} next={["/contact", "Contact Us"]}>
         <div id="main">
             <h1>Discord Help</h1>
             <Linkable e="h2" id="permissions" value="Discord Permissions" />

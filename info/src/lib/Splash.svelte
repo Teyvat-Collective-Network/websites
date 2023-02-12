@@ -4,7 +4,7 @@
 
 <style lang="scss">
     div {
-        background-image: url(https://i.imgur.com/DXyVcRR.jpeg);
+        background-image: url(https://i.imgur.com/DXyVcRR.png);
         background-position: center;
         background-size: cover;
         height: calc(max(25vh, 20vw));

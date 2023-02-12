@@ -30,6 +30,10 @@
                     <p>Promote and uphold the TCN's reputation, stability, and future.</p>
                 </Card>
             </div>
+            <p>
+                Servers and council members are expected to uphold these values and vote in line
+                with what they believe would achieve these goals.
+            </p>
             <Linkable e="h2" id="membership" value="Membership" />
             <p>
                 Each individual may only represent one TCN server, so no user may own or advise
@@ -133,6 +137,46 @@
                     </ul>
                 </li>
             </ul>
+            <Linkable e="h2" id="observer-committee" value="Observer Committee" />
+            <p>
+                Any council member may become an observer through <a href="/procedures#elections"
+                    >election</a
+                >. There may be no more than 8 observers at any time. Observers have a term length
+                of 6 months, after which they must be re-elected to continue their position.
+            </p>
+            <div class="cards">
+                <Card icon="visibility" title="Observation">
+                    <p>
+                        One of the primary observer duties is to observe applicant servers for
+                        induction. Read more about the observation process <a
+                            href="/procedures#observation-induction">here</a
+                        >.
+                    </p>
+                    <p>
+                        Observers do not have to carry out a particular quota of observations or any
+                        at all, as long as the team can handle all of the incoming applications.
+                    </p>
+                </Card>
+                <Card icon="construction" title="Administration">
+                    <p>
+                        Observers carry out server changes and decisions by the council including
+                        managing votes. They cannot make major decisions or change TCN rules; those
+                        must go through a vote.
+                    </p>
+                    <p>
+                        Observers can also perform other administrative tasks that they feel they
+                        can help with.
+                    </p>
+                </Card>
+                <Card icon="campaign" title="Representation">
+                    <p>
+                        Observers represent the network when dealing with external affairs. They
+                        speak on behalf of the TCN when taking actions as decided by vote. Observers
+                        are therefore also expected to act in line with the council's decisions.
+                        Their opinions do not represent that of the network or any of its servers.
+                    </p>
+                </Card>
+            </div>
             <Linkable e="h2" id="removal" value="Removal from the TCN" />
             <p>
                 Servers and council members may be removed from the TCN and HQ respectively for
@@ -270,6 +314,10 @@
                     observer for 14 days.
                 </li>
             </ul>
+            <Linkable e="h2" id="additional" value="Additional" />
+            <p>
+                All details in the <a href="/procedures">procedures page</a> are also enforced as rules.
+            </p>
             <Linkable e="h2" id="changes" value="Changes" />
             <p>These rules and guidelines may only be changed by agreement through a major vote.</p>
             <Linkable e="h3" id="changelog" value="Changelog" />
@@ -278,7 +326,8 @@
                     The rules and guidelines were rewritten to focus more on protecting the
                     integrity of the network, and technical aspects were moved to <a
                         href="/definitions-organization">Definitions &amp; Organization</a
-                    >.
+                    >
+                    and <a href="/procedures">Procedures</a>.
                 </li>
             </ul>
         </div>

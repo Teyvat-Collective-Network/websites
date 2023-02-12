@@ -80,6 +80,7 @@
         <a href="/staff-link" class="t2">Staff Link</a>
         <a href="/other-bots" class="t2">Other Bots</a>
         <a href="/discord" class="t1">Discord Help</a>
+        <a href="/contact" class="t1">Contact Us</a>
     </div>
 </div>
 
