@@ -17,8 +17,10 @@
                 > support article.
             </p>
             <Callout style="warn">
-                An important thing to know about permissions is that allow overrides always apply
-                over deny overrides, regardless of hierarchy.
+                <p>
+                    An important thing to know about permissions is that allow overrides always
+                    apply over deny overrides, regardless of hierarchy.
+                </p>
             </Callout>
             <p>
                 For a list of all permissions and what they do, visit <a
