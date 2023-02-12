@@ -10,7 +10,7 @@ export function getImage(name) {
     thoma: mhy`Tohma`,
     traveler: mhy`PlayerBoy`,
     yanfei: mhy`Feiyan`,
-    layla: 'https://i.imgur.com/tK8PdWF.png',
-    alhaitham: 'https://i.imgur.com/a7vHscr.png',
+    alhaitham: mhy`Alhatham`,
+    dehya: 'https://i.imgur.com/gT0hoki.png',
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
 }
