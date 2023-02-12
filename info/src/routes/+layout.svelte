@@ -11,7 +11,7 @@
         <meta name="author" content="TCN Dev Team" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <meta property="og:title" content="**Teyvat Collective Network** Information" />
+        <meta property="og:title" content="Teyvat Collective Network | Information" />
         <meta
             property="og:description"
             content="The Teyvat Collective Network is a network of over 40 high-quality Genshin Impact Discord servers, each dedicated to one character. Our mission is to unite mains servers across Teyvat, provide support, and promote collaboration."
