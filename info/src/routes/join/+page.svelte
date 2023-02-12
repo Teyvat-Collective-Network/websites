@@ -18,6 +18,14 @@
                 ensure servers meet our quality standards for a safe environment and provide
                 feedback on structure and organization.
             </p>
+            <p>
+                <b
+                    ><a
+                        href="https://docs.google.com/forms/d/1BtV0mZvS9LX46rIhH-hVg1X8payfcswEfoHpeIejXl0"
+                        >Apply Here!</a
+                    ></b
+                >
+            </p>
             <Linkable e="h2" id="observation-faq" value="Observation FAQ" />
             <p>Read more about the observation process <a href="/observation-faq">here</a>.</p>
             <Linkable e="h2" id="induction-process" value="Induction Process" />
