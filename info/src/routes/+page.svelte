@@ -113,16 +113,6 @@
                     </p>
                 </Card>
             </div>
-            <Linkable e="h3" id="where-to-start" value="Where to start?" />
-            <Callout style="info">
-                <p>If you haven't already, make sure to read the <a href="/rules">TCN rules</a>!</p>
-            </Callout>
-            <p>
-                You can just read through all of the pages at your own pace, but you may be
-                interested in following one of our organized workflows. Click a card to start one,
-                or click the menu button in the top left corner to navigate through these pages at
-                your own pace.
-            </p>
         </div>
     </Navigation>
 </div>
