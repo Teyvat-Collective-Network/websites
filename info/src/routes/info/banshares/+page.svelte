@@ -114,13 +114,17 @@
                     icon_color="var(--red-text)"
                     expandable
                 >
-                    Urgent banshares where the user should be immediately removed everywhere, e.g.
-                    illegal activity, raids, ongoing harassment, etc.
+                    <p>
+                        Urgent banshares where the user should be immediately removed everywhere,
+                        e.g. illegal activity, raids, ongoing harassment, etc.
+                    </p>
                 </Card>
                 <Card icon="remove" title="P1 (Medium)" icon_color="var(--yellow-text)" expandable>
-                    Banshares that aren't very urgent and largely routine cases like low-threat scam
-                    bots or more serious accusations like pedophiles/lolicons (that aren't currently
-                    actively harming or threatening harm against users).
+                    <p>
+                        Banshares that aren't very urgent and largely routine cases like low-threat
+                        scam bots or more serious accusations like pedophiles/lolicons (that aren't
+                        currently actively harming or threatening harm against users).
+                    </p>
                 </Card>
                 <Card
                     icon="keyboard_arrow_down"
@@ -128,9 +132,11 @@
                     icon_color="var(--blue-text)"
                     expandable
                 >
-                    Non-urgent banshares such as a user being problematic in just one server where
-                    it should be considered on an individual basis whether to ban or just keep
-                    watch.
+                    <p>
+                        Non-urgent banshares such as a user being problematic in just one server
+                        where it should be considered on an individual basis whether to ban or just
+                        keep watch.
+                    </p>
                 </Card>
             </div>
             <Linkable e="h2" id="submitting" value="Submitting" />
