@@ -2,60 +2,57 @@
     import { onMount } from "svelte";
     import Callout from "../../lib/Callout.svelte";
     import Linkable from "../../lib/Linkable.svelte";
-    import Navigation from "../../lib/Navigation.svelte";
 </script>
 
 <div class="container">
-    <Navigation last={["/discord", "Discord Help"]}>
-        <div id="main">
-            <h1>Contact Us</h1>
-            <Linkable e="h2" id="hub" value="TCN Hub" />
-            <p>
-                Join the TCN Hub to contact observers and other server staff and ask questions or
-                give feedback about the TCN!
-            </p>
-            <br />
-            <div id="invite">
-                <div id="banner" />
-                <img id="icon" src="/favicon.png" alt="icon" />
-                <b id="title">TCN Hub</b>
-                <a id="join" href="https://discord.gg/FG2wpbywSx">JOIN</a>
-            </div>
-            <Linkable e="h2" id="observers" value="Observers" />
-            {#await new Promise((r) => onMount(() => r(null))) then}
-                {#await fetch("/api/observers")}
-                    <p>Loading observers...</p>
-                {:then response}
-                    {#await response.json()}
-                        <p>Loading observers...</p>
-                    {:then [observers, error]}
-                        {#if error}
-                            <Callout style="red">
-                                <p>{error}</p>
-                            </Callout>
-                        {/if}
-
-                        {#if observers}
-                            <ul>
-                                {#each observers as observer}
-                                    <li>
-                                        <a href="https://discord.com/users/{observer.id}"
-                                            >{observer.tag}</a
-                                        >
-                                        (<code>{observer.id}</code>)
-                                    </li>
-                                {/each}
-                            </ul>
-                        {/if}
-                    {/await}
-                {:catch}
-                    <Callout style="red">
-                        <p>Fetching observers failed; please check your internet connection.</p>
-                    </Callout>
-                {/await}
-            {/await}
+    <div id="main">
+        <h1>Contact Us</h1>
+        <Linkable e="h2" id="hub" value="TCN Hub" />
+        <p>
+            Join the TCN Hub to contact observers and other server staff and ask questions or give
+            feedback about the TCN!
+        </p>
+        <br />
+        <div id="invite">
+            <div id="banner" />
+            <img id="icon" src="/favicon.png" alt="icon" />
+            <b id="title">TCN Hub</b>
+            <a id="join" href="https://discord.gg/FG2wpbywSx" class="button">JOIN</a>
         </div>
-    </Navigation>
+        <Linkable e="h2" id="observers" value="Observers" />
+        {#await new Promise((r) => onMount(() => r(null))) then}
+            {#await fetch("/api/observers")}
+                <p>Loading observers...</p>
+            {:then response}
+                {#await response.json()}
+                    <p>Loading observers...</p>
+                {:then [observers, error]}
+                    {#if error}
+                        <Callout style="red">
+                            <p>{error}</p>
+                        </Callout>
+                    {/if}
+
+                    {#if observers}
+                        <ul>
+                            {#each observers as observer}
+                                <li>
+                                    <a href="https://discord.com/users/{observer.id}"
+                                        >{observer.tag}</a
+                                    >
+                                    (<code>{observer.id}</code>)
+                                </li>
+                            {/each}
+                        </ul>
+                    {/if}
+                {/await}
+            {:catch}
+                <Callout style="red">
+                    <p>Fetching observers failed; please check your internet connection.</p>
+                </Callout>
+            {/await}
+        {/await}
+    </div>
 </div>
 
 <style lang="scss">
@@ -67,7 +64,7 @@
         gap: 1rem;
         border-radius: 5px;
         align-items: center;
-        background-color: rgb(var(--extra-dark-rgb), 50%);
+        background-color: rgb(var(--pure-rgb), 50%);
         width: min(100%, max(40%, 400px));
     }
 
@@ -95,10 +92,6 @@
 
     #join {
         grid-area: d;
-        background-color: var(--accent);
-        color: white;
-        padding: 0.25em 1em;
         margin: 0 1rem 1rem 0;
-        border-radius: 5px;
     }
 </style>

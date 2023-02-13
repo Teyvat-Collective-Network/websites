@@ -19,12 +19,15 @@
 
 <style lang="scss">
     nav {
-        background-color: var(--accent-darker);
+        background-color: var(--accent-less);
         padding: 0.25em 1em;
         border-radius: 5px;
 
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+    }
+    a {
+        color: var(--text-primary);
     }
 </style>

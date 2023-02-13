@@ -2,6 +2,8 @@
     import { page } from "$app/stores";
     import { onMount } from "svelte";
 
+    export let dark: boolean;
+
     let open: boolean = false;
     let href: string;
 
@@ -11,16 +13,17 @@
 
     onMount(() => {
         document
-            .querySelectorAll("#contents > a")
+            .querySelectorAll("#contents > a:not([href='javascript:void(0)'])")
             .forEach((e: any) => (e.onclick = () => setTimeout(close)));
         page.subscribe(
             (x) => (
                 (href = x.url.href),
                 document.querySelectorAll("#contents > a").forEach((e: any) => {
-                    e.style.backgroundColor = e.href === href ? "#00000044" : "";
+                    e.style.backgroundColor = e.href === href ? "#00000022" : "";
                 })
             )
         );
+
         doc = document;
     });
 
@@ -29,7 +32,9 @@
         (index = [...document.querySelectorAll("#contents > a")].findIndex(
             (e: any) => e.href === href
         ));
-    $: (doc?.querySelector(`#contents > a:nth-child(${index + 1})`) as any)?.focus();
+    $: (doc?.querySelectorAll("#contents > a:not(.hidden)")?.[index] as any)?.focus();
+
+    let info_open: boolean = false;
 </script>
 
 <svelte:window
@@ -41,7 +46,7 @@
         else if (open && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
             e.preventDefault();
 
-            const length = [...document.querySelectorAll("#contents > a")].length;
+            const length = [...document.querySelectorAll("#contents > a:not(.hidden)")].length;
 
             if (e.key === "ArrowUp") index = (index + length - 1) % length;
             else index = (index + 1) % length;
@@ -60,50 +65,92 @@
     <rect id="bot" x="10" y="80" width="80" height="10" />
 </svg>
 
+<div id="bar" />
+<div id="spacer" />
+
 <div id="sidebar" class={open ? "open" : ""}>
     <div id="contents">
+        <a
+            href={"javascript:void(0)"}
+            class="t1"
+            on:click={() => {
+                dark = !dark;
+                document.cookie = `mode=${dark ? "dark" : "light"};max-age=31536000;samesite=none`;
+            }}
+        >
+            <i class="material-icons">{dark ? "light_mode" : "dark_mode"}</i>
+            Switch to {dark ? "Light" : "Dark"} Mode
+        </a>
         <a href="/" class="t1">Home Page</a>
+        <a href="/about" class="t1">About Us</a>
+        <a href="/partners" class="t1">Partners</a>
         <a href="/featured" class="t1">Featured Content</a>
-        <a href="/rules" class="t1">Rules</a>
-        <a href="/definitions-organization" class="t1">Definitions &amp; Organization</a>
         <a href="/join" class="t1">Joining the TCN</a>
-        <a href="/observation-faq" class="t2">Observation FAQ</a>
-        <a href="/hq" class="t1">HQ</a>
-        <a href="/directory" class="t2">Directory</a>
-        <a href="/voting" class="t2">Voting</a>
-        <a href="/procedures" class="t2">Procedures</a>
-        <a href="/akasha" class="t2">Akasha System</a>
-        <a href="/quickstart" class="t1">Quickstart</a>
-        <a href="/partner-list" class="t2">Partner List &amp; Autosync</a>
-        <a href="/banshares" class="t2">Banshares</a>
-        <a href="/global" class="t2">Global Chat</a>
-        <a href="/staff-link" class="t2">Staff Link</a>
-        <a href="/other-bots" class="t2">Other Bots</a>
-        <a href="/discord" class="t1">Discord Help</a>
         <a href="/contact" class="t1">Contact Us</a>
+        <a
+            href={"javascript:void(0)"}
+            class="t1"
+            on:click={() => (info_open = !info_open)}
+            style="display: flex; align-items: center"
+        >
+            Info Pages
+            <i class="material-icons">{info_open ? "keyboard_arrow_down" : "chevron_right"}</i>
+        </a>
+        <a href="/info/rules" class="t2 {info_open ? '' : 'hidden'}">Rules</a>
+        <a href="/info/definitions-organization" class="t2 {info_open ? '' : 'hidden'}"
+            >Definitions &amp; Organization</a
+        >
+        <a href="/info/hq" class="t2 {info_open ? '' : 'hidden'}">HQ</a>
+        <a href="/info/directory" class="t3 {info_open ? '' : 'hidden'}">Directory</a>
+        <a href="/info/voting" class="t3 {info_open ? '' : 'hidden'}">Voting</a>
+        <a href="/info/procedures" class="t3 {info_open ? '' : 'hidden'}">Procedures</a>
+        <a href="/info/akasha" class="t3 {info_open ? '' : 'hidden'}">Akasha System</a>
+        <a href="/info/quickstart" class="t2 {info_open ? '' : 'hidden'}">Quickstart</a>
+        <a href="/info/partner-list" class="t3 {info_open ? '' : 'hidden'}"
+            >Partner List &amp; Autosync</a
+        >
+        <a href="/info/banshares" class="t3 {info_open ? '' : 'hidden'}">Banshares</a>
+        <a href="/info/global" class="t3 {info_open ? '' : 'hidden'}">Global Chat</a>
+        <a href="/info/staff-link" class="t3 {info_open ? '' : 'hidden'}">Staff Link</a>
+        <a href="/info/other-bots" class="t3 {info_open ? '' : 'hidden'}">Other Bots</a>
+        <a href="/info/discord" class="t2 {info_open ? '' : 'hidden'}">Discord Help</a>
     </div>
+    <div id="footer">&copy; 2023 TCN Developers</div>
 </div>
 
 <div id="backdrop" class={open ? "open" : ""} on:click={close} on:keydown={close} />
 
 <style lang="scss">
+    #bar,
+    #spacer {
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 80px;
+
+        @media screen and (min-width: 1360px) {
+            display: none;
+        }
+    }
+
+    #bar {
+        position: fixed;
+        background-color: var(--background-X);
+    }
+
     svg {
         cursor: pointer;
-
         position: fixed;
         width: 32px;
-        top: 0.5em;
-        left: 0.5em;
-        z-index: 200;
-
-        padding: 1em;
-        background: radial-gradient(closest-side, rgb(var(--accent-rgb), 50%), transparent);
-        backdrop-filter: blur(2px);
+        height: 32px;
+        padding: 24px;
+        z-index: 10;
     }
 
     rect {
-        fill: var(--accent-lighter);
-        transition: 250ms cubic-bezier(0, 1, 0.6, 1.4);
+        fill: var(--accent-more);
+        transition: transform 250ms cubic-bezier(0, 1, 0.6, 1.4),
+            opacity 250ms cubic-bezier(0, 1, 0.6, 1.4);
     }
 
     #top {
@@ -135,12 +182,14 @@
 
     #sidebar {
         position: fixed;
-        background-color: var(--darkest);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background-color: var(--background-1);
         width: 25%;
         height: 100%;
-        z-index: 100;
-        padding-top: 80px;
-        transition: 250ms;
+        z-index: 5;
+        transition: transform 250ms, opacity 250ms;
 
         @media screen and (max-width: 1000px) {
             width: 75%;
@@ -160,12 +209,12 @@
 
     #backdrop {
         position: fixed;
-        background-color: rgb(var(--darkest-rgb), 50%);
+        background-color: rgb(var(--pure-rgb), 40%);
         backdrop-filter: blur(2px);
         width: 100%;
         height: 100%;
-        z-index: 50;
-        transition: 250ms;
+        z-index: 1;
+        transition: opacity 250ms;
 
         &:not(.open) {
             opacity: 0%;
@@ -178,10 +227,15 @@
     }
 
     #contents {
-        height: calc(100% - 80px);
         overflow-y: scroll;
         display: flex;
         flex-direction: column;
+        padding-top: 92px;
+    }
+
+    #footer {
+        padding: 1rem;
+        font-weight: 400;
     }
 
     .t1 {
@@ -194,12 +248,28 @@
         padding-left: 2em;
     }
 
+    .t3 {
+        font-weight: 300;
+        padding-left: 3em;
+    }
+
     a {
         outline: none;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        i.material-icons {
+            padding-right: 0.25em;
+        }
     }
 
     a:hover,
     a:focus {
-        background-color: #00000022;
+        background-color: #00000011;
+    }
+
+    a.hidden {
+        display: none;
     }
 </style>

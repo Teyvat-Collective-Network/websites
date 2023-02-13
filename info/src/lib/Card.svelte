@@ -37,7 +37,7 @@
 
         & > div {
             overflow-y: hidden;
-            transition: 500ms;
+            transition: max-height 500ms;
             max-height: 500px;
         }
 

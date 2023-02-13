@@ -1,0 +1,36 @@
+:root {
+    --background-1: #212225;
+    --background-2: #303136;
+    --background-3: #37393f;
+    --background-X: #141619;
+
+    --text-primary: #ebe9e6;
+    --text-secondary: #999a9e;
+    --text-accent: #42ae9b;
+    --text-invert: #141619;
+
+    --accent: #32675d;
+    --accent-less: #25433e;
+    --accent-more: #4dac9b;
+    --accent-button: #32675d;
+
+    --red-text: #f35b5b;
+    --red-callout: #793636;
+    --red-button: #c52626;
+
+    --green-text: #34b876;
+    --green-callout: #3f765a;
+    --green-button: #068946;
+
+    --blue-text: #1f7bd7;
+    --blue-callout: #1f3c59;
+
+    --yellow-text: #f2c31e;
+    --yellow-callout: #8b6f0e;
+
+    --pure-rgb: 10, 10, 10;
+}
+
+.light {
+    display: none;
+}

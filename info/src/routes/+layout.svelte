@@ -1,6 +1,8 @@
-<script>
+<script lang="ts">
     import Menu from "../lib/Menu.svelte";
-    import Splash from "../lib/Splash.svelte";
+    import Navbar from "../lib/Navbar.svelte";
+
+    export let data: { dark: boolean };
 </script>
 
 <html lang="en">
@@ -27,6 +29,7 @@
             type="text/css"
             href="https://fonts.googleapis.com/icon?family=Material+Icons"
         />
+        <link rel="stylesheet" type="text/css" href="/styles/{data.dark ? 'dark' : 'light'}.css" />
         <link rel="stylesheet" type="text/css" href="/styles/stylesheet.css" />
 
         <style lang="scss" global>
@@ -53,19 +56,16 @@
     </head>
 
     <body>
-        <Menu />
-        <Splash />
-        <slot />
-        <div style="height: calc(min(15vh, 12vw))" />
-        <div id="footer">
-            <div class="container">&copy; 2023 Teyvat Collective Network</div>
+        <Menu bind:dark={data.dark} />
+        <Navbar />
+        <div id="slot">
+            <slot />
         </div>
     </body>
 </html>
 
 <style lang="scss">
-    #footer {
-        padding: 1em 0;
-        background-color: var(--darker);
+    #slot {
+        margin-bottom: 2rem;
     }
 </style>
