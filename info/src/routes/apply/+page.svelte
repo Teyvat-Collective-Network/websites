@@ -9,24 +9,6 @@
     export let data: any;
     export let form: any;
 
-    form = {
-        ...form,
-        mascot: "Shenhe",
-        role: "other",
-        roleother: "test position",
-        ownerid: "251082987360223233",
-        invite: "https://discord.gg/TZ9tpJMU5F",
-        nsfw: "no",
-        experience: "experience",
-        shortgoals: "short-term goals",
-        longgoals: "long-term goals",
-        additional: "additional",
-        observerchannelconsent: true,
-        observerauditconsent: true,
-        partnerlistconsent: true,
-        eventsconsent: true,
-    };
-
     let role: string;
     let invite: string = form?.invite ?? "";
     let invite_data: any;
