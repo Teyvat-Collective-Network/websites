@@ -108,7 +108,12 @@
                 reflect how "bad" we think the user is. Click a card to learn more.
             </p>
             <div class="cards">
-                <Card icon="keyboard_arrow_up" title="P0 (Critical)" icon_color="var(--red-text)" expandable>
+                <Card
+                    icon="keyboard_arrow_up"
+                    title="P0 (Critical)"
+                    icon_color="var(--red-text)"
+                    expandable
+                >
                     Urgent banshares where the user should be immediately removed everywhere, e.g.
                     illegal activity, raids, ongoing harassment, etc.
                 </Card>
@@ -117,7 +122,12 @@
                     bots or more serious accusations like pedophiles/lolicons (that aren't currently
                     actively harming or threatening harm against users).
                 </Card>
-                <Card icon="keyboard_arrow_down" title="P2 (Low)" icon_color="var(--blue-text)" expandable>
+                <Card
+                    icon="keyboard_arrow_down"
+                    title="P2 (Low)"
+                    icon_color="var(--blue-text)"
+                    expandable
+                >
                     Non-urgent banshares such as a user being problematic in just one server where
                     it should be considered on an individual basis whether to ban or just keep
                     watch.

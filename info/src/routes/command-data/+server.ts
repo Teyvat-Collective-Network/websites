@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, ApplicationCommandType } from "discord.js";
-import type { RequestHandler } from "./$types.js";
+import type { RequestHandler } from "@sveltejs/kit";
 
 export const GET: RequestHandler = () =>
     new Response(
@@ -38,14 +38,12 @@ export const GET: RequestHandler = () =>
                             {
                                 type: ApplicationCommandOptionType.Subcommand,
                                 name: "here",
-                                description:
-                                    "set the banshare log channel to the current channel",
+                                description: "set the banshare log channel to the current channel",
                             },
                             {
                                 type: ApplicationCommandOptionType.Subcommand,
                                 name: "none",
-                                description:
-                                    "unset the banshare log channel and stop logging",
+                                description: "unset the banshare log channel and stop logging",
                             },
                         ],
                     },
@@ -57,8 +55,7 @@ export const GET: RequestHandler = () =>
                             {
                                 type: ApplicationCommandOptionType.Boolean,
                                 name: "enable",
-                                description:
-                                    "whether or not the ban button is enabled",
+                                description: "whether or not the ban button is enabled",
                                 required: true,
                             },
                         ],
@@ -71,8 +68,7 @@ export const GET: RequestHandler = () =>
                             {
                                 type: ApplicationCommandOptionType.Boolean,
                                 name: "enable",
-                                description:
-                                    "whether or not the Daedalus integration is enabled",
+                                description: "whether or not the Daedalus integration is enabled",
                                 required: true,
                             },
                         ],
@@ -98,5 +94,5 @@ export const GET: RequestHandler = () =>
                     },
                 ],
             },
-        ])
+        ]),
     );

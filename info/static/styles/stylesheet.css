@@ -149,9 +149,19 @@ select {
 }
 
 input[type="text"],
+input[type="number"],
 textarea {
     padding: 0.5em;
     width: calc(100% - 1em);
+}
+
+input[type="text"],
+input[type="number"] {
+    font-size: 90%;
+}
+
+textarea {
+    font-size: 100%;
 }
 
 input::placeholder {
@@ -163,21 +173,28 @@ select {
     padding: 0.5em;
 }
 
-input[type="checkbox"] {
+input[type="checkbox"],
+input[type="radio"] {
     appearance: none;
     -webkit-appearance: none;
 
     width: 1.4em;
     height: 1.4em;
     background-color: var(--background-1);
-    border-radius: 5px;
-
-    transform: translateY(0.2em);
 
     transition: 100ms ease-in-out;
 }
 
-input[type="checkbox"]:checked {
+input[type="checkbox"] {
+    border-radius: 5px;
+}
+
+input[type="radio"] {
+    border-radius: 50%;
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
     background-color: var(--text-accent);
 }
 
@@ -192,4 +209,15 @@ label {
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+.panel {
+    background-color: var(--background-2);
+    padding: 1em;
+    margin-bottom: 1.5em;
+    border-radius: 5px;
+}
+
+.panel.highlight {
+    background-color: var(--accent-less);
 }

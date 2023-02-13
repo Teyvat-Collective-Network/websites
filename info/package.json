@@ -24,7 +24,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@daedalus-discord/webkit": "^0.0.49",
+		"@daedalus-discord/webkit": "^0.0.50",
 		"@sveltejs/adapter-node": "^1.1.8",
 		"discord.js": "^14.7.1",
 		"mongodb": "^5.0.1",

@@ -27,12 +27,13 @@
 </div>
 
 <style lang="scss">
-    div.expandable {
+    div {
         button {
             cursor: pointer;
             all: unset;
             width: 100%;
             padding: 0 1em;
+            margin-bottom: -1em;
 
             user-select: none;
             -moz-user-select: none;
@@ -40,10 +41,15 @@
         }
 
         & > div {
+            padding: 0 1em 1em 1em;
+        }
+    }
+
+    div.expandable {
+        & > div {
             overflow-y: hidden;
-            transition: 500ms;
+            transition: max-height 500ms;
             max-height: 500px;
-            padding: 0 1em;
         }
 
         &:not(.open) > div {

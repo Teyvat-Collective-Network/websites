@@ -1,14 +1,13 @@
 import { escape } from "svelte/internal";
 import { aborted } from "../../abort.js";
 import bot from "../../bot.js";
-import type { RequestHandler } from "./$types.js";
+import type { RequestHandler } from "@sveltejs/kit";
 
 export const POST: RequestHandler = async ({ request, url }) => {
     const session = url.searchParams.get("session");
     aborted.delete(session);
 
-    if (!session)
-        return new Response('{"error":"Missing Session"}', { status: 400 });
+    if (!session) return new Response('{"error":"Missing Session"}', { status: 400 });
 
     const seen = new Set<string>();
     const tags: [string, string][] = [];
@@ -17,8 +16,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
         if (seen.has(id)) continue;
         seen.add(id);
 
-        if (aborted.has(session))
-            return new Response('{"error":"Aborted"}', { status: 400 });
+        if (aborted.has(session)) return new Response('{"error":"Aborted"}', { status: 400 });
 
         try {
             tags.push([(await bot.users.fetch(id)).tag, id]);
@@ -26,9 +24,9 @@ export const POST: RequestHandler = async ({ request, url }) => {
             return new Response(
                 JSON.stringify({
                     error: `Invalid ID: <code>${escape(
-                        id
+                        id,
                     )}</code> did not correspond to a valid user.`,
-                })
+                }),
             );
         }
     }

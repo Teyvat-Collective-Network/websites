@@ -1,6 +1,6 @@
 <script lang="ts">
     import Partner from "../../lib/Partner.svelte";
-    export let data: { partners: { name: string; code: string; image: string; blurb: string }[] };
+    export let data: { partners: any[] };
 </script>
 
 <div class="container">
@@ -17,8 +17,8 @@
                 bot. Check out their website below!
             </p>
         </Partner>
-        {#each data.partners as { name, code, image, blurb }}
-            <Partner {name} {code} {image}><p>{@html blurb}</p></Partner>
+        {#each data.partners as { name, invite, icon, description }}
+            <Partner {name} code={invite} image={icon}><p>{@html description}</p></Partner>
         {/each}
     </div>
 </div>

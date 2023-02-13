@@ -3,7 +3,7 @@
         green: { icon: "check", color: "var(--green-callout)" },
         info: { icon: "info", color: "var(--blue-callout)" },
         warn: { icon: "warning", color: "var(--yellow-callout)" },
-        red: { icon: "report", color: "var(--red-callout)" }
+        red: { icon: "report", color: "var(--red-callout)" },
     };
 </script>
 

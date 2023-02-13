@@ -6,12 +6,19 @@ export const handle: Handle = async ({ event, resolve }) => {
     (event.locals as any).dark = event.cookies.get("mode") !== "light";
 
     if (PUBLIC_STAGING) {
-        if (event.url.searchParams.has("logged-in"))
+        if (event.url.searchParams.has("logged-in")) {
             (event.locals as any).user = {
                 id: "242101077061664779",
                 username: "Test User",
                 discriminator: "0000"
             };
+
+            (event.locals as any).api_user = {
+                id: "242101077061664779",
+                guilds: ["805458032908959804"],
+                roles: ["observer"]
+            };
+        }
     } else {
         const api_user =
             event.cookies.get("token") &&
@@ -23,6 +30,8 @@ export const handle: Handle = async ({ event, resolve }) => {
             (event.locals as any).user = await fetch(`${PUBLIC_DIS_API}/users/${api_user.id}`, {
                 headers: { Authorization: `Bot ${TOKEN}` }
             }).then((res) => res.ok && res.json());
+
+            (event.locals as any).api_user = api_user;
         }
     }
 

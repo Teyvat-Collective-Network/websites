@@ -95,7 +95,8 @@
             <ul>
                 <li>
                     <b>Genshin Wizard</b> [hatter#6666]
-                    <span style="color: var(--text-accent)">Official Partner</span> - A Genshin Impact utility bot.
+                    <span style="color: var(--text-accent)">Official Partner</span> - A Genshin Impact
+                    utility bot.
                 </li>
                 <li><b>Ruin Hunter</b> [Leaf#1950] - A configurable anti-raid bot.</li>
                 <li><b>Banhammer</b> [HyperNeutrino#1759] - A utility bot for massbanning.</li>

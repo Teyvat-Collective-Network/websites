@@ -39,13 +39,13 @@ export const actions: Actions = {
             evidence,
             server,
             severity,
-            urgent
+            urgent,
         };
 
         const abort = (code: number, message: string) =>
             fail(code, {
                 error: message,
-                ...values
+                ...values,
             });
 
         if (ids.length === 0) return abort(400, "You must enter at least one user to banshare.");
@@ -62,7 +62,7 @@ export const actions: Actions = {
         if (evidence.length > 1200)
             return abort(
                 400,
-                "Maximum evidence length is 1200. If you need more space, please create and link a document and include some basic information about it in the evidence field."
+                "Maximum evidence length is 1200. If you need more space, please create and link a document and include some basic information about it in the evidence field.",
             );
 
         const tcn_request = await fetch(`${PUBLIC_TCN_API}/users/${user.id}`);
@@ -70,7 +70,7 @@ export const actions: Actions = {
         if (!tcn_request.ok)
             return abort(
                 400,
-                "You do not appear to be a staff member of any TCN servers. Contact your server owner or a TCN observer if you believe this is a mistake."
+                "You do not appear to be a staff member of any TCN servers. Contact your server owner or a TCN observer if you believe this is a mistake.",
             );
 
         const tcn_data = await tcn_request.json();
@@ -83,7 +83,7 @@ export const actions: Actions = {
         if (!server_request.ok)
             return abort(
                 400,
-                "The server you selected does not appear to be in the TCN. (This message should never appear...)"
+                "The server you selected does not appear to be in the TCN. (This message should never appear...)",
             );
 
         const server_name = (await server_request.json()).name;
@@ -91,7 +91,7 @@ export const actions: Actions = {
         if (!bot.user)
             return abort(
                 500,
-                "Banshare bot is not ready to handle your request yet. Please wait for a few seconds."
+                "Banshare bot is not ready to handle your request yet. Please wait for a few seconds.",
             );
 
         const channel = bot.channels.cache.get(CHANNEL as string);
@@ -99,7 +99,7 @@ export const actions: Actions = {
         if (!channel?.isTextBased())
             return abort(
                 500,
-                "Banshare bot is not configured correctly: output channel is not a valid text-based channel."
+                "Banshare bot is not configured correctly: output channel is not a valid text-based channel.",
             );
 
         let id_list: string[] = [];
@@ -114,7 +114,7 @@ export const actions: Actions = {
                 if (!id.match(/^[1-9][0-9]{16,19}$/))
                     return abort(
                         400,
-                        `Invalid ID: <code>${escape(id)}</code> is not a valid Discord ID.`
+                        `Invalid ID: <code>${escape(id)}</code> is not a valid Discord ID.`,
                     );
 
             if (action === "Submit")
@@ -125,8 +125,8 @@ export const actions: Actions = {
                         return abort(
                             400,
                             `Invalid ID: <code>${escape(
-                                id
-                            )}</code> did not correspond to a valid user.`
+                                id,
+                            )}</code> did not correspond to a valid user.`,
                         );
                     }
 
@@ -145,15 +145,15 @@ export const actions: Actions = {
                         { name: "Evidence", value: evidence },
                         {
                             name: "Submitted by",
-                            value: `${user.username}#${user.discriminator} (\`${user.id}\`) from ${server_name}`
+                            value: `${user.username}#${user.discriminator} (\`${user.id}\`) from ${server_name}`,
                         },
                         {
                             name: "Severity",
-                            value: severity[0].toUpperCase() + severity.slice(1)
-                        }
-                    ]
-                }
-            ]
+                            value: severity[0].toUpperCase() + severity.slice(1),
+                        },
+                    ],
+                },
+            ],
         });
 
         let send_data = format(id_list.join(" "), tags.join(" "));
@@ -173,9 +173,9 @@ export const actions: Actions = {
                     `<${await create_gist(
                         `banshare-ids-${iso}`,
                         `IDs for the banshare on ${iso}`,
-                        ids_output
+                        ids_output,
                     )}>`,
-                    ""
+                    "",
                 );
             } catch {
                 return abort(500, "Uploading your ID list / user tag list as a gist failed.");
@@ -190,7 +190,7 @@ export const actions: Actions = {
             server,
             id_list,
             reason,
-            severity
+            severity,
         });
 
         if (ALERT) {
@@ -202,11 +202,11 @@ export const actions: Actions = {
                             (urgent ? URGENT : NON_URGENT) ?? ""
                         } A banshare was just posted in ${channel} for review${
                             urgent ? " (**urgent**)" : ""
-                        }. If you wish to alter the severity, use the buttons below the banshare **before** publishing.`
+                        }. If you wish to alter the severity, use the buttons below the banshare **before** publishing.`,
                     );
                 } catch {}
         }
 
         return { success: true };
-    }
+    },
 };

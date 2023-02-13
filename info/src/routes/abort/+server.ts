@@ -1,5 +1,5 @@
 import { aborted } from "../../abort.js";
-import type { RequestHandler } from "./$types.js";
+import type { RequestHandler } from "@sveltejs/kit";
 
 export const GET: RequestHandler = async ({ url }) => {
     const session = url.searchParams.get("session");

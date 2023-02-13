@@ -12,7 +12,7 @@
         <b>{name}</b>
         <slot />
     </div>
-    <a href={link} class="button">{button}</a>
+    <a href={link} target="_blank" rel="noreferrer" class="button">{button}</a>
 </div>
 
 <style lang="scss">

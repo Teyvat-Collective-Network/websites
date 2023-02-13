@@ -2,7 +2,7 @@
     import Menu from "../lib/Menu.svelte";
     import Navbar from "../lib/Navbar.svelte";
 
-    export let data: { dark: boolean };
+    export let data: any;
 </script>
 
 <html lang="en">
@@ -56,7 +56,7 @@
     </head>
 
     <body>
-        <Menu bind:dark={data.dark} user={data.user} />
+        <Menu bind:dark={data.dark} user={data.user} api_user={data.api_user} />
         <Navbar />
         <div id="slot">
             <slot />

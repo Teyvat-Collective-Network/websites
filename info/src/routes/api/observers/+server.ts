@@ -6,7 +6,7 @@ export const GET: RequestHandler = async () => {
     const request = await fetch(`${PUBLIC_TCN_API}/users`);
     if (!request.ok)
         return new Response(
-            '[null, "TCN API returned an error; contact an observer (you can find a list in the TCN Hub)."]'
+            '[null, "TCN API returned an error; contact an observer (you can find a list in the TCN Hub)."]',
         );
 
     const response = await request.json();

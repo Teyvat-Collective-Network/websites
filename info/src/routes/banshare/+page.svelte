@@ -20,8 +20,8 @@
                     const response = await fetch(url);
                     if (!response.ok) return {};
                     return await response.json();
-                }
-            )
+                },
+            ),
         );
 
         const map = new Map<string, string>();
@@ -59,12 +59,12 @@
         for (const id of list)
             if (!id.match(/^[1-9][0-9]{16,19}$/))
                 return (error = `Invalid ID: <code>${escape(
-                    id
+                    id,
                 )}</code> is not a valid Discord ID.`);
 
         fetch(`/fetch?session=${session}`, {
             method: "post",
-            body: JSON.stringify(list)
+            body: JSON.stringify(list),
         })
             .then((response) => response.json())
             .then((data) => {
@@ -89,12 +89,15 @@
 {:else}
     <div class="container">
         <div id="main">
+            <h2>Banshare Form</h2>
             <div class="panel highlight">
                 Logged in as <b>{data.user.username}</b><span style="color: var(--text-secondary)"
                     >#{data.user.discriminator}</span
                 >. Not you?
-                <a href="{PUBLIC_TCN_AUTH}/logout?redirect={encodeURIComponent(PUBLIC_DOMAIN)}"
-                    >Log Out</a
+                <a
+                    href="{PUBLIC_TCN_AUTH}/logout?redirect={encodeURIComponent(
+                        `${PUBLIC_DOMAIN}/banshare`,
+                    )}">Log Out</a
                 >
             </div>
             {#if servers?.length === 0}
@@ -118,7 +121,7 @@
                 {/if}
                 <form method="post">
                     <div class="panel">
-                        <h3>ID(s) of the offender(s)</h3>
+                        <h4>ID(s) of the offender(s)</h4>
                         <input
                             type="text"
                             name="ids"
@@ -137,7 +140,7 @@
                                 (shows the users' tags if all IDs are valid)
                             </div>
                         {/if}
-                        <h3>Reason</h3>
+                        <h4>Reason</h4>
                         <p>
                             If you need more than 498 characters, you should probably be putting it
                             into the evidence field instead.
@@ -150,7 +153,7 @@
                             autocomplete="off"
                             value={form?.reason}
                         />
-                        <h3>Evidence</h3>
+                        <h4>Evidence</h4>
                         <p>
                             For images, use Imgur or a similar service. Discord hosted image links
                             work too, but keep in mind that deleting the message containing the
@@ -175,7 +178,7 @@
                         />
                     </div>
                     <div class="panel">
-                        <h3>Server</h3>
+                        <h4>Server</h4>
                         <p>Identify which server you are bansharing this from.</p>
                         {#if !servers}
                             <LoadingSpinner
@@ -190,17 +193,15 @@
                                     Select Server
                                 </option>
                                 {#each servers as [id, name]}
-                                    <option
-                                        value={id}
-                                        selected={servers.length === 1 || form?.server === id}
-                                        >{name}</option
-                                    >
+                                    <option value={id} selected={form?.server === id}>
+                                        {name}
+                                    </option>
                                 {/each}
                             </select>
                         {/if}
                     </div>
                     <div class="panel">
-                        <h3>Severity</h3>
+                        <h4>Severity</h4>
                         <p>
                             The severity is used to determine auto-banning. A lower number indicates
                             a greater threat.
@@ -227,7 +228,7 @@
                         </select>
                     </div>
                     <div class="panel">
-                        <h3>Urgency</h3>
+                        <h4>Urgency</h4>
                         <p>
                             Check the box below to instruct the bot to ping all observers instead of
                             just a few to review this.
@@ -294,16 +295,3 @@
         </div>
     {/if}
 </Modal>
-
-<style lang="scss">
-    .panel {
-        background-color: var(--background-2);
-        padding: 1em;
-        margin-bottom: 1.5em;
-        border-radius: 5px;
-
-        &.highlight {
-            background-color: var(--accent-less);
-        }
-    }
-</style>

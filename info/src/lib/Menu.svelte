@@ -5,6 +5,7 @@
 
     export let dark: boolean;
     export let user: any;
+    export let api_user: any;
 
     let open: boolean = false;
     let href: string;
@@ -23,7 +24,7 @@
                 document.querySelectorAll("#contents > a").forEach((e: any) => {
                     e.style.backgroundColor = e.href === href ? "#00000022" : "";
                 })
-            )
+            ),
         );
 
         doc = document;
@@ -32,7 +33,7 @@
     let index = 0;
     $: open &&
         (index = [...document.querySelectorAll("#contents > a")].findIndex(
-            (e: any) => e.href === href
+            (e: any) => e.href === href,
         ));
     $: (doc?.querySelectorAll("#contents > a:not(.hidden)")?.[index] as any)?.focus();
 
@@ -113,14 +114,29 @@
         <a href="/info/other-bots" class="t3 {info_open ? '' : 'hidden'}">Other Bots</a>
         <a href="/info/discord" class="t2 {info_open ? '' : 'hidden'}">Discord Help</a>
         {#if user}
-            <a href={"javascript:void(0)"} class="t1" on:click={() => (staff_open = !staff_open)}>
-                Staff Area
-                <i class="material-icons">{staff_open ? "keyboard_arrow_down" : "chevron_right"}</i>
+            {#if api_user?.guilds?.length > 0}
+                <a
+                    href={"javascript:void(0)"}
+                    class="t1"
+                    on:click={() => (staff_open = !staff_open)}
+                >
+                    Staff Area
+                    <i class="material-icons"
+                        >{staff_open ? "keyboard_arrow_down" : "chevron_right"}</i
+                    >
+                </a>
+                <a href="/banshare" class="t2 {staff_open ? '' : 'hidden'}">Submit a Banshare</a>
+            {/if}
+            <a
+                href="{PUBLIC_TCN_AUTH}/logout?redirect={encodeURIComponent(PUBLIC_DOMAIN)}"
+                class="t1"
+            >
+                Log Out
+                <i class="material-icons">logout</i>
             </a>
-            <a href="/banshare" class="t2 {staff_open ? '' : 'hidden'}">Submit a Banshare</a>
         {:else}
             <a href="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(PUBLIC_DOMAIN)}" class="t1">
-                Staff Area
+                Log In
                 <i class="material-icons">login</i>
             </a>
         {/if}

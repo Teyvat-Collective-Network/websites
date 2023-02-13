@@ -158,8 +158,8 @@
             <ul>
                 <li>
                     <u><b>akasha-terminal</b></u> - {full ? "T" : "t"}he
-                    <a href="/info/akasha">Akasha Terminal</a>, our centralized information management
-                    system.
+                    <a href="/info/akasha">Akasha Terminal</a>, our centralized information
+                    management system.
                 </li>
                 <li>
                     <u><b>global-logs</b></u> - {@html full
