@@ -89,7 +89,7 @@
                     >this page</a
                 >. Here is a list of them:
             </p>
-            <Callout style="green">
+            <Callout style="info">
                 <p>These bots are not TCN-exclusive, so feel free to use them in other servers!</p>
             </Callout>
             <ul>

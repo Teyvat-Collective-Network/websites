@@ -45,7 +45,7 @@
                 }
             }
 
-            @for $index from 1 to 40 {
+            @for $index from 1 to 47 {
                 #main > :nth-child(#{$index}) {
                     animation: fade-from-left 500ms calc(25ms * $index) backwards;
                 }
@@ -56,7 +56,7 @@
     </head>
 
     <body>
-        <Menu bind:dark={data.dark} />
+        <Menu bind:dark={data.dark} user={data.user} />
         <Navbar />
         <div id="slot">
             <slot />
@@ -66,6 +66,6 @@
 
 <style lang="scss">
     #slot {
-        margin-bottom: 2rem;
+        margin-bottom: 2em;
     }
 </style>

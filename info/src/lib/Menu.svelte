@@ -1,8 +1,10 @@
 <script lang="ts">
     import { page } from "$app/stores";
+    import { PUBLIC_DOMAIN, PUBLIC_TCN_AUTH } from "$env/static/public";
     import { onMount } from "svelte";
 
     export let dark: boolean;
+    export let user: any;
 
     let open: boolean = false;
     let href: string;
@@ -35,6 +37,7 @@
     $: (doc?.querySelectorAll("#contents > a:not(.hidden)")?.[index] as any)?.focus();
 
     let info_open: boolean = false;
+    let staff_open: boolean = false;
 </script>
 
 <svelte:window
@@ -87,12 +90,7 @@
         <a href="/featured" class="t1">Featured Content</a>
         <a href="/join" class="t1">Joining the TCN</a>
         <a href="/contact" class="t1">Contact Us</a>
-        <a
-            href={"javascript:void(0)"}
-            class="t1"
-            on:click={() => (info_open = !info_open)}
-            style="display: flex; align-items: center"
-        >
+        <a href={"javascript:void(0)"} class="t1" on:click={() => (info_open = !info_open)}>
             Info Pages
             <i class="material-icons">{info_open ? "keyboard_arrow_down" : "chevron_right"}</i>
         </a>
@@ -114,6 +112,18 @@
         <a href="/info/staff-link" class="t3 {info_open ? '' : 'hidden'}">Staff Link</a>
         <a href="/info/other-bots" class="t3 {info_open ? '' : 'hidden'}">Other Bots</a>
         <a href="/info/discord" class="t2 {info_open ? '' : 'hidden'}">Discord Help</a>
+        {#if user}
+            <a href={"javascript:void(0)"} class="t1" on:click={() => (staff_open = !staff_open)}>
+                Staff Area
+                <i class="material-icons">{staff_open ? "keyboard_arrow_down" : "chevron_right"}</i>
+            </a>
+            <a href="/banshare" class="t2 {staff_open ? '' : 'hidden'}">Submit a Banshare</a>
+        {:else}
+            <a href="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(PUBLIC_DOMAIN)}" class="t1">
+                Staff Area
+                <i class="material-icons">login</i>
+            </a>
+        {/if}
     </div>
     <div id="footer">&copy; 2023 TCN Developers</div>
 </div>
@@ -234,7 +244,7 @@
     }
 
     #footer {
-        padding: 1rem;
+        padding: 1em;
         font-weight: 400;
     }
 
@@ -258,10 +268,7 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-
-        i.material-icons {
-            padding-right: 0.25em;
-        }
+        gap: 0.5em;
     }
 
     a:hover,

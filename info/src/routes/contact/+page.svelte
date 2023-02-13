@@ -61,7 +61,7 @@
         grid-template-columns: 1fr 5fr 1fr;
         grid-template-rows: 3fr 2fr;
         grid-template-areas: "a a a" "b c d";
-        gap: 1rem;
+        gap: 1em;
         border-radius: 5px;
         align-items: center;
         background-color: rgb(var(--pure-rgb), 50%);
@@ -82,16 +82,16 @@
 
     #icon {
         grid-area: b;
-        padding: 0 0 1rem 1rem;
+        padding: 0 0 1em 1em;
     }
 
     #title {
         grid-area: c;
-        padding: 0 0 1rem 1rem;
+        padding: 0 0 1em 1em;
     }
 
     #join {
         grid-area: d;
-        margin: 0 1rem 1rem 0;
+        margin: 0 1em 1em 0;
     }
 </style>

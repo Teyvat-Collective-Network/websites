@@ -39,7 +39,7 @@
         }
 
         & > div {
-            padding: 1em;
+            padding: 1rem 2rem;
             display: flex;
             flex-direction: column;
             align-items: center;

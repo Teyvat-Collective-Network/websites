@@ -15,12 +15,7 @@
             organization.
         </p>
         <p>
-            <b
-                ><a
-                    href="https://docs.google.com/forms/d/1BtV0mZvS9LX46rIhH-hVg1X8payfcswEfoHpeIejXl0"
-                    >Apply Here!</a
-                ></b
-            >
+            <a href="/apply" class="button">Apply Here!</a>
         </p>
         <Linkable e="h2" id="observation-faq" value="Observation FAQ" />
         <p>Read more about the observation process <a href="/observation-faq">here</a>.</p>

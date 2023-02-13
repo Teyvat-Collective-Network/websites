@@ -76,7 +76,7 @@
                 you were given permission to. Global chat may be used by servers for things like event
                 channels, so don't disrupt their channels.
             </p>
-            <Callout style="green">
+            <Callout style="info">
                 <p>
                     To test that the channel works, send a message from your side and check another
                     server. If it doesn't show up, <b>View Channel</b> is missing.
@@ -156,8 +156,18 @@
                     needed)
                 </li>
                 <li>
-                    <code>/globals add</code> - create a new global channel with a name (required) and
-                    log channel (optional)
+                    <code>/globals add</code> - create a new global channel with a name (required)
+                    and log channel (optional)
+                    <ul>
+                        <li>
+                            the log channel is where edits, deletions, bans/unbans, and
+                            connections/disconnections are logged
+                        </li>
+                        <li>
+                            this command will not connect any channels, so you will need to connect
+                            the channel using <code>/connect</code>
+                        </li>
+                    </ul>
                 </li>
                 <li>
                     <code>/globals logchannel</code> - change the log channel of a global channel

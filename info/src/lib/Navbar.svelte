@@ -15,19 +15,19 @@
     .container,
     #left,
     #links {
-        padding-top: 1rem;
+        padding-top: 1em;
         display: flex;
         flex-direction: row;
         align-items: center;
     }
 
     #left {
-        gap: 1.5rem;
+        gap: 1.5em;
     }
 
     .container {
         justify-content: space-between;
-        padding-bottom: 2rem;
+        padding-bottom: 2em;
     }
 
     @media screen and (max-width: 1200px) {
@@ -48,7 +48,7 @@
     }
 
     a:not(.button) {
-        margin: 1rem;
+        margin: 1em;
         border-bottom: 3px solid transparent;
     }
 

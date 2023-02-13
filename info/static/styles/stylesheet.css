@@ -67,8 +67,8 @@ h4,
 h5,
 h6 {
     font-weight: 400;
-    margin-top: 1.2em;
-    margin-bottom: 1.2em;
+    margin-top: 1em;
+    margin-bottom: 1em;
     line-height: 100%;
 }
 
@@ -85,12 +85,11 @@ b {
     grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
     align-items: flex-start;
     justify-content: center;
-    gap: 1rem;
+    gap: 1em;
 }
 
 .cards > div {
-    background-color: #00000033;
-    padding: 1em;
+    background-color: var(--background-X);
     border: 2px solid var(--background-2);
     border-radius: 5px;
 }
@@ -100,15 +99,17 @@ a {
     color: var(--text-accent);
 }
 
-a.button {
-    padding: 0.5rem 1rem;
+a.button,
+input[type="submit"] {
+    padding: 0.5em 1em;
     background-color: var(--accent);
     color: var(--text-primary);
     border-radius: 5px;
     transition: background-color 200ms;
 }
 
-a.button:hover {
+a.button:hover,
+input[type="submit"]:hover {
     background-color: var(--accent-less);
 }
 
@@ -135,4 +136,60 @@ code {
 
 code.plain {
     background-color: unset;
+}
+
+input,
+textarea,
+select {
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    background-color: var(--background-3);
+    color: var(--text-primary);
+}
+
+input[type="text"],
+textarea {
+    padding: 0.5em;
+    width: calc(100% - 1em);
+}
+
+input::placeholder {
+    color: var(--text-secondary);
+}
+
+select {
+    font-size: 90%;
+    padding: 0.5em;
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 1.4em;
+    height: 1.4em;
+    background-color: var(--background-1);
+    border-radius: 5px;
+
+    transform: translateY(0.2em);
+
+    transition: 100ms ease-in-out;
+}
+
+input[type="checkbox"]:checked {
+    background-color: var(--text-accent);
+}
+
+label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }

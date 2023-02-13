@@ -10,35 +10,40 @@
     $: open_ = !expandable || open;
 </script>
 
-<div
-    class="{expandable ? 'expandable' : ''} {open_ ? 'open' : ''}"
-    on:click={() => (open = !open)}
-    on:keydown={() => (open = !open)}
->
-    <h5>
-        {#if icon}
-            <i class="material-icons" style="color: {icon_color}">{icon}</i>
-        {/if}
-        <span>
-            {title}
-        </span>
-    </h5>
-    <div>
+<div class="{expandable ? 'expandable' : ''} {open_ ? 'open' : ''}">
+    <button on:click={() => (open = !open)}>
+        <h5>
+            {#if icon}
+                <i class="material-icons" style="color: {icon_color}">{icon}</i>
+            {/if}
+            <span>
+                {title}
+            </span>
+        </h5>
+    </button>
+    <div id="slot">
         <slot />
     </div>
 </div>
 
 <style lang="scss">
     div.expandable {
-        cursor: pointer;
-        user-select: none;
-        -moz-user-select: none;
-        -webkit-user-select: none;
+        button {
+            cursor: pointer;
+            all: unset;
+            width: 100%;
+            padding: 0 1em;
+
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+        }
 
         & > div {
             overflow-y: hidden;
-            transition: max-height 500ms;
+            transition: 500ms;
             max-height: 500px;
+            padding: 0 1em;
         }
 
         &:not(.open) > div {

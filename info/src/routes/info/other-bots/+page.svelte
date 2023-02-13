@@ -8,7 +8,7 @@
     <Navigation last={["/info/quickstart#other-bots", "Quickstart"]}>
         <div id="main">
             <h1>Other Bots</h1>
-            <Callout style="green">
+            <Callout style="info">
                 <p>These bots are not TCN-exclusive, so feel free to use them in other servers!</p>
             </Callout>
             <Linkable e="h2" id="genshin-wizard" value="Genshin Wizard" />
@@ -50,7 +50,7 @@
                 very high and copy-pasting them into chat would take many messages.
             </p>
             <p><a href="/info/other-bots/banhammer">See More</a></p>
-            <Callout style="green">
+            <Callout style="info">
                 <p>
                     This feature also exists on <b>Daedalus</b>, which also includes many other
                     features, and is much more comprehensive there.

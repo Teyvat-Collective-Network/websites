@@ -17,7 +17,7 @@
                 </p>
             </Callout>
             <br />
-            <Callout style="green">
+            <Callout style="info">
                 <p>
                     The massban feature on <a href="/info/other-bots/daedalus">Daedalus</a> is much more
                     comprehensive, and that bot supports better permission controls and more features.

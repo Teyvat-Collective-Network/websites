@@ -1,10 +1,9 @@
-import { TCN_API } from "$env/static/private";
+import { PUBLIC_TCN_API } from "$env/static/public";
 import type { RequestHandler } from "@sveltejs/kit";
-import type { User } from "discord.js";
 import bot from "../../../bot.js";
 
 export const GET: RequestHandler = async () => {
-    const request = await fetch(TCN_API + "/users");
+    const request = await fetch(`${PUBLIC_TCN_API}/users`);
     if (!request.ok)
         return new Response(
             '[null, "TCN API returned an error; contact an observer (you can find a list in the TCN Hub)."]'

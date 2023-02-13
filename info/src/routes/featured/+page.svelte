@@ -26,14 +26,14 @@
     .announcement {
         display: flex;
         flex-direction: column;
-        padding: 1.5rem;
+        padding: 1.5em;
         border-radius: 5px;
 
         div:first-of-type {
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: 1rem;
+            gap: 1em;
 
             span {
                 font-weight: 400;
