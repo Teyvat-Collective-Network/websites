@@ -88,6 +88,7 @@
         <a href="/" class="t1">Home Page</a>
         <a href="/about" class="t1">About Us</a>
         <a href="/partners" class="t1">Partners</a>
+        <a href="/calendar" class="t1">Calendar</a>
         <a href="/featured" class="t1">Featured Content</a>
         <a href="/join" class="t1">Joining the TCN</a>
         <a href="/contact" class="t1">Contact Us</a>

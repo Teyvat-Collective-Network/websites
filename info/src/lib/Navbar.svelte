@@ -1,12 +1,13 @@
 <div class="container">
     <div id="left">
-        <img src="/favicon.png" alt="Icon" />
+        <img src="/favicon.png" alt="Icon" width="80px" />
         <span id="title">Teyvat Collective Network</span>
     </div>
     <div id="links">
         <a href="/">Home</a>
         <a href="/about">About</a>
         <a href="/partners">Partners</a>
+        <a href="/calendar">Calendar</a>
         <a href="/join" class="button">Apply Now</a>
     </div>
 </div>
@@ -37,7 +38,7 @@
     }
 
     #title {
-        font-weight: 600;
+        font-weight: 500;
         font-size: 150%;
     }
 

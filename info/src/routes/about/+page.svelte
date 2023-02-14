@@ -56,12 +56,12 @@
                     addition to being able to more quickly resolve any issues and form strong
                     relationships with many other prominent servers, you have the unique opportunity
                     to more easily start collaborations for things like events, which you can also
-                    promote through the TCN’s event announcement feed.
+                    promote through the TCN's event announcement feed.
                 </p>
             </Card>
             <Card icon="insights" title="Growth" expandable>
                 <p>
-                    When you join the TCN, you automatically become a TCN partner of over 40 servers
+                    When you join the TCN, you automatically become a TCN partner of all TCN servers
                     and will have your server listed on the partner list in all of them.
                     Additionally, you will be able to get tips on how to improve your server
                     environment and grow a strong, healthy community.

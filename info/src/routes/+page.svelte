@@ -1,41 +1,44 @@
+<script>
+    import Testimonial from "../lib/Testimonial.svelte";
+</script>
+
 <div class="container">
     <br />
     <div id="main">
-        <div id="box-1"><p>Welcome to the Teyvat Collective Network</p></div>
-        <div id="box-2">
-            <p>
-                The mission of the TCN is to unite all mains servers across Teyvat and provide
-                support and promote collaboration between partners.
-            </p>
+        <div id="box">
+            <div id="box-1"><p>Welcome to the Teyvat Collective Network</p></div>
+            <div id="box-2">
+                <p>
+                    The mission of the TCN is to unite all mains servers across Teyvat and provide
+                    support and promote collaboration between partners.
+                </p>
+            </div>
         </div>
-        <div id="box-3">
-            <p>
-                The TCN is a network of over 40 quality Discord servers, each dedicated to a
-                playable character from the game Genshin Impact.
-            </p>
-            <a href="/partners" class="button">Our Partners</a>
-        </div>
-        <div id="box-4">
-            <p>
-                Do you own a Discord server dedicated to a playable Genshin Impact character and
-                want to join the TCN? Apply here!
-            </p>
-            <a href="/join" class="button">Apply To Join</a>
-        </div>
+        <h3>Testimonials</h3>
+        <Testimonial
+            image="https://upload-os-bbs.mihoyo.com/game_record/genshin/character_icon/UI_AvatarIcon_Shenhe.png"
+            name="Shenhe Mains"
+        >
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi egestas at odio quis
+            tincidunt. Nam odio nunc, facilisis at efficitur sed, condimentum eget erat. Nam id nisl
+            vestibulum, fermentum sapien at, tempus libero. Morbi semper pharetra placerat. Etiam
+            varius ornare eros, ac pulvinar mi aliquam vel. Curabitur nec lectus ut ante rutrum
+            faucibus. Phasellus fermentum finibus elit sit amet tristique. Duis scelerisque odio eu
+            dapibus porttitor. Nunc ut pharetra arcu, sed eleifend justo. Cras pulvinar, purus eget
+            tincidunt eleifend, mi justo aliquet metus, in porta nunc nisl a tortor.
+        </Testimonial>
     </div>
 </div>
 
 <style lang="scss">
-    #main {
+    #box {
         display: grid;
-        grid-template-columns: 4fr 1fr 1fr 4fr;
-        grid-template-areas: "a b b b" "c c d d";
+        grid-template-columns: 4fr 6fr;
         gap: 1em;
 
         @media screen and (max-width: 1000px) {
             grid-template-columns: 1fr;
-            grid-template-rows: repeat(4, auto);
-            grid-template-areas: "a" "b" "c" "d";
+            grid-template-rows: auto auto;
         }
 
         & > div {
@@ -49,7 +52,6 @@
     }
 
     #box-1 {
-        grid-area: a;
         background-color: var(--background-2);
         font-weight: 600;
         font-size: 200%;
@@ -57,25 +59,10 @@
     }
 
     #box-2 {
-        grid-area: b;
         background-color: var(--accent-less);
         font-weight: 400;
         font-size: 150%;
         line-height: 150%;
         justify-content: center;
-    }
-
-    #box-3 {
-        grid-area: c;
-        background-color: var(--background-2);
-        font-size: 125%;
-        line-height: 175%;
-    }
-
-    #box-4 {
-        grid-area: d;
-        background-color: var(--background-2);
-        font-size: 125%;
-        line-height: 175%;
     }
 </style>

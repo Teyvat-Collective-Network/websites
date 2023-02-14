@@ -8,7 +8,7 @@
 
 <div class="outer">
     <div id="top">
-        <img src={image} alt="{name} Icon" width="200px" />
+        <img src={image} alt="{name} Icon" width="150px" height="150px" />
         <b>{name}</b>
         <slot />
     </div>
@@ -19,7 +19,7 @@
     div.outer {
         justify-content: space-between;
         background-color: var(--background-2);
-        padding: 1.5em;
+        padding: 1em;
         border-radius: 5px;
     }
 
@@ -29,6 +29,10 @@
         flex-direction: column;
         align-items: center;
         gap: 0.5em;
+    }
+
+    img {
+        border-radius: 5px;
     }
 
     b {

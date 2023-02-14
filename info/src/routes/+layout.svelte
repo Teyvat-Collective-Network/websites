@@ -16,7 +16,7 @@
         <meta property="og:title" content="Teyvat Collective Network | Information" />
         <meta
             property="og:description"
-            content="The Teyvat Collective Network is a network of over 40 high-quality Genshin Impact Discord servers, each dedicated to one character. Our mission is to unite mains servers across Teyvat, provide support, and promote collaboration."
+            content="The Teyvat Collective Network is a network of high-quality Genshin Impact Discord servers, each dedicated to one character. Our mission is to unite mains servers across Teyvat, provide support, and promote collaboration."
         />
         <meta property="og:url" content="https://info.teyvatcollective.network" />
         <meta property="og:image" content="https://info.teyvatcollective.network/favicon.png" />
@@ -36,7 +36,7 @@
             @keyframes fade-from-left {
                 from {
                     opacity: 0%;
-                    transform: translateX(-2%);
+                    transform: translateX(-1vw);
                 }
 
                 to {

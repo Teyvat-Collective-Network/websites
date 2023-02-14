@@ -10,25 +10,27 @@ export const handle: Handle = async ({ event, resolve }) => {
             (event.locals as any).user = {
                 id: "242101077061664779",
                 username: "Test User",
-                discriminator: "0000"
+                discriminator: "0000",
             };
 
             (event.locals as any).api_user = {
                 id: "242101077061664779",
                 guilds: ["805458032908959804"],
-                roles: ["observer"]
+                roles: ["observer"],
             };
         }
     } else {
+        const token = event.cookies.get("token");
+
         const api_user =
-            event.cookies.get("token") &&
-            (await fetch(`${PUBLIC_TCN_AUTH}/user`, {
-                headers: { Authorization: event.cookies.get("token")! }
-            }).then((res) => res.ok && res.json()));
+            token &&
+            (await fetch(`${PUBLIC_TCN_AUTH}/user`, { headers: { Authorization: token } }).then(
+                (res) => res.ok && res.json(),
+            ));
 
         if (api_user) {
             (event.locals as any).user = await fetch(`${PUBLIC_DIS_API}/users/${api_user.id}`, {
-                headers: { Authorization: `Bot ${TOKEN}` }
+                headers: { Authorization: `Bot ${TOKEN}` },
             }).then((res) => res.ok && res.json());
 
             (event.locals as any).api_user = api_user;
