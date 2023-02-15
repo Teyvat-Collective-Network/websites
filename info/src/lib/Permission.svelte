@@ -9,6 +9,6 @@
 
 <Linkable
     e="h5"
-    {id}
+    id={code}
     value="{name} (<code>{code}</code>){open ? ` - <code>1 << ${bit} = ${2 ** bit}</code>` : ''}"
 />
