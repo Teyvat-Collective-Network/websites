@@ -13,7 +13,7 @@
         <meta name="author" content="TCN Dev Team" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <meta property="og:title" content="Teyvat Collective Network | Information" />
+        <meta property="og:title" content="Teyvat Collective Network" />
         <meta
             property="og:description"
             content="The Teyvat Collective Network is a network of high-quality Genshin Impact Discord servers, each dedicated to one character. Our mission is to unite mains servers across Teyvat, provide support, and promote collaboration."
@@ -32,7 +32,7 @@
         <link rel="stylesheet" type="text/css" href="/styles/{data.dark ? 'dark' : 'light'}.css" />
         <link rel="stylesheet" type="text/css" href="/styles/stylesheet.css" />
 
-        <style lang="scss" global>
+        <style lang="scss">
             @keyframes fade-from-left {
                 from {
                     opacity: 0%;
@@ -52,7 +52,7 @@
             }
         </style>
 
-        <title>TCN Info</title>
+        <title>TCN</title>
     </head>
 
     <body>

@@ -2,33 +2,21 @@
     import Testimonial from "../lib/Testimonial.svelte";
 </script>
 
-<div class="container">
-    <br />
-    <div id="main">
-        <div id="box">
-            <div id="box-1"><p>Welcome to the Teyvat Collective Network</p></div>
-            <div id="box-2">
-                <p>
-                    The mission of the TCN is to unite all mains servers across Teyvat and provide
-                    support and promote collaboration between partners.
-                </p>
-            </div>
-        </div>
-        <h3>Testimonials</h3>
-        <Testimonial
-            image="https://upload-os-bbs.mihoyo.com/game_record/genshin/character_icon/UI_AvatarIcon_Shenhe.png"
-            name="Shenhe Mains"
-        >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi egestas at odio quis
-            tincidunt. Nam odio nunc, facilisis at efficitur sed, condimentum eget erat. Nam id nisl
-            vestibulum, fermentum sapien at, tempus libero. Morbi semper pharetra placerat. Etiam
-            varius ornare eros, ac pulvinar mi aliquam vel. Curabitur nec lectus ut ante rutrum
-            faucibus. Phasellus fermentum finibus elit sit amet tristique. Duis scelerisque odio eu
-            dapibus porttitor. Nunc ut pharetra arcu, sed eleifend justo. Cras pulvinar, purus eget
-            tincidunt eleifend, mi justo aliquet metus, in porta nunc nisl a tortor.
-        </Testimonial>
-    </div>
-</div>
+<template lang="pug">
+    .container
+        br
+        #main
+            #box
+                #box-1
+                    p Welcome to the Teyvat Collective Network
+                #box-2
+                    p The mission of the TCN is to unite all mains servers across Teyvat and provide support and promote collaboration between partners.
+            h3 Testimonials
+            Testimonial(
+                image="https://upload-os-bbs.mihoyo.com/game_record/genshin/character_icon/UI_AvatarIcon_Shenhe.png",
+                name="Shenhe Mains"
+            ) Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi egestas at odio quis tincidunt. Nam odio nunc, facilisis at efficitur sed, condimentum eget erat. Nam id nisl vestibulum, fermentum sapien at, tempus libero. Morbi semper pharetra placerat. Etiam varius ornare eros, ac pulvinar mi aliquam vel. Curabitur nec lectus ut ante rutrum faucibus. Phasellus fermentum finibus elit sit amet tristique. Duis scelerisque odio eu dapibus porttitor. Nunc ut pharetra arcu, sed eleifend justo. Cras pulvinar, purus eget tincidunt eleifend, mi justo aliquet metus, in porta nunc nisl a tortor.
+</template>
 
 <style lang="scss">
     #box {
