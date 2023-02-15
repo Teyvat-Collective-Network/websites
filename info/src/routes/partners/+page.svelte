@@ -51,7 +51,7 @@
     #main {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-        gap: 1em;
+        gap: 20px;
     }
 
     h1,
@@ -63,21 +63,21 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        gap: 1em;
-        margin-bottom: 2em;
+        gap: 20px;
+        margin-bottom: 40px;
     }
 
     .external {
         display: flex;
         flex-direction: row;
         align-items: center;
-        gap: 2em;
+        gap: 40px;
         background-color: var(--background-2);
-        padding: 1em 2em;
+        padding: 20px 40px;
         border-radius: 5px;
 
         & > div {
-            margin-bottom: 2em;
+            margin-bottom: 40px;
         }
 
         @media screen and (max-width: 600px) {
@@ -89,11 +89,11 @@
         grid-column: 1/ -1;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-        gap: 1em;
-        padding-bottom: 2em;
+        gap: 20px;
+        padding-bottom: 40px;
 
         & > div {
-            padding: 1rem 2rem;
+            padding: 20px 40px;
             display: flex;
             flex-direction: column;
             align-items: center;

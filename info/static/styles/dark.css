@@ -29,6 +29,7 @@
     --yellow-callout: #8b6f0e;
 
     --pure-rgb: 10, 10, 10;
+    --invert-rgb: 240, 240, 240;
 }
 
 .light {

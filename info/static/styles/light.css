@@ -29,6 +29,7 @@
     --yellow-callout: #e4c662;
 
     --pure-rgb: 240, 240, 240;
+    --invert-rgb: 10, 10, 10;
 }
 
 .dark {

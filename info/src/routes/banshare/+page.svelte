@@ -163,7 +163,7 @@
                                     bot needs time to fetch all of the users.
                                     p If the list is very long and you want to get the banshare published ASAP, use "Submit Without Validation", which will check if the IDs look correct but won't fetch all of the users.
     
-    Modal(bind:open!="{open}" background_color="var(--background-1)" overlay_color="rgb(var(--pure-rgb), 80%)" on:click="{close_modal}")
+    Modal(bind:open!="{open}", background_color="var(--background-1)", overlay_color="rgb(var(--pure-rgb), 80%)", on:click!="{close_modal}")
         +if("error")
             Callout(style="red")
                 p {@html error}

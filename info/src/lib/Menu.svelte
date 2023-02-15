@@ -240,7 +240,7 @@
         backdrop-filter: blur(2px);
         width: 100%;
         height: 100%;
-        z-index: 1;
+        z-index: 4;
         transition: opacity 250ms;
 
         &:not(.open) {

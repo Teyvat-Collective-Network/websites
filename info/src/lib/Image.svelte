@@ -12,6 +12,8 @@
     export let classes: string = "";
 </script>
 
+<svelte:window on:keydown={(e) => e.key === "Escape" && (open = false)} />
+
 <div class="box">
     <img
         class="base {classes}"

@@ -1,25 +1,48 @@
 <script lang="ts">
+    import { Modal } from "@daedalus-discord/webkit";
+
     export let image: string;
     export let name: string;
+
+    export let open: boolean = false;
 </script>
 
-<div id="testimonial">
+<button id="testimonial" on:click={() => (open = true)}>
     <img src={image} alt="{name} Icon" />
     <div id="right">
         <span>{name}</span>
         <div><slot /></div>
     </div>
-</div>
+</button>
+
+<Modal bind:open background_color="var(--background-1)" overlay_color="rgb(var(--pure-rgb), 80%)">
+    <div id="top">
+        <img src={image} alt="{name} Icon" />
+        <span>{name}</span>
+    </div>
+    <div id="bottom">
+        <slot />
+    </div>
+</Modal>
 
 <style lang="scss">
     #testimonial {
+        all: unset;
+
         display: inline-flex;
         flex-direction: row;
         align-items: center;
+        cursor: pointer;
         width: 500px;
         height: 200px;
         background-color: var(--background-2);
         border-radius: 5px;
+
+        transition: transform 250ms;
+
+        &:hover {
+            transform: scale(1.04);
+        }
     }
 
     img {
@@ -51,5 +74,15 @@
         -webkit-line-clamp: 3;
         line-clamp: 3;
         -webkit-box-orient: vertical;
+    }
+
+    #top {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    #bottom {
+        padding: 1em;
     }
 </style>
