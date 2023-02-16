@@ -1,13 +1,18 @@
 <script lang="ts">
     import { Modal } from "@daedalus-discord/webkit";
+    import { createEventDispatcher } from "svelte";
 
     export let image: string;
     export let name: string;
 
     export let open: boolean = false;
+
+    let element: Element;
+
+    const dispatch = createEventDispatcher();
 </script>
 
-<button id="testimonial" on:click={() => (open = true)}>
+<button id="testimonial" on:click={() => ((open = true), dispatch("open"))} bind:this={element}>
     <img src={image} alt="{name} Icon" />
     <div id="right">
         <span>{name}</span>
@@ -15,7 +20,12 @@
     </div>
 </button>
 
-<Modal bind:open background_color="var(--background-1)" overlay_color="rgb(var(--pure-rgb), 80%)">
+<Modal
+    bind:open
+    background_color="var(--background-1)"
+    overlay_color="rgb(var(--pure-rgb), 80%)"
+    on:close={() => dispatch("close")}
+>
     <div id="top">
         <img src={image} alt="{name} Icon" />
         <span>{name}</span>
@@ -37,12 +47,6 @@
         height: 200px;
         background-color: var(--background-2);
         border-radius: 5px;
-
-        transition: transform 250ms;
-
-        &:hover {
-            transform: scale(1.04);
-        }
     }
 
     img {
