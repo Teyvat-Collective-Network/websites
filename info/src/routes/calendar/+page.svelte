@@ -5,7 +5,7 @@
     const open: { [key: string]: boolean } = {};
     let sx: number = 0;
 
-    let x: number = 0;
+    let x: number = 100;
     setInterval(() => (x += 0.02), 10);
 </script>
 
@@ -34,10 +34,10 @@
                         +span("election-19", 5, 10, "Wave 19 Election", "#534", "#645")
                     +each("[...new Array(101).keys()] as i")
                         .vline.dateline(style!="left: {17 + 55 * i}px")
-                            code.plain.less Fr
-                            code.plain.more 32
+                            span.plain.less Fr
+                            span.plain.more 32
                     .vline.timeline(style!="left: {100 + x}px")
-                        code.plain.current 1:23:45
+                        span.plain.current 1:23:45
     
     +modal("saccharine-confections")
         | Join Dehya Mains to participate in our latest art event!
@@ -139,7 +139,7 @@
         width: 1px;
         padding-top: 30px;
 
-        & > code {
+        & > span {
             padding: 0;
             height: 20px;
             font-size: 16px;
@@ -147,11 +147,11 @@
     }
 
     .timeline {
-        background-color: rgb(var(--invert-rgb), 30%);
+        background-color: rgb(var(--accent-rgb), 75%);
         width: 3px;
         z-index: 2;
 
-        & > code {
+        & > span {
             margin-top: 4px;
             padding: 3px 3px 0 3px;
             height: 20px;
