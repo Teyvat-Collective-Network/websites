@@ -6,7 +6,7 @@
     let stop: boolean = false;
     let paused: boolean = false;
 
-    const max_frames: number = 1000;
+    const max_frames: number = 400;
     let frames: number = max_frames;
     let x: number = 0;
 
