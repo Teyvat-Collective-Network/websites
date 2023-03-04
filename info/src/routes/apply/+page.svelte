@@ -53,7 +53,7 @@
         form#main(method="post", on:submit!="{submit}")
             h2 TCN Application Form
             +if("!data.user")
-                .panel Please <a href={PUBLIC_TCN_AUTH}>log in</a> to apply.
+                .panel Please <a href="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/apply`)}">log in</a> to apply.
                 +else
                     +if("form?.error")
                         Callout(style="red")
