@@ -15,16 +15,16 @@ import {
     type User,
     type StringSelectMenuComponentData,
     type APIEmbed,
-    GuildMember,
-    type APIGuildMember
+    type GuildMember,
+    type APIGuildMember,
 } from "discord.js";
-import db from "./db.js";
+import { banshares } from "./db.js";
 import { components } from "./lib.js";
 
 process.on("uncaughtException", (error) => console.error(error));
 
 const bot = new Client({
-    intents: IntentsBitField.Flags.Guilds | IntentsBitField.Flags.MessageContent
+    intents: IntentsBitField.Flags.Guilds | IntentsBitField.Flags.MessageContent,
 });
 
 const finished = [
@@ -36,10 +36,10 @@ const finished = [
                 style: ButtonStyle.Secondary,
                 customId: "/",
                 label: "Banshare Executed",
-                disabled: true
-            }
-        ]
-    }
+                disabled: true,
+            },
+        ],
+    },
 ] as any;
 
 const rescinded = [
@@ -51,10 +51,10 @@ const rescinded = [
                 style: ButtonStyle.Secondary,
                 customId: "/",
                 label: "Banshare Rescinded",
-                disabled: true
-            }
-        ]
-    }
+                disabled: true,
+            },
+        ],
+    },
 ] as any;
 
 const report = [
@@ -72,11 +72,11 @@ const report = [
                     "Reason does not justify a banshare.",
                     "Evidence is insufficient.",
                     "Evidence is forged.",
-                    "Severity should be increased."
+                    "Severity should be increased.",
                 ].map((text) => ({ label: text, value: text })),
-                placeholder: "Report This Banshare"
-            } satisfies StringSelectMenuComponentData
-        ]
+                placeholder: "Report This Banshare",
+            } satisfies StringSelectMenuComponentData,
+        ],
     },
     {
         type: ComponentType.ActionRow,
@@ -85,10 +85,10 @@ const report = [
                 type: ComponentType.Button,
                 style: ButtonStyle.Danger,
                 customId: "report",
-                label: "Report (Custom Reason)"
-            }
-        ]
-    }
+                label: "Report (Custom Reason)",
+            },
+        ],
+    },
 ] as any;
 
 const autoban_scheduled = [
@@ -100,10 +100,10 @@ const autoban_scheduled = [
                 style: ButtonStyle.Secondary,
                 customId: "-",
                 label: "Auto-ban scheduled",
-                disabled: true
-            }
-        ]
-    }
+                disabled: true,
+            },
+        ],
+    },
 ] as any;
 
 const autobanning = [
@@ -115,10 +115,10 @@ const autobanning = [
                 style: ButtonStyle.Secondary,
                 customId: "/",
                 label: "Auto-banning...",
-                disabled: true
-            }
-        ]
-    }
+                disabled: true,
+            },
+        ],
+    },
 ] as any;
 
 const published = new Set<string>();
@@ -145,7 +145,7 @@ bot.on("interactionCreate", async (interaction) => {
             const subcommand = interaction.options.getSubcommand(false);
 
             if (subgroup === "post" || subgroup === "log") {
-                const collection = subgroup === "post" ? db.channels : db.logging;
+                const collection = subgroup === "post" ? banshares.channels : banshares.logging;
 
                 if (subcommand === "here") {
                     if (
@@ -155,11 +155,11 @@ bot.on("interactionCreate", async (interaction) => {
                                 PermissionFlagsBits.ViewChannel |
                                     PermissionFlagsBits.SendMessages |
                                     PermissionFlagsBits.EmbedLinks |
-                                    PermissionFlagsBits.AttachFiles
+                                    PermissionFlagsBits.AttachFiles,
                             )
                     ) {
                         await interaction.editReply(
-                            "Please grant the bot permission to view this channel and send messages, embed links, and attach files."
+                            "Please grant the bot permission to view this channel and send messages, embed links, and attach files.",
                         );
                         return;
                     }
@@ -167,55 +167,55 @@ bot.on("interactionCreate", async (interaction) => {
                     await collection.findOneAndUpdate(
                         { guild: interaction.guild!.id },
                         { $set: { channel: interaction.channel!.id } },
-                        { upsert: true }
+                        { upsert: true },
                     );
 
                     await interaction.editReply(
-                        `${subgroup === "post" ? "Banshares" : "Logs"} will now be posted here.`
+                        `${subgroup === "post" ? "Banshares" : "Logs"} will now be posted here.`,
                     );
                 } else if (subcommand === "none") {
                     await collection.findOneAndDelete({
-                        guild: interaction.guild!.id
+                        guild: interaction.guild!.id,
                     });
 
                     await interaction.editReply(
                         subgroup === "post"
                             ? "You will no longer receive banshares."
-                            : "Logs will no longer be posted."
+                            : "Logs will no longer be posted.",
                     );
                 }
             } else if (!subgroup) {
                 if (subcommand === "ban-button") {
                     const enable = interaction.options.getBoolean("enable", true);
 
-                    await db.settings.findOneAndUpdate(
+                    await banshares.settings.findOneAndUpdate(
                         { guild: interaction.guild!.id },
                         { $set: { no_button: !enable } },
-                        { upsert: true }
+                        { upsert: true },
                     );
 
                     await interaction.editReply(
-                        `${enable ? "Enabled" : "Disabled"} the ban button.`
+                        `${enable ? "Enabled" : "Disabled"} the ban button.`,
                     );
                 } else if (subcommand === "daedalus-integration") {
                     const enable = interaction.options.getBoolean("enable", true);
 
-                    await db.settings.findOneAndUpdate(
+                    await banshares.settings.findOneAndUpdate(
                         { guild: interaction.guild!.id },
                         { $set: { daedalus: enable } },
-                        { upsert: true }
+                        { upsert: true },
                     );
 
                     await interaction.editReply(
-                        `${enable ? "Enabled" : "Disabled"} Daedalus integration.`
+                        `${enable ? "Enabled" : "Disabled"} Daedalus integration.`,
                     );
                 } else if (subcommand === "autoban") {
                     const threshold = interaction.options.getString("threshold", true);
 
-                    await db.settings.findOneAndUpdate(
+                    await banshares.settings.findOneAndUpdate(
                         { guild: interaction.guild!.id },
                         { $set: { autoban: threshold } },
-                        { upsert: true }
+                        { upsert: true },
                     );
 
                     await interaction.editReply(
@@ -224,9 +224,9 @@ bot.on("interactionCreate", async (interaction) => {
                                 none: "none",
                                 crit: "P0 only",
                                 med: "P0 and P1",
-                                all: "P0, P1, and P2"
+                                all: "P0, P1, and P2",
                             }[threshold]
-                        }.`
+                        }.`,
                     );
                 }
             }
@@ -247,12 +247,12 @@ bot.on("interactionCreate", async (interaction) => {
                                 style: ButtonStyle.Secondary,
                                 customId: "/",
                                 label: "Fetching users...",
-                                disabled: true
-                            }
-                        ]
-                    }
+                                disabled: true,
+                            },
+                        ],
+                    },
                 ],
-                ephemeral: true
+                ephemeral: true,
             });
 
             const users: User[] = [];
@@ -265,7 +265,7 @@ bot.on("interactionCreate", async (interaction) => {
             try {
                 await interaction.editReply({
                     content: users.join(", "),
-                    components: confirm(false, "-ban")
+                    components: confirm(false, "-ban"),
                 });
             } catch {
                 await interaction.editReply({
@@ -273,19 +273,19 @@ bot.on("interactionCreate", async (interaction) => {
                         {
                             attachment: Buffer.from(
                                 users.map((user) => `${user.tag} (${user.id})`).join(", "),
-                                "utf-8"
+                                "utf-8",
                             ),
-                            name: "user-list.txt"
-                        }
+                            name: "user-list.txt",
+                        },
                     ],
-                    components: confirm(false, "-ban")
+                    components: confirm(false, "-ban"),
                 });
             }
         } else if (interaction.customId === "report") {
             if (!bot.channels.cache.has(ALERT)) {
                 await interaction.reply({
                     content:
-                        "The output channel does not appear to be set up correctly, so your report would not be able to be sent."
+                        "The output channel does not appear to be set up correctly, so your report would not be able to be sent.",
                 });
 
                 return;
@@ -306,17 +306,17 @@ bot.on("interactionCreate", async (interaction) => {
                                 placeholder:
                                     "Explain why you believe this banshare is problematic and should be rescinded.",
                                 maxLength: 1800,
-                                required: true
-                            }
-                        ]
-                    }
-                ]
+                                required: true,
+                            },
+                        ],
+                    },
+                ],
             });
         } else if (interaction.customId === "cancel-ban")
             await interaction.update({
                 content: null,
                 files: [],
-                components: confirm(true, "-ban")
+                components: confirm(true, "-ban"),
             });
         else if (interaction.customId === "confirm-ban") {
             let message: Message;
@@ -328,7 +328,7 @@ bot.on("interactionCreate", async (interaction) => {
                     content:
                         "The banshare being referred to has been deleted, so it cannot be executed.",
                     files: [],
-                    components: []
+                    components: [],
                 });
 
                 return;
@@ -336,22 +336,22 @@ bot.on("interactionCreate", async (interaction) => {
 
             const banshare = await get_banshare(
                 interaction,
-                interaction.message.reference?.messageId ?? ""
+                interaction.message.reference?.messageId ?? "",
             );
 
             if (!banshare) return;
 
-            const lock = await db.executed.findOneAndUpdate(
+            const lock = await banshares.executed.findOneAndUpdate(
                 { post: interaction.message.id },
                 { $set: { executed: true } },
-                { upsert: true }
+                { upsert: true },
             );
 
             if (lock.value?.executed) {
                 await interaction.update({
                     content: "This banshare is already being executed by someone else.",
                     files: [],
-                    components: []
+                    components: [],
                 });
 
                 return;
@@ -360,15 +360,15 @@ bot.on("interactionCreate", async (interaction) => {
             await interaction.update({
                 content: "Executing...",
                 files: [],
-                components: []
+                components: [],
             });
 
             await execute(
                 banshare,
-                await db.settings.findOne({ guild: interaction.guild!.id }),
+                await banshares.settings.findOne({ guild: interaction.guild!.id }),
                 interaction.guild!,
                 message,
-                interaction.member!
+                interaction.member!,
             );
 
             await interaction.editReply("Banshare executed!");
@@ -377,9 +377,9 @@ bot.on("interactionCreate", async (interaction) => {
         else if (interaction.customId.startsWith("sev:")) {
             const severity = interaction.customId.substring(4);
 
-            await db.banshares.findOneAndUpdate(
+            await banshares.banshares.findOneAndUpdate(
                 { message: interaction.message.id },
-                { $set: { severity } }
+                { $set: { severity } },
             );
 
             await interaction.update({
@@ -391,23 +391,23 @@ bot.on("interactionCreate", async (interaction) => {
                             ...interaction.message.embeds[0].fields.slice(0, -1),
                             {
                                 name: "Severity",
-                                value: severity[0].toUpperCase() + severity.substring(1)
-                            }
-                        ]
-                    }
+                                value: severity[0].toUpperCase() + severity.substring(1),
+                            },
+                        ],
+                    },
                 ],
-                components: components(false, severity)
+                components: components(false, severity),
             });
         } else if (interaction.customId.startsWith("escalate:")) {
             const severity = interaction.customId.substring(9);
 
-            const banshare = await db.banshares.findOne({ message: interaction.message.id });
+            const banshare = await banshares.banshares.findOne({ message: interaction.message.id });
 
             if (!banshare) {
                 await interaction.update({
                     content: "This does not appear to be a banshare.",
                     embeds: [],
-                    components: []
+                    components: [],
                 });
 
                 return;
@@ -425,28 +425,28 @@ bot.on("interactionCreate", async (interaction) => {
                                 style: TextInputStyle.Paragraph,
                                 customId: "reason",
                                 label: "Reason",
-                                placeholder: `You are about to escalate this banshare to ${severity} severity. This is not reversible!`
-                            }
-                        ]
-                    }
-                ]
+                                placeholder: `You are about to escalate this banshare to ${severity} severity. This is not reversible!`,
+                            },
+                        ],
+                    },
+                ],
             });
         } else if (interaction.customId === "publish") {
             if (
                 published.has(interaction.message.id) ||
-                (await db.banshares.findOne({
+                (await banshares.banshares.findOne({
                     message: interaction.message.id,
-                    published: true
+                    published: true,
                 }))
             )
                 await interaction.reply({
                     content: "This banshare has been published by someone else already.",
-                    ephemeral: true
+                    ephemeral: true,
                 });
             else
                 await interaction.reply({
                     components: confirm(),
-                    ephemeral: true
+                    ephemeral: true,
                 });
         } else if (interaction.customId === "confirm") {
             await interaction.deferUpdate();
@@ -471,22 +471,22 @@ bot.on("interactionCreate", async (interaction) => {
             published.add(id);
             setTimeout(() => published.delete(id), 10000);
 
-            const banshare = await db.banshares.findOneAndUpdate(
+            const banshare = await banshares.banshares.findOneAndUpdate(
                 { message: id },
-                { $set: { published: true } }
+                { $set: { published: true } },
             );
 
             if (!banshare.value)
                 await interaction.editReply({
                     content: "This does not appear to be a banshare.",
                     embeds: [],
-                    components: []
+                    components: [],
                 });
             else if (fail || banshare.value.executed)
                 await interaction.editReply({
                     content: "This banshare has been published by someone else already.",
                     embeds: [],
-                    components: []
+                    components: [],
                 });
             else {
                 let embeds: APIEmbed[];
@@ -503,7 +503,7 @@ bot.on("interactionCreate", async (interaction) => {
                 } catch {
                     await interaction.editReply({
                         content: "The original banshare could not be found.",
-                        components: []
+                        components: [],
                     });
 
                     return;
@@ -511,7 +511,7 @@ bot.on("interactionCreate", async (interaction) => {
 
                 await interaction.editReply({
                     content: "Banshare is being published! You may dismiss this message.",
-                    components: []
+                    components: [],
                 });
 
                 const channel = interaction.client.channels.cache.get(LOG ?? "");
@@ -520,18 +520,18 @@ bot.on("interactionCreate", async (interaction) => {
 
                 await log({
                     content: `${interaction.user} published <${interaction.message.url}>.`,
-                    allowedMentions: { parse: [] }
+                    allowedMentions: { parse: [] },
                 });
 
-                const places = (await db.channels.find().toArray())
+                const places = (await banshares.channels.find().toArray())
                     .filter(
                         (entry) =>
                             (PUBLIC_ALLOWLIST && PUBLIC_ALLOWLIST.indexOf(entry.guild) !== -1) ||
-                            guilds.includes(entry.guild)
+                            guilds.includes(entry.guild),
                     )
                     .map((entry) => ({
                         guild: entry.guild,
-                        channel: bot.channels.cache.get(entry.channel)
+                        channel: bot.channels.cache.get(entry.channel),
                     }))
                     .filter(({ channel }) => channel?.isTextBased());
 
@@ -539,8 +539,8 @@ bot.on("interactionCreate", async (interaction) => {
                     places.map(async ({ guild, channel }) => {
                         if (!channel?.isTextBased()) return;
 
-                        const settings = await db.settings.findOne({
-                            guild
+                        const settings = await banshares.settings.findOne({
+                            guild,
                         });
 
                         const threshold = settings?.autoban ?? "none";
@@ -560,20 +560,20 @@ bot.on("interactionCreate", async (interaction) => {
                                             type: ComponentType.Button,
                                             style: ButtonStyle.Danger,
                                             customId: "ban",
-                                            label: "Ban"
-                                        }
-                                    ]
-                                }
+                                            label: "Ban",
+                                        },
+                                    ],
+                                },
                             ];
                         }
 
                         const post = await channel.send({
                             embeds,
-                            components: components.concat(report)
+                            components: components.concat(report),
                         });
 
                         await save(banshare, guild, post);
-                    })
+                    }),
                 );
 
                 places.forEach(async ({ guild, channel }) => {
@@ -585,24 +585,24 @@ bot.on("interactionCreate", async (interaction) => {
                     if (message.components?.[0]?.components?.[0]?.customId !== "-") return;
 
                     await message.edit({
-                        components: autobanning.concat(report)
+                        components: autobanning.concat(report),
                     });
 
                     await execute(
                         banshare.value,
-                        await db.settings.findOne({ guild }),
+                        await banshares.settings.findOne({ guild }),
                         message.guild!,
-                        message
+                        message,
                     );
 
                     await message.edit({
-                        components: finished.concat(report)
+                        components: finished.concat(report),
                     });
                 });
             }
         } else if (interaction.customId === "cancel") {
             await interaction.update({
-                components: confirm(true).concat(report)
+                components: confirm(true).concat(report),
             });
         } else if (interaction.customId === "rescind") {
             await interaction.showModal({
@@ -620,25 +620,25 @@ bot.on("interactionCreate", async (interaction) => {
                                 maxLength: 1800,
                                 required: true,
                                 placeholder:
-                                    "Why is this banshare being rescinded and why was it published initially?"
-                            }
-                        ]
-                    }
-                ]
+                                    "Why is this banshare being rescinded and why was it published initially?",
+                            },
+                        ],
+                    },
+                ],
             });
         }
     } else if (interaction.isModalSubmit()) {
         if (interaction.customId === "confirm-rescind") {
             await interaction.deferReply({ ephemeral: true });
 
-            const lock = await db.banshares.findOneAndUpdate(
+            const lock = await banshares.banshares.findOneAndUpdate(
                 { message: interaction.message!.id },
-                { $set: { rescinded: true } }
+                { $set: { rescinded: true } },
             );
 
             if (lock.value?.rescinded) {
                 await interaction.editReply(
-                    "This banshare is already being rescinded by someone else."
+                    "This banshare is already being rescinded by someone else.",
                 );
 
                 return;
@@ -646,14 +646,14 @@ bot.on("interactionCreate", async (interaction) => {
 
             try {
                 await interaction.message!.edit({
-                    components: rescinded
+                    components: rescinded,
                 });
             } catch (error) {
                 console.error(error);
             }
 
             await interaction.editReply(
-                "This banshare is being rescinded. You may dismiss this message."
+                "This banshare is being rescinded. You may dismiss this message.",
             );
 
             const explanation =
@@ -662,7 +662,7 @@ bot.on("interactionCreate", async (interaction) => {
 
             await interaction.message!.reply(explanation);
 
-            for (const post of await db.banshare_posts
+            for (const post of await banshares.banshare_posts
                 .find({ banshare: interaction.message!.id })
                 .toArray()) {
                 try {
@@ -684,28 +684,28 @@ bot.on("interactionCreate", async (interaction) => {
 
             const value = severity[0].toUpperCase() + severity.slice(1);
 
-            const banshare = await db.banshares.findOneAndUpdate(
+            const banshare = await banshares.banshares.findOneAndUpdate(
                 { message: interaction.message!.id },
-                { $set: { severity } }
+                { $set: { severity } },
             );
 
             if (!banshare.value) {
                 await interaction.editReply({
                     content: "This does not appear to be a banshare.",
                     embeds: [],
-                    components: []
+                    components: [],
                 });
 
                 return;
             }
 
-            const posts = await db.banshare_posts
+            const posts = await banshares.banshare_posts
                 .find({ banshare: interaction.message!.id })
                 .toArray();
 
             await Promise.all(
                 posts.map(async (post) => {
-                    const settings = await db.settings.findOne({ guild: post.guild });
+                    const settings = await banshares.settings.findOne({ guild: post.guild });
                     const threshold = settings?.autoban ?? "none";
 
                     try {
@@ -715,13 +715,13 @@ bot.on("interactionCreate", async (interaction) => {
                         const message = await channel.messages.fetch(post.message);
 
                         await message.reply(
-                            `This banshare was escalated to ${severity} severity. The explanation given is below:\n\n${reason}`
+                            `This banshare was escalated to ${severity} severity. The explanation given is below:\n\n${reason}`,
                         );
 
                         const embed = message.embeds[0].toJSON();
 
                         embed.fields?.forEach(
-                            (field) => field.name === "Severity" && (field.value = value)
+                            (field) => field.name === "Severity" && (field.value = value),
                         );
 
                         if (
@@ -730,13 +730,13 @@ bot.on("interactionCreate", async (interaction) => {
                         ) {
                             await message.edit({
                                 embeds: [embed],
-                                components: autobanning.concat(report)
+                                components: autobanning.concat(report),
                             });
 
-                            const lock = await db.executed.findOneAndUpdate(
+                            const lock = await banshares.executed.findOneAndUpdate(
                                 { post: message.id },
                                 { $set: { executed: true } },
-                                { upsert: true }
+                                { upsert: true },
                             );
 
                             if (!lock.value?.executed) {
@@ -745,7 +745,7 @@ bot.on("interactionCreate", async (interaction) => {
                             }
                         } else await message.edit({ embeds: [embed] });
                     } catch {}
-                })
+                }),
             );
 
             const embed = interaction.message!.embeds[0].toJSON();
@@ -753,7 +753,7 @@ bot.on("interactionCreate", async (interaction) => {
 
             await interaction.editReply({
                 embeds: [embed],
-                components: components(true, severity)
+                components: components(true, severity),
             });
 
             const channel = interaction.client.channels.cache.get(LOG ?? "");
@@ -764,7 +764,7 @@ bot.on("interactionCreate", async (interaction) => {
                 content: `${interaction.user} escalated ${
                     interaction.message!.url
                 } to ${severity} severity:\n\n${reason}`,
-                allowedMentions: { parse: [] }
+                allowedMentions: { parse: [] },
             });
         }
     } else if (interaction.isStringSelectMenu()) {
@@ -778,19 +778,19 @@ bot.on("interactionCreate", async (interaction) => {
 
 async function process_report(
     interaction: ModalSubmitInteraction | StringSelectMenuInteraction,
-    reason: string
+    reason: string,
 ) {
     await interaction.deferReply({ ephemeral: true });
 
     try {
-        const entry = await db.banshare_posts.findOne({
-            message: interaction.message!.id
+        const entry = await banshares.banshare_posts.findOne({
+            message: interaction.message!.id,
         });
 
         if (!entry) throw 0;
 
-        const banshare = await db.banshares.findOne({
-            message: entry.banshare
+        const banshare = await banshares.banshares.findOne({
+            message: entry.banshare,
         });
 
         if (!banshare) throw 0;
@@ -800,7 +800,7 @@ async function process_report(
 
         await channel.send({
             content: `${interaction.user} reported a banshare: <${banshare.url}>:\n\n${reason}`,
-            allowedMentions: { parse: [] }
+            allowedMentions: { parse: [] },
         });
     } catch {
         await interaction.editReply("Posting your report failed.");
@@ -808,7 +808,7 @@ async function process_report(
     }
 
     await interaction.editReply(
-        "Your report has been submitted and will be reviewed by the observers."
+        "Your report has been submitted and will be reviewed by the observers.",
     );
 }
 
@@ -817,31 +817,31 @@ async function get_banshare(interaction: ButtonInteraction, message: string) {
         await interaction.reply({
             content:
                 "This server is not in the TCN. You can ban these users manually at your own judgement.",
-            ephemeral: true
+            ephemeral: true,
         });
 
         return;
     }
 
-    const post = await db.banshare_posts.findOne({ message });
+    const post = await banshares.banshare_posts.findOne({ message });
 
     if (!post) {
         await interaction.reply({
             content: "This message is missing from the database.",
-            ephemeral: true
+            ephemeral: true,
         });
 
         return;
     }
 
-    const banshare = await db.banshares.findOne({
-        message: post.banshare
+    const banshare = await banshares.banshares.findOne({
+        message: post.banshare,
     });
 
     if (!banshare) {
         await interaction.reply({
             content: "This banshare is missing from the database.",
-            ephemeral: true
+            ephemeral: true,
         });
 
         return;
@@ -851,7 +851,7 @@ async function get_banshare(interaction: ButtonInteraction, message: string) {
         await interaction.reply({
             content:
                 "This banshare has been rescinded. You may still ban these users manually at your own judgement.",
-            ephemeral: true
+            ephemeral: true,
         });
 
         return;
@@ -865,7 +865,7 @@ async function execute(
     settings: any,
     guild: Guild,
     message: Message,
-    executor?: GuildMember | APIGuildMember
+    executor?: GuildMember | APIGuildMember,
 ) {
     const mod = executor ? { mod: executor.user!.id } : {};
 
@@ -911,16 +911,16 @@ async function execute(
                             method: "post",
                             headers: {
                                 Authorization: `Bearer ${DDL_TOKEN}`,
-                                "Content-Type": "application/json"
+                                "Content-Type": "application/json",
                             },
                             body: JSON.stringify({
                                 type: "ban",
                                 duration: 0,
                                 origin: message.url,
                                 reason: "TCN Banshare: " + (banshare.reason ?? "(missing reason)"),
-                                ...mod
-                            })
-                        }
+                                ...mod,
+                            }),
+                        },
                     );
 
                     if (!response.ok) console.error(response.status, await response.json());
@@ -933,7 +933,7 @@ async function execute(
         }
     }
 
-    const entry = await db.logging.findOne({ guild: guild.id });
+    const entry = await banshares.logging.findOne({ guild: guild.id });
 
     if (entry) {
         try {
@@ -948,7 +948,7 @@ async function execute(
                 await channel.send(
                     `${prefix}\nSuccess: ${banned.join(", ") || "(none)"}\nFailed: ${
                         failed.join(", ") || "(none)"
-                    }\nInvalid IDs: ${missed.join(", ") || "(none)"}`
+                    }\nInvalid IDs: ${missed.join(", ") || "(none)"}`,
                 );
             } catch {
                 await channel.send({
@@ -961,11 +961,11 @@ async function execute(
                                 }\nFailed: ${
                                     failed.map((x) => `${x.tag} (${x.id})`).join(", ") || "(none)"
                                 }\nInvalid IDs: ${missed.join(", ") || "(none)"}`,
-                                "utf-8"
+                                "utf-8",
                             ),
-                            name: "banshare.txt"
-                        }
-                    ]
+                            name: "banshare.txt",
+                        },
+                    ],
                 });
             }
         } catch {}
@@ -973,18 +973,18 @@ async function execute(
 }
 
 async function save(banshare: any, guild: string, post: Message) {
-    await db.banshare_posts.insertOne({
+    await banshares.banshare_posts.insertOne({
         guild,
         banshare: banshare.value.message,
         channel: post.channel.id,
-        message: post.id
+        message: post.id,
     });
 }
 
 async function get_post(banshare: any, guild: string) {
-    const entry = await db.banshare_posts.findOne({
+    const entry = await banshares.banshare_posts.findOne({
         guild,
-        banshare: banshare.value.message
+        banshare: banshare.value.message,
     });
 
     if (!entry) return;
@@ -1013,17 +1013,17 @@ function confirm(disabled: boolean = false, suffix: string = ""): any[] {
                     style: ButtonStyle.Success,
                     customId: `confirm${suffix}`,
                     label: "Confirm",
-                    disabled
+                    disabled,
                 },
                 {
                     type: ComponentType.Button,
                     style: ButtonStyle.Danger,
                     customId: `cancel${suffix}`,
                     label: "Cancel",
-                    disabled
-                }
-            ]
-        }
+                    disabled,
+                },
+            ],
+        },
     ];
 }
 

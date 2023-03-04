@@ -99,16 +99,35 @@ a {
     color: var(--text-accent);
 }
 
+button {
+    all: unset;
+    cursor: default;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    padding: 0.2em 0.8em;
+}
+
 a.button,
+button,
 input[type="submit"] {
-    padding: 0.5em 1em;
     background-color: var(--accent);
     color: var(--text-primary);
     border-radius: 5px;
     transition: background-color 200ms;
 }
 
+a.button,
+input[type="submit"] {
+    padding: 0.5em 1em;
+}
+
 a.button:hover,
+button:hover,
 input[type="submit"]:hover {
     background-color: var(--accent-less);
 }

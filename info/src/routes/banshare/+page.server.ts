@@ -3,7 +3,7 @@ import { PUBLIC_TCN_API } from "$env/static/public";
 import { fail, type Actions } from "@sveltejs/kit";
 import { escape } from "svelte/internal";
 import bot from "../../bot.js";
-import db from "../../db.js";
+import { banshares } from "../../db.js";
 import { create_gist } from "../../gists.js";
 import { components } from "../../lib.js";
 
@@ -184,7 +184,7 @@ export const actions: Actions = {
 
         const post = await channel.send({ ...send_data, components: components(false, severity) });
 
-        await db.banshares.insertOne({
+        await banshares.banshares.insertOne({
             message: post.id,
             url: post.url,
             server,

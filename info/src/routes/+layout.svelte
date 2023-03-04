@@ -1,6 +1,7 @@
 <script lang="ts">
     import Menu from "../lib/Menu.svelte";
     import Navbar from "../lib/Navbar.svelte";
+    import Redirect from "../lib/Redirect.svelte";
 
     export let data: any;
 </script>

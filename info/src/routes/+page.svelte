@@ -63,6 +63,11 @@
     function unpause() {
         paused = false;
     }
+
+    export let data: {
+        api_user: { roles: string[] };
+        testimonials: { image: string; name: string; content: string }[];
+    };
 </script>
 
 <template lang="pug">
@@ -74,7 +79,9 @@
                     p Welcome to the Teyvat Collective Network
                 #box-2
                     p The mission of the TCN is to unite all mains servers across Teyvat and provide support and promote collaboration between partners.
-            h4 Testimonials
+            h4.row(style="gap: 10px") Testimonials
+                +if("['observer', 'website'].some(x => data?.api_user?.roles?.includes(x))")
+                    a(href="/admin/testimonials"): i.material-icons edit
             #scroll-box(
                 on:mouseover!="{ pause }",
                 on:mouseout!="{ unpause }",
@@ -82,31 +89,12 @@
                 on:blur!="{ unpause }"
             )
                 #scroller(bind:this!="{ scroller }", on:scroll!="{ (e) => (x = e.target.scrollLeft) }")
-                    Testimonial(
-                        image="https://upload-os-bbs.mihoyo.com/game_record/genshin/character_icon/UI_AvatarIcon_Shenhe.png",
-                        name="Shenhe Mains 1",
-                        on:open!="{ () => (stop = true) }"
-                    ) Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi egestas at odio quis tincidunt. Nam odio nunc, facilisis at efficitur sed, condimentum eget erat. Nam id nisl vestibulum, fermentum sapien at, tempus libero. Morbi semper pharetra placerat. Etiam varius ornare eros, ac pulvinar mi aliquam vel. Curabitur nec lectus ut ante rutrum faucibus. Phasellus fermentum finibus elit sit amet tristique. Duis scelerisque odio eu dapibus porttitor. Nunc ut pharetra arcu, sed eleifend justo. Cras pulvinar, purus eget tincidunt eleifend, mi justo aliquet metus, in porta nunc nisl a tortor.
-                    Testimonial(
-                        image="https://upload-os-bbs.mihoyo.com/game_record/genshin/character_icon/UI_AvatarIcon_Shenhe.png",
-                        name="Shenhe Mains 2",
-                        on:open!="{ () => (stop = true) }"
-                    ) Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi egestas at odio quis tincidunt. Nam odio nunc, facilisis at efficitur sed, condimentum eget erat. Nam id nisl vestibulum, fermentum sapien at, tempus libero. Morbi semper pharetra placerat. Etiam varius ornare eros, ac pulvinar mi aliquam vel. Curabitur nec lectus ut ante rutrum faucibus. Phasellus fermentum finibus elit sit amet tristique. Duis scelerisque odio eu dapibus porttitor. Nunc ut pharetra arcu, sed eleifend justo. Cras pulvinar, purus eget tincidunt eleifend, mi justo aliquet metus, in porta nunc nisl a tortor.
-                    Testimonial(
-                        image="https://upload-os-bbs.mihoyo.com/game_record/genshin/character_icon/UI_AvatarIcon_Shenhe.png",
-                        name="Shenhe Mains 3",
-                        on:open!="{ () => (stop = true) }"
-                    ) Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi egestas at odio quis tincidunt. Nam odio nunc, facilisis at efficitur sed, condimentum eget erat. Nam id nisl vestibulum, fermentum sapien at, tempus libero. Morbi semper pharetra placerat. Etiam varius ornare eros, ac pulvinar mi aliquam vel. Curabitur nec lectus ut ante rutrum faucibus. Phasellus fermentum finibus elit sit amet tristique. Duis scelerisque odio eu dapibus porttitor. Nunc ut pharetra arcu, sed eleifend justo. Cras pulvinar, purus eget tincidunt eleifend, mi justo aliquet metus, in porta nunc nisl a tortor.
-                    Testimonial(
-                        image="https://upload-os-bbs.mihoyo.com/game_record/genshin/character_icon/UI_AvatarIcon_Shenhe.png",
-                        name="Shenhe Mains 4",
-                        on:open!="{ () => (stop = true) }"
-                    ) Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi egestas at odio quis tincidunt. Nam odio nunc, facilisis at efficitur sed, condimentum eget erat. Nam id nisl vestibulum, fermentum sapien at, tempus libero. Morbi semper pharetra placerat. Etiam varius ornare eros, ac pulvinar mi aliquam vel. Curabitur nec lectus ut ante rutrum faucibus. Phasellus fermentum finibus elit sit amet tristique. Duis scelerisque odio eu dapibus porttitor. Nunc ut pharetra arcu, sed eleifend justo. Cras pulvinar, purus eget tincidunt eleifend, mi justo aliquet metus, in porta nunc nisl a tortor.
-                    Testimonial(
-                        image="https://upload-os-bbs.mihoyo.com/game_record/genshin/character_icon/UI_AvatarIcon_Shenhe.png",
-                        name="Shenhe Mains 5",
-                        on:open!="{ () => (stop = true) }"
-                    ) Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi egestas at odio quis tincidunt. Nam odio nunc, facilisis at efficitur sed, condimentum eget erat. Nam id nisl vestibulum, fermentum sapien at, tempus libero. Morbi semper pharetra placerat. Etiam varius ornare eros, ac pulvinar mi aliquam vel. Curabitur nec lectus ut ante rutrum faucibus. Phasellus fermentum finibus elit sit amet tristique. Duis scelerisque odio eu dapibus porttitor. Nunc ut pharetra arcu, sed eleifend justo. Cras pulvinar, purus eget tincidunt eleifend, mi justo aliquet metus, in porta nunc nisl a tortor.
+                    +each("data.testimonials as testimonial")
+                        Testimonial(
+                            image!="{ testimonial.image }",
+                            name!="{ testimonial.name }",
+                            on:open!="{ () => (stop = true) }"
+                        ) {testimonial.content}
                 button.scroller(style="left: -20px", on:click!="{ scroll_left }"): i.material-icons keyboard_arrow_left
                 button.scroller(style="right: -20px", on:click!="{ scroll_right }"): i.material-icons keyboard_arrow_right
 </template>
