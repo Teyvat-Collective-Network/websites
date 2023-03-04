@@ -77,7 +77,7 @@
             <button
                 style="background-color: transparent; color: var(--blue-text)"
                 on:click={() =>
-                    fetch("/api/testimonials?logged-in", {
+                    fetch("/api/testimonials", {
                         method: "post",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(data.testimonials),
