@@ -65,7 +65,7 @@
     }
 
     export let data: {
-        api_user: { roles: string[] };
+        auth: boolean;
         testimonials: { image: string; name: string; content: string }[];
     };
 </script>
@@ -80,7 +80,7 @@
                 #box-2
                     p The mission of the TCN is to unite all mains servers across Teyvat and provide support and promote collaboration between partners.
             h4.row(style="gap: 10px") Testimonials
-                +if("['observer', 'website'].some(x => data?.api_user?.roles?.includes(x))")
+                +if("data.auth")
                     a(href="/admin/testimonials"): i.material-icons edit
             #scroll-box(
                 on:mouseover!="{ pause }",

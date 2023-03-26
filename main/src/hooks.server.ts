@@ -18,6 +18,8 @@ export const handle: Handle = async ({ event, resolve }) => {
                 guilds: ["805458032908959804"],
                 roles: ["observer"],
             };
+
+            (event.locals as any).auth = true;
         }
     } else {
         const token = event.cookies.get("token");
@@ -34,6 +36,10 @@ export const handle: Handle = async ({ event, resolve }) => {
             }).then((res) => res.ok && res.json());
 
             (event.locals as any).api_user = api_user;
+
+            (event.locals as any).auth = ["observer", "website"].some((x) =>
+                api_user.roles?.includes(x),
+            );
         }
     }
 
