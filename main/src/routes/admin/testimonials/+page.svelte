@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import { Textarea } from "@daedalus-discord/webkit";
     import Redirect from "../../../lib/Redirect.svelte";
     import { swap, without } from "../../../lib/util.js";
@@ -7,7 +8,20 @@
         noaccess?: boolean;
         testimonials: { image: string; name: string; content: string }[];
     };
+
+    let button: any;
 </script>
+
+<svelte:window
+    on:keydown={(e) => {
+        console.log(e);
+
+        if (e.key === "s" && e.ctrlKey) {
+            button.click();
+            e.preventDefault();
+        }
+    }}
+/>
 
 {#if data.noaccess}
     <Redirect to="/" />
@@ -75,13 +89,14 @@
                 <i class="material-icons">add</i> Add Testimonial
             </button>
             <button
+                bind:this={button}
                 style="background-color: transparent; color: var(--blue-text)"
                 on:click={() =>
                     fetch("/api/testimonials", {
                         method: "post",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(data.testimonials),
-                    })}
+                    }).then((res) => (res.ok ? goto("/") : alert("an error occurred!")))}
             >
                 <i class="material-icons">save</i> Save
             </button>

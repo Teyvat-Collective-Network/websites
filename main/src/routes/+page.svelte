@@ -94,7 +94,7 @@
                             image!="{ testimonial.image }",
                             name!="{ testimonial.name }",
                             on:open!="{ () => (stop = true) }"
-                        ) {testimonial.content}
+                        ) {@html testimonial.content}
                 button.scroller(style="left: -20px", on:click!="{ scroll_left }"): i.material-icons keyboard_arrow_left
                 button.scroller(style="right: -20px", on:click!="{ scroll_right }"): i.material-icons keyboard_arrow_right
 </template>
