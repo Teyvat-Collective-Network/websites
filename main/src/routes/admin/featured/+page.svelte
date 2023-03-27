@@ -86,7 +86,7 @@
                     {
                         icon: "campaign",
                         title: "Announcement",
-                        body: "<b>HTML</b> is supported",
+                        body: "<p><b>HTML</b> is supported. Please use paragraph tags.</p>",
                     },
                 ])}
         >
