@@ -2,7 +2,15 @@
     import { goto } from "$app/navigation";
 
     export let data: {
-        events: { start: number; end: number; name: string; body: string; invites: string }[][];
+        events: {
+            start: number;
+            end: number;
+            name: string;
+            body: string;
+            invites: string;
+            light: string;
+            dark: string;
+        }[][];
     };
 
     let button: any;
@@ -50,6 +58,8 @@
                         bind:value={event.invites}
                         placeholder="Space-separated codes"
                     />
+                    Light BG: <input type="text" bind:value={event.light} />
+                    Dark BG: <input type="text" bind:value={event.dark} />
                 </div>
                 <p>Body:</p>
                 <textarea bind:value={event.body} />
@@ -79,6 +89,8 @@
                         name: "New Event",
                         body: "<b>HTML</b> is supported",
                         invites: "",
+                        light: "aaaaaa",
+                        dark: "444444",
                     },
                 ])}
         >

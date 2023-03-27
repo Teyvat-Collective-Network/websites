@@ -16,7 +16,10 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         for (const event of track) {
             try {
                 const invites: Invite[] = await Promise.all(
-                    event.invites.split(/\s+/).map((code: string) => bot.fetchInvite(code)),
+                    event.invites
+                        .split(/\s+/)
+                        .filter((x: string) => x)
+                        .map((code: string) => bot.fetchInvite(code)),
                 );
 
                 event.invite_data = invites.map((x) => ({

@@ -2,10 +2,13 @@
     import { page } from "$app/stores";
     import { PUBLIC_DOMAIN, PUBLIC_TCN_AUTH } from "$env/static/public";
     import { onMount } from "svelte";
+    import { dark_mode } from "./stores";
 
     export let dark: boolean;
     export let user: any;
     export let api_user: any;
+
+    dark_mode.set(dark);
 
     let open: boolean = false;
     let href: string;
@@ -78,7 +81,7 @@
             href={"javascript:void(0)"}
             class="t1"
             on:click={() => {
-                dark = !dark;
+                dark_mode.set((dark = !dark));
                 document.cookie = `mode=${dark ? "dark" : "light"};max-age=31536000;samesite=none`;
             }}
         >

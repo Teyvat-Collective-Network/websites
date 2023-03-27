@@ -19,6 +19,7 @@
 <script lang="ts">
     import Invite from "../../lib/Invite.svelte";
     import { Modal } from "@daedalus-discord/webkit";
+    import { dark_mode } from "../../lib/stores";
 
     const open: { [key: string]: boolean } = {};
     let sx: number = 0;
@@ -63,7 +64,9 @@
                             <button
                                 class="unset event"
                                 style="left: {x * 55}px; width: {55 * y -
-                                    15}px; background-color: #456; --hover-background: #567"
+                                    15}px; background-color: #{$dark_mode
+                                    ? event.dark
+                                    : event.light}"
                                 on:click={() => (open[id] = true)}
                             >
                                 <div style="padding-left: calc({sx}px - {x * 55 + 20}px)">
@@ -177,16 +180,24 @@
         font-weight: 400;
         font-size: 80%;
 
-        transition: background-color 250ms;
-
         & > div {
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
         }
 
-        &:hover {
-            background-color: var(--hover-background) !important;
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 5px;
+            background-color: var(--background-1);
+            opacity: 0;
+            transition: opacity 250ms;
+        }
+
+        &:hover::after {
+            opacity: 20%;
         }
     }
 
