@@ -7,7 +7,9 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     if (!user.roles.includes("observer")) new Response(null, { status: 403 });
 
     await db.testimonials.deleteMany();
-    await db.testimonials.insertMany(await request.json());
+
+    const items = await request.json();
+    if (items.length > 0) await db.testimonials.insertMany(items);
 
     return new Response();
 };

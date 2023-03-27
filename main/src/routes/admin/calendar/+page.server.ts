@@ -3,5 +3,5 @@ import db from "../../../db.js";
 import { fix } from "../../../lib/util.js";
 
 export const load: ServerLoad = async () => {
-    return { testimonials: fix(await db.testimonials.find().toArray()) };
+    return { events: fix((await db.events.find().toArray()).map(({ events }) => events)) };
 };

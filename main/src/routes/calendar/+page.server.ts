@@ -1,7 +1,7 @@
 import type { ServerLoad } from "@sveltejs/kit";
-import db from "../db.js";
 import { fix } from "$lib/util.js";
+import db from "../../db.js";
 
 export const load: ServerLoad = async () => ({
-    testimonials: fix(await db.testimonials.find().toArray()),
+    events: fix((await db.events.find().toArray()).map(({ events }) => events)),
 });
