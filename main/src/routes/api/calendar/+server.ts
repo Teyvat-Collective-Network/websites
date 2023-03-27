@@ -29,7 +29,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                     icon: x.guild!.iconURL({ size: 256 }),
                 }));
             } catch {
-                return new Response(null, { status: 403 });
+                return new Response(null, { status: 400 });
             }
         }
     }
