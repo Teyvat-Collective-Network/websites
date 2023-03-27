@@ -1,15 +1,30 @@
-<template lang="pug">
-    .container
-        #main
-            h1 Featured Content
-            .announcement.highlight
-                div
-                    i.material-icons campaign
-                    span New Banshare System
-                div
-                    p We are rolling out our new banshare system over the next few weeks. Instead of just publishing them through an announcement channel, it will now be posted by a bot. This lets us ensure banshares are only being used in TCN servers but also allows for automated actions. Servers can now set a threshold to automatically ban users or have a button to execute a banshare with one simple click.
-                    p To get started, go to <a href="/info/banshares">the banshare help page</a>.
-</template>
+<script lang="ts">
+    export let data: any;
+</script>
+
+<div class="container">
+    <div id="main">
+        <h1 class="row" style="gap: 20px">
+            Featured Content
+            {#if data.auth}
+                <a href="/admin/featured"><i class="material-icons">edit</i></a>
+            {/if}
+        </h1>
+
+        {#each data.announcements as item}
+            <div class="announcement {item.highlight ? 'highlight' : ''}">
+                <div>
+                    <i class="material-icons">{item.icon}</i>
+                    <span>{item.title}</span>
+                </div>
+                <div>
+                    {@html item.body}
+                </div>
+            </div>
+            <br />
+        {/each}
+    </div>
+</div>
 
 <style lang="scss">
     .announcement {

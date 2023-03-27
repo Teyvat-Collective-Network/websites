@@ -8,7 +8,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     if (!user) return new Response(null, { status: 403 });
     if (!user.roles.includes("observer")) new Response(null, { status: 403 });
 
-    await db.events.deleteMany();
+    await db.events.updateMany({}, { $set: { mark: true } });
 
     const items = await request.json();
 
@@ -35,6 +35,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     }
 
     if (items.length > 0) await db.events.insertMany(items.map((events: any) => ({ events })));
+
+    await db.events.deleteMany({ mark: true });
 
     return new Response();
 };

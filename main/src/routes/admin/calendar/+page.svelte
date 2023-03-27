@@ -1,5 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import Textarea from "@daedalus-discord/webkit/Textarea.svelte";
+    import { without } from "../../../lib/util";
 
     export let data: {
         events: {
@@ -33,11 +35,7 @@
             Track #{index + 1}
             <button
                 style="color: var(--red-text); background-color: transparent"
-                on:click={() =>
-                    (data.events = [
-                        ...data.events.slice(0, index),
-                        ...data.events.slice(index + 1),
-                    ])}
+                on:click={() => (data.events = without(data.events, index))}
             >
                 <i class="material-icons">delete</i>
             </button>
@@ -62,7 +60,7 @@
                     Dark BG: <input type="text" bind:value={event.dark} />
                 </div>
                 <p>Body:</p>
-                <textarea bind:value={event.body} />
+                <Textarea bind:value={event.body} />
                 <p>Times in your local time:</p>
                 <ul>
                     <li>Start: {new Date(event.start).toISOString()}</li>
@@ -70,8 +68,7 @@
                 </ul>
                 <button
                     style="color: var(--red-text); background-color: transparent"
-                    on:click={() =>
-                        (data.events[index] = [...track.slice(0, ei), ...track.slice(ei + 1)])}
+                    on:click={() => (data.events[index] = without(track, ei))}
                 >
                     <i class="material-icons">delete</i>
                 </button>
