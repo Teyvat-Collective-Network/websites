@@ -5,13 +5,12 @@
 <template lang="pug">
     .container
         Navigation(
-            last!="{ ['/info/definitions-organization', 'Definitions & Organization'] }",
+            last!="{ ['/info/constitution', 'Constitution'] }",
             next!="{ ['/info/quickstart', 'Quickstart'] }"
         )
             #main
                 h1 HQ
                 ul: li: a(href="/info/directory") Directory
                 ul: li: a(href="/info/voting") Voting
-                ul: li: a(href="/info/procedures") Procedures
                 ul: li: a(href="/info/akasha") Akasha System
 </template>

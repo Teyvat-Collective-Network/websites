@@ -55,7 +55,7 @@
                             li The results will display the winning candidates in alphabetical order but do not display the actual ranking.
                 Linkable#observer-votes(e="h3", value="Observer Votes")
                 ul
-                    li If the primary council cannot make a decision due to failure to reach quorum or the inability to resolve a tie, the observer committee will make a determination to resolve the deadlock.
+                    li If the voters cannot make a decision due to failure to reach quorum or the inability to resolve a tie, the observer committee will make a determination to resolve the deadlock.
                     li All observers must vote (or abstain) and the majority decision will be the final determination.
                     li If the observers tie, they are expected to have a discussion, either privately or publicly, to weigh out the impacts and come to an agreement. The decision must be resolved at this stage; there is no higher authority that can make the final call.
                 Linkable#how-to-vote(e="h2", value="How To Vote")

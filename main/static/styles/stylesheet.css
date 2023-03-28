@@ -260,3 +260,9 @@ label {
 ::-webkit-scrollbar-thumb:hover {
     background-color: var(--background-3);
 }
+
+.mention {
+    background-color: var(--blue-callout);
+    padding: 0 3px;
+    border-radius: 5px;
+}

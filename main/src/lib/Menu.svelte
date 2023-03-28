@@ -99,14 +99,10 @@
             Info Pages
             <i class="material-icons">{info_open ? "keyboard_arrow_down" : "chevron_right"}</i>
         </a>
-        <a href="/info/rules" class="t2 {info_open ? '' : 'hidden'}">Rules</a>
-        <a href="/info/definitions-organization" class="t2 {info_open ? '' : 'hidden'}"
-            >Definitions &amp; Organization</a
-        >
+        <a href="/info/constitution" class="t2 {info_open ? '' : 'hidden'}">TCN Constitution</a>
         <a href="/info/hq" class="t2 {info_open ? '' : 'hidden'}">HQ</a>
         <a href="/info/directory" class="t3 {info_open ? '' : 'hidden'}">Directory</a>
         <a href="/info/voting" class="t3 {info_open ? '' : 'hidden'}">Voting</a>
-        <a href="/info/procedures" class="t3 {info_open ? '' : 'hidden'}">Procedures</a>
         <a href="/info/akasha" class="t3 {info_open ? '' : 'hidden'}">Akasha System</a>
         <a href="/info/quickstart" class="t2 {info_open ? '' : 'hidden'}">Quickstart</a>
         <a href="/info/partner-list" class="t3 {info_open ? '' : 'hidden'}"
