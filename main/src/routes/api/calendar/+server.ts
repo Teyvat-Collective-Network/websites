@@ -28,7 +28,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                     banner: x.guild!.bannerURL({ size: 2048 }),
                     icon: x.guild!.iconURL({ size: 256 }),
                 }));
-            } catch {
+            } catch (error) {
+                console.error(error);
                 return new Response(null, { status: 400 });
             }
         }
