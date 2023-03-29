@@ -41,10 +41,14 @@
                         h3 Genshin Wizard
                         p The TCN is partnered with Genshin Wizard, a multi-purpose Genshin Impact utility bot. Check out their website below!
                         a.button(href="https://genshinwizard.com") Website
-            +each("data.partners as { character, name, invite, icon, description }")
+            +each("data.partners as { character, name, invite, description }")
                 div(class!="{ fuzzy(name, query) || fuzzy(character, query) ? '' : 'hidden' }")
-                    Partner(name!="{ name }", code!="{ invite }", image!="{ icon }")
-                        p {@html description}
+                    Partner(
+                        name!="{ name }",
+                        code!="{ invite }",
+                        image!="/images/characters/{character}.png"
+                    )
+                        p {@html description ?? ""}
 </template>
 
 <style lang="scss">

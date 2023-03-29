@@ -21,6 +21,8 @@
         background-color: var(--background-2);
         padding: 1em;
         border-radius: 5px;
+        height: 100%;
+        box-sizing: border-box;
     }
 
     #top,
