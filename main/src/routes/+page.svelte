@@ -13,7 +13,7 @@
         #main
             #box
                 #box-1
-                    p Welcome to the Teyvat Collective Network
+                    p Welcome to the Teyvat Collective Network (TCN)
                 #box-2
                     p The mission of the TCN is to unite all mains servers across Teyvat and provide support and promote collaboration between partners.
             h4.row(style="gap: 10px") Testimonials

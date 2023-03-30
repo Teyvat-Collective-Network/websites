@@ -28,7 +28,7 @@
             +if("!query")
                 #box
                     #box-1
-                        p The TCN is a network of {data.partners.length} high-quality Genshin Impact Character Mains-style Discord servers that focus on creating fan communities.
+                        p The TCN is a network of {data.partners.length} high-quality Genshin Impact Discord servers that are dedicated to fostering Mains-style fan communities.
                     #box-2
                         p Do you own a Discord server dedicated to a playable Genshin Impact character and want to join the TCN? Apply here!
                         a.button(href="/join") Apply To Join

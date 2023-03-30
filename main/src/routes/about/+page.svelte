@@ -6,9 +6,9 @@
 <template lang="pug">
     .container
         #main
-            h1 About the TCN
+            h1 About the Teyvat Collective Network
             Linkable#organization(e="h2", value="Organization")
-            p The TCN does not enforce any particular structure on its member servers. TCN servers are not required to change their server setup, follow a template, enforce particular rules, or give any permissions to TCN observers. Our only requirements are to display a list of TCN partner servers, cross-post event promotions from partner servers, and maintain a healthy community that follows its rules.
+            p The Teyvat Collective Network, also known as the TCN, does not enforce any particular structure on its member servers. TCN servers are not required to change their server setup, follow a template, enforce particular rules, or give any permissions to TCN observers. Our only requirements are to display a list of TCN partner servers, cross-post event promotions from partner servers, and maintain a healthy community that follows its rules.
             p The TCN is divided into three components. Click a card to learn more.
             .cards
                 Card(icon="business", title="Individual Servers", expandable)
@@ -32,6 +32,14 @@
                     p TCN servers have quick and easy access to communication with each other. In addition to being able to more quickly resolve any issues and form strong relationships with many other prominent servers, you have the unique opportunity to more easily start collaborations for things like events, which you can also promote through the TCN's event announcement feed.
                 Card(icon="insights", title="Growth", expandable)
                     p When you join the TCN, you automatically become a TCN partner of all TCN servers and will have your server listed on the partner list in all of them. Additionally, you will be able to get tips on how to improve your server environment and grow a strong, healthy community.
+            br
+            .cards
+                Card(icon="share", title="Networking", expandable)
+                    p As a TCN server, besides direct connections with other server owners, you will also have access to networking with admins in HQ and with other server admins and staff through their TCN representatives.
+                Card(icon="public", title="Global Channels", expandable)
+                    p You will have access to global channels, which are channels where messages are relayed to all connected servers. We have a public global channel so your members can talk to members all across the TCN from the comfort of your server, as well as channels for staff. You will also be able to use these channels for collaboration events if you want participating servers' members to be able to talk to each other from any server.
+                Card(icon="emergency_share", title="Banshares", expandable)
+                    p You gain access to TCN Banshares, which are a system we have that lets you receive or automatically ban problematic users ahead of time so you don't have to deal with them the hard way. All of our banshares are manually reviewed by our observers. See the <a href="http://localhost:5173/info/banshares">banshare info page</a> for more information.
             Linkable#core-values(e="h2", value="Our Core Values")
             p Click a card to learn more.
             .cards
