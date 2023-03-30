@@ -43,7 +43,6 @@
         flex-direction: row;
         align-items: center;
         cursor: pointer;
-        width: 500px;
         height: 200px;
         background-color: var(--background-2);
         border-radius: 5px;
@@ -57,6 +56,7 @@
     #right {
         display: inline-flex;
         flex-direction: column;
+        width: calc(100% - 150px);
     }
 
     span {
@@ -69,7 +69,6 @@
 
     #right > div {
         display: inline-block;
-        width: 320px;
         height: 5.25em;
         margin: 15px;
         overflow: hidden;
