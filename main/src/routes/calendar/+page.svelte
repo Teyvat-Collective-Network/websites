@@ -51,6 +51,9 @@
             {#if data.auth}
                 <a href="/admin/calendar"><i class="material-icons">edit</i></a>
             {/if}
+            {#if data.council}
+                <a href="/add-event"><i class="material-icons">add</i></a>
+            {/if}
         </h3>
 
         <div id="calendar-box" on:scroll={f}>

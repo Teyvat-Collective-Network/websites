@@ -127,9 +127,13 @@ input[type="submit"] {
 }
 
 a.button:hover,
-button:hover,
+button:not(:disabled):hover,
 input[type="submit"]:hover {
     background-color: var(--accent-less);
+}
+
+button:disabled {
+    background-color: var(--background-2);
 }
 
 .prominent {
@@ -226,9 +230,21 @@ label {
     gap: 0.5em;
 }
 
-.row {
+.row,
+.col {
     display: flex;
+}
+
+.row {
     flex-direction: row;
+}
+
+.col {
+    flex-direction: column;
+}
+
+.row:not(.no-center),
+.col:not(.no-center) {
     align-items: center;
 }
 
