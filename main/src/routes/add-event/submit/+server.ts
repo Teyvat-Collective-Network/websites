@@ -4,11 +4,14 @@ import { marked as parse } from "marked";
 import type { RequestHandler } from "@sveltejs/kit";
 import bot from "../../../bot.js";
 import db from "../../../db.js";
+import { OBSERVER_CHANNEL } from "$env/static/private";
 
 const window: any = new JSDOM("").window;
 const purify = DOMPurify(window);
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
+    if (!(locals as any).council) return new Response("Permission denied.", { status: 403 });
+
     let data = await request.json();
 
     if (!data.start || !data.end || !data.light || !data.dark || !data.title || !data.body)
@@ -80,7 +83,27 @@ export const POST: RequestHandler = async ({ request }) => {
     await db.events.deleteMany();
     await db.events.insertMany(tracks);
 
-    console.log(tracks);
+    try {
+        const channel = await bot.channels.fetch(OBSERVER_CHANNEL);
+        if (!channel?.isTextBased()) throw 0;
+        await channel.send({
+            embeds: [
+                {
+                    title: "Calendar Event Created",
+                    description: `<@${
+                        (locals as any).user.id
+                    }> just added an event to the calendar with title "${data.name}".`,
+                    color: 0x2b2d31,
+                    fields: [
+                        {
+                            name: data.body.length > 1024 ? "Body (Truncated)" : "Body",
+                            value: data.body.substring(0, 1024),
+                        },
+                    ],
+                },
+            ],
+        });
+    } catch {}
 
     return new Response();
 };
