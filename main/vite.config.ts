@@ -5,7 +5,12 @@ export default defineConfig({
     plugins: [sveltekit()],
     server: {
         fs: {
-            allow: ["."]
-        }
-    }
+            allow: ["."],
+        },
+    },
+    build: {
+        rollupOptions: {
+            external: ["wcag-contrast"],
+        },
+    },
 });
