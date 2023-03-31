@@ -21,5 +21,6 @@ export function getImage(name) {
     abyss: 'https://i.imgur.com/dVptLYU.png',
     azar: 'https://i.imgur.com/drN6SKX.png',
     dvalin: 'https://i.imgur.com/PyezcFT.png',
+    wooper: 'https://i.imgur.com/Sh6toNC.png',
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
 }
