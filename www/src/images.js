@@ -12,5 +12,10 @@ export function getImage(name) {
     yanfei: mhy`Feiyan`,
     alhaitham: mhy`Alhatham`,
     childe: mhy`Tartaglia`,
+    taroumaru: 'https://i.imgur.com/tfZXyvz.png',
+    tingyun: 'https://i.imgur.com/GAwBzSz.png',
+    radish: 'https://i.imgur.com/dgt4D2W.png',
+    secretary: 'https://i.imgur.com/4VFegSo.png',
+    sonic: 'https://i.imgur.com/iEPDMBW.png',
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
 }
