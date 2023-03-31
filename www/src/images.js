@@ -14,7 +14,7 @@ export function getImage(name) {
     childe: mhy`Tartaglia`,
     taroumaru: 'https://i.imgur.com/tfZXyvz.png',
     tingyun: 'https://i.imgur.com/GAwBzSz.png',
-    radish: 'https://i.imgur.com/dgt4D2W.png',
+    radish: 'https://i.imgur.com/m0qAIN8.png',
     secretary: 'https://i.imgur.com/FA0mMOc.png',
     sonic: 'https://i.imgur.com/1fjomW8.png',
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
