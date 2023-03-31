@@ -17,5 +17,6 @@ export function getImage(name) {
     radish: 'https://i.imgur.com/m0qAIN8.png',
     secretary: 'https://i.imgur.com/FA0mMOc.png',
     sonic: 'https://i.imgur.com/1fjomW8.png',
+    crab: 'https://i.imgur.com/zRopTje.png',
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
 }
