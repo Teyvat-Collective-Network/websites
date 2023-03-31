@@ -19,5 +19,7 @@ export function getImage(name) {
     sonic: 'https://i.imgur.com/1fjomW8.png',
     crab: 'https://i.imgur.com/zRopTje.png',
     abyss: 'https://i.imgur.com/dVptLYU.png',
+    azar: 'https://i.imgur.com/drN6SKX.png',
+    dvalin: 'https://i.imgur.com/PyezcFT.png',
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
 }
