@@ -18,5 +18,6 @@ export function getImage(name) {
     secretary: 'https://i.imgur.com/FA0mMOc.png',
     sonic: 'https://i.imgur.com/1fjomW8.png',
     crab: 'https://i.imgur.com/zRopTje.png',
+    abyss: 'https://i.imgur.com/dVptLYU.png',
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
 }
