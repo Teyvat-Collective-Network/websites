@@ -15,7 +15,7 @@ export function getImage(name) {
     taroumaru: 'https://i.imgur.com/tfZXyvz.png',
     tingyun: 'https://i.imgur.com/GAwBzSz.png',
     radish: 'https://i.imgur.com/dgt4D2W.png',
-    secretary: 'https://i.imgur.com/4VFegSo.png',
-    sonic: 'https://i.imgur.com/iEPDMBW.png',
+    secretary: 'https://i.imgur.com/FA0mMOc.png',
+    sonic: 'https://i.imgur.com/1fjomW8.png',
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
 }
