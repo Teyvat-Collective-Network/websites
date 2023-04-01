@@ -22,5 +22,6 @@ export function getImage(name) {
     azar: 'https://i.imgur.com/drN6SKX.png',
     dvalin: 'https://i.imgur.com/PyezcFT.png',
     wooper: 'https://i.imgur.com/Sh6toNC.png',
+    xiaoyai: 'https://i.imgur.com/CdeJd77.png',
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
 }
