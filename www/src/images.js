@@ -23,5 +23,8 @@ export function getImage(name) {
     dvalin: 'https://i.imgur.com/PyezcFT.png',
     wooper: 'https://i.imgur.com/Sh6toNC.png',
     xiaoyai: 'https://i.imgur.com/CdeJd77.png',
+    oz: 'https://i.imgur.com/EE0tfvT.png',
+    karkata: 'https://i.imgur.com/UwF33Qa.png',
+    N03113: 'https://i.imgur.com/M2PERyB.png'
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
 }
