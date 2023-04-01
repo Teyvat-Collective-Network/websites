@@ -25,6 +25,7 @@ export function getImage(name) {
     xiaoyai: 'https://i.imgur.com/CdeJd77.png',
     oz: 'https://i.imgur.com/EE0tfvT.png',
     karkata: 'https://i.imgur.com/UwF33Qa.png',
-    N03113: 'https://i.imgur.com/M2PERyB.png'
+    N03113: 'https://i.imgur.com/M2PERyB.png',
+    jinyun: 'https://i.imgur.com/WQMawLR.png',
   })[name] || mhy(name[0].toUpperCase()+name.slice(1));
 }
