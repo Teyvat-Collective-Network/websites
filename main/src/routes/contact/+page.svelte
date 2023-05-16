@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import Callout from "../../lib/Callout.svelte";
-    import Invite from "../../lib/Invite.svelte";
-    import Linkable from "../../lib/Linkable.svelte";
+    import Callout from "$lib/Callout.svelte";
+    import Invite from "$lib/Invite.svelte";
+    import Linkable from "$lib/Linkable.svelte";
 </script>
 
 <template lang="pug">

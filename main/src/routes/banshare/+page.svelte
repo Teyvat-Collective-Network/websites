@@ -3,9 +3,9 @@
     import { onMount } from "svelte";
     import { escape } from "svelte/internal";
     import { LoadingSpinner, Modal, Textarea } from "@daedalus-discord/webkit";
-    import Callout from "../../lib/Callout.svelte";
-    import Redirect from "../../lib/Redirect.svelte";
-    import LoggedInAs from "../../lib/LoggedInAs.svelte";
+    import Callout from "$lib/Callout.svelte";
+    import Redirect from "$lib/Redirect.svelte";
+    import LoggedInAs from "$lib/LoggedInAs.svelte";
 
     export let data: any;
     export let form: any;

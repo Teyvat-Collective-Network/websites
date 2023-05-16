@@ -5,6 +5,7 @@
     import { dark_mode } from "./stores";
 
     export let dark: boolean;
+    export let data: any;
     export let user: any;
     export let api_user: any;
 
@@ -126,6 +127,9 @@
                     >
                 </a>
                 <a href="/banshare" class="t2 {staff_open ? '' : 'hidden'}">Submit a Banshare</a>
+                {#if data.auth}
+                    <a href="/vote" class="t2 {staff_open ? '' : 'hidden'}">Vote</a>
+                {/if}
             {/if}
             <a
                 href="{PUBLIC_TCN_AUTH}/logout?redirect={encodeURIComponent(PUBLIC_DOMAIN)}"

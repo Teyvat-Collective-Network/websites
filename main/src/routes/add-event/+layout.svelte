@@ -1,11 +1,11 @@
 <script lang="ts">
-    import Redirect from "../../lib/Redirect.svelte";
+    import Redirect from "$lib/Redirect.svelte";
 
     export let data: any;
 </script>
 
 {#if !data.council}
-    <Redirect to="/" />
+    <Redirect />
 {:else}
     <slot />
 {/if}

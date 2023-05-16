@@ -1,6 +1,6 @@
 <script lang="ts">
-    import Linkable from "../../../lib/Linkable.svelte";
-    import Navigation from "../../../lib/Navigation.svelte";
+    import Linkable from "$lib/Linkable.svelte";
+    import Navigation from "$lib/Navigation.svelte";
 </script>
 
 <template lang="pug">

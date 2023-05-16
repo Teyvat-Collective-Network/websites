@@ -1,7 +1,7 @@
 <script lang="ts">
-    import Callout from "../../../../lib/Callout.svelte";
-    import Navigation from "../../../../lib/Navigation.svelte";
-    import Permission from "../../../../lib/Permission.svelte";
+    import Callout from "$lib/Callout.svelte";
+    import Navigation from "$lib/Navigation.svelte";
+    import Permission from "$lib/Permission.svelte";
 
     let open: boolean = false;
 </script>

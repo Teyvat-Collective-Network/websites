@@ -2,10 +2,10 @@
     import { PUBLIC_DOMAIN, PUBLIC_TCN_AUTH } from "$env/static/public";
     import { Textarea } from "@daedalus-discord/webkit";
     import { onMount } from "svelte";
-    import Callout from "../../lib/Callout.svelte";
-    import Invite from "../../lib/Invite.svelte";
-    import LoggedInAs from "../../lib/LoggedInAs.svelte";
-    import { debounce } from "../../lib/util.js";
+    import Callout from "$lib/Callout.svelte";
+    import Invite from "$lib/Invite.svelte";
+    import LoggedInAs from "$lib/LoggedInAs.svelte";
+    import { debounce } from "$lib/util.js";
 
     export let data: any;
     export let form: any;

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Partner from "../../lib/Partner.svelte";
+    import Partner from "$lib/Partner.svelte";
     export let data: { partners: any[] };
 
     let query: string = "";

@@ -17,9 +17,9 @@
 </script>
 
 <script lang="ts">
-    import Invite from "../../lib/Invite.svelte";
+    import Invite from "$lib/Invite.svelte";
     import { Modal } from "@daedalus-discord/webkit";
-    import { dark_mode } from "../../lib/stores";
+    import { dark_mode } from "$lib/stores";
 
     const open: { [key: string]: boolean } = {};
     let sx: number = 0;

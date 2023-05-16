@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Testimonial from "../lib/Testimonial.svelte";
+    import Testimonial from "$lib/Testimonial.svelte";
 
     export let data: {
         auth: boolean;

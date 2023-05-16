@@ -1,6 +1,6 @@
 <script lang="ts">
-    import Callout from "../../../../lib/Callout.svelte";
-    import Navigation from "../../../../lib/Navigation.svelte";
+    import Callout from "$lib/Callout.svelte";
+    import Navigation from "$lib/Navigation.svelte";
 </script>
 
 <template lang="pug">

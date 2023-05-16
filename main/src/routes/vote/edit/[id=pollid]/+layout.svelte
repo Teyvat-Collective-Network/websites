@@ -1,11 +1,11 @@
 <script lang="ts">
     import Redirect from "$lib/Redirect.svelte";
 
-    export let data: { noaccess?: boolean };
+    export let data: any;
 </script>
 
-{#if data.noaccess}
-    <Redirect />
-{:else}
+{#if data.auth}
     <slot />
+{:else}
+    <Redirect />
 {/if}

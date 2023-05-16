@@ -1,8 +1,8 @@
 <script lang="ts">
-    import Callout from "../../../../lib/Callout.svelte";
-    import Image from "../../../../lib/Image.svelte";
-    import Linkable from "../../../../lib/Linkable.svelte";
-    import Navigation from "../../../../lib/Navigation.svelte";
+    import Callout from "$lib/Callout.svelte";
+    import Image from "$lib/Image.svelte";
+    import Linkable from "$lib/Linkable.svelte";
+    import Navigation from "$lib/Navigation.svelte";
 </script>
 
 <template lang="pug">

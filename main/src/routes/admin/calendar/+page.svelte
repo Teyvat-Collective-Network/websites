@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import Textarea from "@daedalus-discord/webkit/Textarea.svelte";
-    import { without } from "../../../lib/util";
+    import { without } from "$lib/util";
 
     export let data: {
         events: {

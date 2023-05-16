@@ -1,7 +1,7 @@
 <script lang="ts">
-    import Card from "../../lib/Card.svelte";
-    import Linkable from "../../lib/Linkable.svelte";
-    import Image from "../../lib/Image.svelte";
+    import Card from "$lib/Card.svelte";
+    import Linkable from "$lib/Linkable.svelte";
+    import Image from "$lib/Image.svelte";
 </script>
 
 <template lang="pug">

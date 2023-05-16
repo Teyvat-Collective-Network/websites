@@ -90,9 +90,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
             embeds: [
                 {
                     title: "Calendar Event Created",
-                    description: `<@${
-                        (locals as any).user.id
-                    }> just added an event to the calendar with title "${data.name}".`,
+                    description: `<@${(locals as any).user.id
+                        }> just added an event to the calendar with title "${data.name}".`,
                     color: 0x2b2d31,
                     fields: [
                         {
@@ -103,7 +102,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
                 },
             ],
         });
-    } catch {}
+    } catch { }
 
     return new Response();
 };

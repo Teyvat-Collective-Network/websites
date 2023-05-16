@@ -1,4 +1,4 @@
-import { ALERT, DDL_TOKEN, LOG, TOKEN } from "$env/static/private";
+import { ALERT, DDL_TOKEN, LOG, TOKEN, VOTE_BOT_TOKEN } from "$env/static/private";
 import { PUBLIC_ALLOWLIST, PUBLIC_DDL_API, PUBLIC_TCN_API } from "$env/static/public";
 import {
     type ButtonInteraction,
@@ -18,7 +18,7 @@ import {
     type GuildMember,
     type APIGuildMember,
 } from "discord.js";
-import { banshares } from "./db.js";
+import db, { banshares } from "./db.js";
 import { components } from "./lib.js";
 
 process.on("uncaughtException", (error) => console.error(error));
@@ -26,6 +26,12 @@ process.on("uncaughtException", (error) => console.error(error));
 const bot = new Client({
     intents: IntentsBitField.Flags.Guilds | IntentsBitField.Flags.MessageContent,
 });
+
+export const vote_bot = new Client({
+    intents: IntentsBitField.Flags.Guilds | IntentsBitField.Flags.GuildMembers,
+});
+
+await vote_bot.login(VOTE_BOT_TOKEN);
 
 const finished = [
     {
@@ -67,13 +73,31 @@ const report = [
                 minValues: 1,
                 maxValues: 3,
                 options: [
-                    "Appears unintended.",
-                    "Targeted users are wrong.",
-                    "Reason does not justify a banshare.",
-                    "Evidence is insufficient.",
-                    "Evidence is forged.",
-                    "Severity should be increased.",
-                ].map((text) => ({ label: text, value: text })),
+                    [
+                        "Appears unintended.",
+                        "This banshare looks incomplete or incorrect and you believe its publication was an accident.",
+                    ],
+                    [
+                        "Targeted users are wrong.",
+                        "This banshare is banning users who were not present in the evidence or vice versa.",
+                    ],
+                    [
+                        "Reason does not justify a banshare.",
+                        "The specified reason does not warrant a banshare.",
+                    ],
+                    [
+                        "Evidence is insufficient.",
+                        "The evidence does not prove the claims in the banshare reason.",
+                    ],
+                    [
+                        "Evidence is forged.",
+                        "The evidence is invalid and contains forged or staged content.",
+                    ],
+                    [
+                        "Severity should be increased.",
+                        "The banshare severity was lower than it should be for the incident.",
+                    ],
+                ].map(([text, description]) => ({ label: text, value: text, description })),
                 placeholder: "Report This Banshare",
             } satisfies StringSelectMenuComponentData,
         ],
@@ -122,6 +146,10 @@ const autobanning = [
 ] as any;
 
 const published = new Set<string>();
+
+vote_bot.once("ready", async () => {
+    console.log("[VOTE BOT] ready!");
+});
 
 bot.once("ready", async () => {
     console.log("[BOT] ready!");

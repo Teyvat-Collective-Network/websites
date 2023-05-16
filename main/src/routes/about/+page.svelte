@@ -1,6 +1,6 @@
 <script lang="ts">
-    import Card from "../../lib/Card.svelte";
-    import Linkable from "../../lib/Linkable.svelte";
+    import Card from "$lib/Card.svelte";
+    import Linkable from "$lib/Linkable.svelte";
 </script>
 
 <template lang="pug">

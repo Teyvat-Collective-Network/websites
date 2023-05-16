@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Navigation from "../../../lib/Navigation.svelte";
+    import Navigation from "$lib/Navigation.svelte";
 </script>
 
 <template lang="pug">

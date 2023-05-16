@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { Textarea } from "@daedalus-discord/webkit";
-    import { swap, without } from "../../../lib/util.js";
+    import { swap, without } from "$lib/util.js";
 
     export let data: { announcements: any[] };
 
