@@ -12,6 +12,10 @@ import {
 import db from "../db.js";
 import { vote_bot } from "../bot.js";
 
+fetch(`${PUBLIC_TCN_API}/users`)
+    .then((response) => response.json())
+    .then((data) => data.forEach(({ id }: { id: string }) => id && vote_bot.users.fetch(id)));
+
 export async function get_required(data: any): Promise<string[]> {
     const request = await fetch(`${PUBLIC_TCN_API}/users`);
     const response = await request.json();
@@ -40,6 +44,12 @@ const default_row = (id: number, closed: boolean) => ({
             customId: "poll/view",
             style: ButtonStyle.Secondary,
             label: "View Your Vote",
+        },
+        {
+            type: ComponentType.Button,
+            customId: "poll/view-voters",
+            style: ButtonStyle.Secondary,
+            label: "View Voters",
         },
         {
             type: ComponentType.Button,
@@ -162,10 +172,6 @@ export async function render(data: any): Promise<MessageCreateOptions & MessageE
                     {
                         name: "Details",
                         value: `- ${
-                            data.anonymous
-                                ? "This poll is anonymous. Observers can see who voted but not for what."
-                                : "This poll is not anonymous. Your vote can be seen by everyone."
-                        }\n- ${
                             data.restricted
                                 ? "This poll is restricted. Only designated voters may vote."
                                 : "This poll is open to everyone. All council members may vote."
@@ -308,6 +314,70 @@ vote_bot.on(Events.InteractionCreate, async (interaction) => {
                     color: Colors.Red,
                 });
             else await reply(render_vote(poll, vote));
+        } else if (interaction.customId === "poll/view-voters") {
+            const data = await (
+                await fetch(`${PUBLIC_TCN_API}/users/${interaction.user.id}`)
+            ).json();
+
+            if (!data?.roles?.includes("observer")) {
+                await reply({
+                    title: "No Permission",
+                    description:
+                        "Only observers may view who has voted and they cannot see who voted for what.",
+                    color: Colors.Red,
+                });
+
+                return;
+            }
+
+            const required = await get_required(poll);
+            const votes = await db.poll_votes
+                .find({ poll: poll.id, user: { $in: required } })
+                .toArray();
+
+            const header = `Turnout: ${votes.length} / ${required.length} (${(
+                (votes.length / required.length) *
+                100
+            ).toFixed(2)}%)\n\n`;
+
+            await interaction.deferReply({ ephemeral: true });
+
+            const users = [] as [string, string][];
+
+            for (const id of required) {
+                try {
+                    users.push([(await vote_bot.users.fetch(id)).tag, id]);
+                } catch {
+                    users.push([`Unknown [${id}]`, id]);
+                }
+            }
+
+            users.sort((a, b) => a[0].localeCompare(b[0]));
+
+            const found = new Set<string>(votes.map((vote) => vote.user));
+            await interaction.editReply({
+                files: [
+                    {
+                        attachment: Buffer.from(
+                            `${header}${(
+                                [
+                                    [true, "✅"],
+                                    [false, "❌"],
+                                ] as const
+                            )
+                                .map(([check, emoji]) =>
+                                    users
+                                        .filter(([, id]) => found.has(id) === check)
+                                        .map(([tag, id]) => `${emoji} ${tag} (${id})`)
+                                        .join("\n"),
+                                )
+                                .join("\n")}`,
+                            "utf-8",
+                        ),
+                        name: "votes.txt",
+                    },
+                ],
+            });
         } else if (
             interaction.customId === "poll/vote-up" ||
             interaction.customId === "poll/vote-down"

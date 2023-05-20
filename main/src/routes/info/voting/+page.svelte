@@ -65,7 +65,7 @@
                         ul
                             li Click <b>Abstain</b> to submit a blank ballot.
                             li Click <b>View Your Vote</b> to see what you have currently voted.
-                            li Click <b>List Voters</b> to see a list of voters. If the vote is anonymous, only observers can use this to check who has voted but not for what. If the vote is not, anyone can use this to see what everyone has voted for.
+                            li Click <b>List Voters</b> to see a list of voters. Only observers can use this to check who has voted but not for what.
                     li
                         b Proposal Votes
                         ul

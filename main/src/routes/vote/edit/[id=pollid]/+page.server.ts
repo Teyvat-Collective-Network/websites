@@ -27,7 +27,7 @@ export const actions: Actions = {
         const data: any = {};
 
         for (const key of ["mode", "question"]) data[key] = obj.get(key) ?? "";
-        for (const key of ["anonymous", "live", "restricted", "dm"]) data[key] = !!obj.get(key);
+        for (const key of ["live", "restricted", "dm"]) data[key] = !!obj.get(key);
 
         if (!["proposal", "selection", "election"].includes(data.mode))
             return fail("Invalid poll mode.");

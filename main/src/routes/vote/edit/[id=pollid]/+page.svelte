@@ -15,7 +15,6 @@
     form.max ??= 1;
     form.candidates ??= [];
     form.seats ??= 1;
-    form.anonymous ??= true;
     form.live ??= false;
     form.restricted ??= true;
     form.dm ??= true;
@@ -141,12 +140,6 @@
     </div>
     <div>
         <h4>Meta Options</h4>
-        <label>
-            <input type="checkbox" name="anonymous" bind:checked={form.anonymous} />
-            <span>
-                <b>Anonymous</b> (only observers can see who voted + nobody can see who voted for what)
-            </span>
-        </label>
         <label>
             <input type="checkbox" name="live" bind:checked={form.live} />
             <span>
