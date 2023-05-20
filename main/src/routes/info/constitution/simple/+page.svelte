@@ -168,6 +168,10 @@
                         li Failure to respond to official inquiries or outreach from observers (e.g. regarding missing or outdated partner list) for over 3 weeks.
                         li Failure to vote thrice in a row (if the member is absent for a vote, any overlapping votes will not count).
                         li If they have not been present to support their server's advisor or staff such that it is actively inhibiting the server's ability to succeed.
+                    Linkable#extras(e="h2", value="Extras")
+                    p This section lists extra rules that do not fit with anything else.
+                    ul
+                        li AI chat bots are not allowed in global chats. An AI chat bot is roughly defined as a bot that responds to prompts by generating its answer rather than in a predetermined fashion. Edge cases will be discussed with the hosting server and may be decided by the observer team or by vote.
 </template>
 
 <style lang="scss">

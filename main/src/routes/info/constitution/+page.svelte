@@ -225,6 +225,10 @@
                         li Failure to respond to official inquiries or outreach from observers (e.g. regarding missing or outdated partner list) for over 3 weeks.
                         li Failure to vote thrice in a row (if the member is absent for a vote, any overlapping votes will not count).
                         li If they have not been present to support their server's advisor or staff such that it is actively inhibiting the server's ability to succeed.
+                    Linkable#extras(e="h2", value="Extras")
+                    p This section lists any extra lone rules or regulations that do not fit into existing sections or do not belong together with anything else.
+                    ul
+                        li AI chat bots are not permitted in global channels. An AI chat bot is defined as a bot that responds to messages generatively. Chat bots are permitted provided they respond in a predetermined way, including random selection from a list of answers, obtaining a random response from an API or online repository, etc. This definition cannot be objective so borderline cases will be discussed with the hosting server and a binding decision may be made by the observer team or by vote if deemed the appropriate course of action.
 </template>
 
 <style lang="scss">
