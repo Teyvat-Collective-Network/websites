@@ -9,7 +9,7 @@
             #main
                 h1 Embeds
                 Linkable#embed-color(e="h2", value="Embed Color")
-                p You should pick one embed color that you like and stick to it for most/all of your embeds for consistency and organization. If you want am embed to appear colorless, use <code>0x2d3136</code> (dark mode).
+                p You should pick one embed color that you like and stick to it for most/all of your embeds for consistency and organization. If you want am embed to appear colorless, use <code>0x2b2d31</code> (dark mode).
                 Linkable#text-color(e="h2", value="Text Color")
                 p You cannot color text by default, but you can use code block syntax highlighting to get a similar effect. Check out <a href="https://docs.google.com/document/d/1tyBtgNfGc6ae7t033dFxdqCSfG9kgiuwrFxlJTvyuu8/edit">this document</a> for a list.
                 Linkable#timestamps(e="h2", value="Timestamps")

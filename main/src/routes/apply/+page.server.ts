@@ -141,7 +141,7 @@ export const actions: Actions = {
                             } members and was created at <t:${Math.floor(
                                 invite_data.guild!.createdTimestamp / 1000,
                             )}:f>.`,
-                            color: 0x2d3136,
+                            color: 0x2b2d31,
                             fields: [
                                 { name: "Invite", value: invite },
                                 {
@@ -159,12 +159,10 @@ export const actions: Actions = {
                 appliedTags: [NEW_APPLICANT_TAG],
             });
 
-            await observer_channel.send({
+            await thread.send({
                 embeds: [
                     {
-                        title: "**New Application**",
-                        description: `**${submitter}** applied for **${display_name}**. Check it out in ${applicants_channel} here: <${thread.url}>. Here's the additional information.`,
-                        color: 0x2d3136,
+                        color: 0x2b2d31,
                         fields: [
                             experience && { name: "Prior Experience", value: experience },
                             { name: "Short-Term Server Goals", value: shortgoals },

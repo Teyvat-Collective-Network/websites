@@ -8,13 +8,94 @@ import {
     Colors,
     type APIEmbed,
     TextInputStyle,
+    MessageFlags,
 } from "discord.js";
 import db from "../db.js";
 import { vote_bot } from "../bot.js";
+import { HQ, VOTE_CHANNEL, VOTE_LOG } from "$env/static/private";
 
 fetch(`${PUBLIC_TCN_API}/users`)
     .then((response) => response.json())
     .then((data) => data.forEach(({ id }: { id: string }) => id && vote_bot.users.fetch(id)));
+
+setInterval(async () => {
+    const log = vote_bot.channels.cache.get(VOTE_LOG);
+    if (!log?.isTextBased()) throw "Vote log channel is not text-based.";
+
+    const threshold = new Date();
+    threshold.setHours(threshold.getHours() + 24);
+
+    for (const poll of await db.polls.find({ close: { $lt: new Date() } }).toArray()) {
+        await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false } });
+
+        try {
+            const channel = await vote_bot.channels.fetch(poll.channel);
+            if (!channel?.isTextBased()) throw "Channel is not text-based.";
+            const message = await channel.messages.fetch(poll.message);
+            await message.edit(await render(poll));
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    for (const poll of await db.polls.find({ dm: true, close: { $lt: threshold } }).toArray()) {
+        await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false } });
+
+        const required = await get_required(poll);
+
+        const votes = new Set(
+            (await db.poll_votes.find({ poll: poll.id }).toArray()).map(({ user }) => user),
+        );
+
+        const failed = [];
+
+        for (const id of required) {
+            if (votes.has(id)) continue;
+
+            try {
+                const user = await vote_bot.guilds.cache.get(HQ)!.members.fetch(id);
+                await user.send({
+                    embeds: [
+                        {
+                            title: "Waiting for your vote",
+                            description: `Hello,\nYou have not yet voted on a TCN poll [here](https://discord.com/channels/${HQ}/${poll.channel}/${poll.message}). Please do so within the next 24 hours.`,
+                            color: 0x2b2d31,
+                        },
+                    ],
+                });
+
+                await log.send({
+                    content: `Sent DM reminder to ${user} regarding poll #${poll.id}.`,
+                    allowedMentions: { parse: [] },
+                });
+            } catch {
+                failed.push(id);
+
+                await log.send({
+                    content: `Failed to DM <@${id}>.`,
+                    allowedMentions: { parse: [] },
+                });
+            }
+        }
+
+        if (failed.length > 0) {
+            const channel = vote_bot.channels.cache.get(VOTE_CHANNEL);
+
+            if (channel?.isTextBased())
+                await channel.send({
+                    content: `${failed
+                        .map((id) => `<@${id}>`)
+                        .join(" ")} You have not yet voted on poll #${
+                        poll.id
+                    } (https://discord.com/channels/${HQ}/${poll.channel}/${
+                        poll.message
+                    }). Please do so within the next 24 hours. If you enable DMs in this server, you will receive a DM reminder instead of being pinged.`,
+                    allowedMentions: { users: failed },
+                    flags: [MessageFlags.SuppressEmbeds],
+                });
+        }
+    }
+}, 10000);
 
 export async function get_required(data: any): Promise<string[]> {
     const request = await fetch(`${PUBLIC_TCN_API}/users`);

@@ -156,6 +156,10 @@
             <input type="checkbox" name="dm" bind:checked={form.dm} />
             <span>
                 <b>DM 24 hours before end</b> (required for standard votes)
+                {#if form.id}
+                    (note that if you are editing a poll that already sent a DM, enabling this
+                    option may send another DM)
+                {/if}
             </span>
         </label>
         <br />

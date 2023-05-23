@@ -15,10 +15,10 @@ import {
     type User,
     type StringSelectMenuComponentData,
     type APIEmbed,
-    type GuildMember,
+    GuildMember,
     type APIGuildMember,
 } from "discord.js";
-import db, { banshares } from "./db.js";
+import { banshares } from "./db.js";
 import { components } from "./lib.js";
 
 process.on("uncaughtException", (error) => console.error(error));
@@ -73,31 +73,13 @@ const report = [
                 minValues: 1,
                 maxValues: 3,
                 options: [
-                    [
-                        "Appears unintended.",
-                        "This banshare looks incomplete or incorrect and you believe its publication was an accident.",
-                    ],
-                    [
-                        "Targeted users are wrong.",
-                        "This banshare is banning users who were not present in the evidence or vice versa.",
-                    ],
-                    [
-                        "Reason does not justify a banshare.",
-                        "The specified reason does not warrant a banshare.",
-                    ],
-                    [
-                        "Evidence is insufficient.",
-                        "The evidence does not prove the claims in the banshare reason.",
-                    ],
-                    [
-                        "Evidence is forged.",
-                        "The evidence is invalid and contains forged or staged content.",
-                    ],
-                    [
-                        "Severity should be increased.",
-                        "The banshare severity was lower than it should be for the incident.",
-                    ],
-                ].map(([text, description]) => ({ label: text, value: text, description })),
+                    "Appears unintended.",
+                    "Targeted users are wrong.",
+                    "Reason does not justify a banshare.",
+                    "Evidence is insufficient.",
+                    "Evidence is forged.",
+                    "Severity should be increased.",
+                ].map((text) => ({ label: text, value: text })),
                 placeholder: "Report This Banshare",
             } satisfies StringSelectMenuComponentData,
         ],
@@ -147,24 +129,46 @@ const autobanning = [
 
 const published = new Set<string>();
 
-vote_bot.once("ready", async () => {
-    console.log("[VOTE BOT] ready!");
-});
-
 bot.once("ready", async () => {
     console.log("[BOT] ready!");
 });
 
 bot.on("interactionCreate", async (interaction) => {
     if (interaction.isChatInputCommand()) {
-        if (!["banshare"].includes(interaction.commandName)) return;
+        if (!["banshare", "banshare-publish"].includes(interaction.commandName)) return;
+
+        if (interaction.commandName === "banshare-publish") {
+            if (interaction.guild?.id !== "804174916907171870") {
+                await interaction.reply("This command can only be called by observers in HQ.");
+                return;
+            }
+
+            await interaction.showModal({
+                title: "Post Message",
+                customId: "banshare-publish",
+                components: [
+                    {
+                        type: ComponentType.ActionRow,
+                        components: [
+                            {
+                                type: ComponentType.TextInput,
+                                style: TextInputStyle.Paragraph,
+                                customId: "message",
+                                label: "Message",
+                                maxLength: 2000,
+                                required: true,
+                            },
+                        ],
+                    },
+                ],
+            });
+        }
 
         await interaction.deferReply({ ephemeral: true });
 
         if (!interaction.inGuild()) return;
         if (!(await allowed(interaction.guild!))) {
             await interaction.editReply("This is not a TCN server.");
-
             return;
         }
 
@@ -238,23 +242,35 @@ bot.on("interactionCreate", async (interaction) => {
                         `${enable ? "Enabled" : "Disabled"} Daedalus integration.`,
                     );
                 } else if (subcommand === "autoban") {
-                    const threshold = interaction.options.getString("threshold", true);
+                    const non_member_threshold = interaction.options.getString(
+                        "default-threshold",
+                        true,
+                    );
+                    const member_threshold = interaction.options.getString(
+                        "member-threshold",
+                        true,
+                    );
 
                     await banshares.settings.findOneAndUpdate(
                         { guild: interaction.guild!.id },
-                        { $set: { autoban: threshold } },
+                        {
+                            $set: {
+                                autoban: non_member_threshold,
+                                autoban_member: member_threshold,
+                            },
+                        },
                         { upsert: true },
                     );
 
+                    const k = {
+                        none: "none",
+                        crit: "P0 only",
+                        med: "P0 and P1",
+                        all: "P0, P1, and P2",
+                    } as { [key: string]: string };
+
                     await interaction.editReply(
-                        `Set the autoban threshold to ${
-                            {
-                                none: "none",
-                                crit: "P0 only",
-                                med: "P0 and P1",
-                                all: "P0, P1, and P2",
-                            }[threshold]
-                        }.`,
+                        `Set the autoban threshold to ${k[non_member_threshold]} (${k[member_threshold]} will apply to server members).`,
                     );
                 }
             }
@@ -414,7 +430,7 @@ bot.on("interactionCreate", async (interaction) => {
                 embeds: [
                     {
                         title: "**Banshare**",
-                        color: 0x2d3136,
+                        color: 0x2b2d31,
                         fields: [
                             ...interaction.message.embeds[0].fields.slice(0, -1),
                             {
@@ -523,11 +539,6 @@ bot.on("interactionCreate", async (interaction) => {
                     const message = await interaction.message.fetchReference();
                     await message.edit({ components: components(true, banshare.value.severity) });
                     embeds = message.embeds.map((e) => e.toJSON());
-
-                    if (message.crosspostable)
-                        try {
-                            await message.crosspost();
-                        } catch {}
                 } catch {
                     await interaction.editReply({
                         content: "The original banshare could not be found.",
@@ -567,9 +578,7 @@ bot.on("interactionCreate", async (interaction) => {
                     places.map(async ({ guild, channel }) => {
                         if (!channel?.isTextBased()) return;
 
-                        const settings = await banshares.settings.findOne({
-                            guild,
-                        });
+                        const settings = await banshares.settings.findOne({ guild });
 
                         const threshold = settings?.autoban ?? "none";
 
@@ -612,20 +621,17 @@ bot.on("interactionCreate", async (interaction) => {
 
                     if (message.components?.[0]?.components?.[0]?.customId !== "-") return;
 
-                    await message.edit({
-                        components: autobanning.concat(report),
-                    });
+                    await message.edit({ components: autobanning.concat(report) });
 
                     await execute(
                         banshare.value,
                         await banshares.settings.findOne({ guild }),
                         message.guild!,
                         message,
+                        undefined,
                     );
 
-                    await message.edit({
-                        components: finished.concat(report),
-                    });
+                    await message.edit({ components: finished.concat(report) });
                 });
             }
         } else if (interaction.customId === "cancel") {
@@ -794,6 +800,37 @@ bot.on("interactionCreate", async (interaction) => {
                 } to ${severity} severity:\n\n${reason}`,
                 allowedMentions: { parse: [] },
             });
+        } else if (interaction.customId === "banshare-publish") {
+            await interaction.deferUpdate();
+            let guilds: string[];
+
+            try {
+                const request = await fetch(`${PUBLIC_TCN_API}/guilds`);
+
+                if (!request.ok) throw 0;
+
+                guilds = (await request.json())
+                    .map((server: { id: string }) => server.id)
+                    .concat(PUBLIC_ALLOWLIST.split(/\s+/));
+            } catch {
+                await interaction.editReply("An unexpected issue occurred with the TCN API.");
+
+                return;
+            }
+
+            const message = interaction.fields.getTextInputValue("message");
+
+            (await banshares.channels.find().toArray())
+                .filter(
+                    (entry) =>
+                        (PUBLIC_ALLOWLIST && PUBLIC_ALLOWLIST.indexOf(entry.guild) !== -1) ||
+                        guilds.includes(entry.guild),
+                )
+                .map((entry) => ({
+                    guild: entry.guild,
+                    channel: bot.channels.cache.get(entry.channel),
+                }))
+                .forEach(({ channel }) => channel?.isTextBased() && channel.send(message));
         }
     } else if (interaction.isStringSelectMenu()) {
         if (!interaction.memberPermissions?.has(PermissionFlagsBits.BanMembers)) return;
@@ -900,18 +937,28 @@ async function execute(
     const missed: string[] = [];
     const banned: User[] = [];
     const failed: User[] = [];
+    const skipped: User[] = [];
 
     for (const id of banshare.id_list as string[]) {
         let member: GuildMember | null = null;
         let user: User;
 
         try {
-            if (executor)
+            if (executor || settings.autoban_member)
                 try {
                     member = await guild.members.fetch(id);
                 } catch {}
-            if (member) user = member.user;
-            else user = await bot.users.fetch(id);
+            if (member) {
+                user = member.user;
+
+                if (
+                    settings.autoban_member &&
+                    !autoban(settings.autoban_member, banshare.severity)
+                ) {
+                    skipped.push(user);
+                    continue;
+                }
+            } else user = await bot.users.fetch(id);
         } catch {
             missed.push(id);
             continue;
@@ -928,7 +975,9 @@ async function execute(
             )
                 throw 0;
 
-            await guild.bans.create(id);
+            await guild.bans.create(id, {
+                reason: "TCN Banshare: " + (banshare.reason ?? "(missing reason)"),
+            });
             banned.push(user);
 
             if (settings?.daedalus) {
@@ -956,7 +1005,8 @@ async function execute(
                     console.error(error);
                 }
             }
-        } catch {
+        } catch (error) {
+            console.error(error);
             failed.push(user);
         }
     }
@@ -970,13 +1020,15 @@ async function execute(
 
             const prefix = `Banshare Executed; banned ${banned.length} user${
                 banned.length === 1 ? "" : "s"
-            }.\nOrigin: ${message.url}\nReasion: ${banshare.reason}`;
+            }.\nOrigin: ${message.url}\nReason: ${banshare.reason}`;
 
             try {
                 await channel.send(
                     `${prefix}\nSuccess: ${banned.join(", ") || "(none)"}\nFailed: ${
                         failed.join(", ") || "(none)"
-                    }\nInvalid IDs: ${missed.join(", ") || "(none)"}`,
+                    }\nSkipped: ${skipped.join(", ") || "(none)"}\nInvalid IDs: ${
+                        missed.join(", ") || "(none)"
+                    }`,
                 );
             } catch {
                 await channel.send({
@@ -988,6 +1040,8 @@ async function execute(
                                     banned.map((x) => `${x.tag} (${x.id})`).join(", ") || "(none)"
                                 }\nFailed: ${
                                     failed.map((x) => `${x.tag} (${x.id})`).join(", ") || "(none)"
+                                }\nSkipped: ${
+                                    skipped.map((x) => `${x.tag} (${x.id})`).join(", ") || "(none)"
                                 }\nInvalid IDs: ${missed.join(", ") || "(none)"}`,
                                 "utf-8",
                             ),
@@ -1025,7 +1079,7 @@ async function get_post(banshare: any, guild: string) {
 }
 
 const thresholds = { all: 0, med: 1, crit: 2, none: 3 } as any;
-const severities = { P0: 2, P1: 1, P2: 0 } as any;
+const severities = { p0: 2, p1: 1, p2: 0 } as any;
 
 function autoban(threshold: string, severity: string) {
     return (thresholds[threshold] ?? Infinity) <= (severities[severity] ?? -Infinity);

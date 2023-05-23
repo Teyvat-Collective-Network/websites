@@ -137,7 +137,7 @@ export const actions: Actions = {
             embeds: [
                 {
                     title: "**Banshare**",
-                    color: 0x2d3136,
+                    color: 0x2b2d31,
                     fields: [
                         { name: "ID(s)", value: ids },
                         ...(tags.length > 0 ? [{ name: "Username(s)", value: tags }] : []),
