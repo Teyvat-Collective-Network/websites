@@ -33,8 +33,8 @@ setInterval(async () => {
             if (!channel?.isTextBased()) throw "Channel is not text-based.";
             const message = await channel.messages.fetch(poll.message);
             await message.edit(await render(poll));
-        } catch (e) {
-            console.error(e);
+        } catch (error) {
+            console.error("[AUTO-CLOSE POLL]", error);
         }
     }
 

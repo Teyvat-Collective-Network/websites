@@ -29,7 +29,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                     icon: x.guild!.iconURL({ size: 256 }),
                 }));
             } catch (error) {
-                console.error(error);
+                console.error("[POST CALENDAR EVENT]", error);
                 return new Response(null, { status: 400 });
             }
         }

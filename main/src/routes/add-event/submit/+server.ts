@@ -40,7 +40,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     try {
         data.body = purify.sanitize(parse(data.body));
     } catch (error) {
-        console.error(error);
+        console.error("[PARSE EVENT CONTENT BODY]", error);
 
         return new Response(
             "An unexpected error occurred parsing your content body. Make sure your markdown is valid.",
@@ -90,8 +90,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
             embeds: [
                 {
                     title: "Calendar Event Created",
-                    description: `<@${(locals as any).user.id
-                        }> just added an event to the calendar with title "${data.name}".`,
+                    description: `<@${
+                        (locals as any).user.id
+                    }> just added an event to the calendar with title "${data.name}".`,
                     color: 0x2b2d31,
                     fields: [
                         {
@@ -102,7 +103,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
                 },
             ],
         });
-    } catch { }
+    } catch {}
 
     return new Response();
 };

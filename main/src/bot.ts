@@ -21,7 +21,7 @@ import {
 import { banshares } from "./db.js";
 import { components } from "./lib.js";
 
-process.on("uncaughtException", (error) => console.error(error));
+process.on("uncaughtException", (error) => console.error("[TOP-LEVEL]", error));
 
 const bot = new Client({
     intents: IntentsBitField.Flags.Guilds | IntentsBitField.Flags.MessageContent,
@@ -678,13 +678,9 @@ bot.on("interactionCreate", async (interaction) => {
                 return;
             }
 
-            try {
-                await interaction.message!.edit({
-                    components: rescinded,
-                });
-            } catch (error) {
-                console.error(error);
-            }
+            await interaction.message!.edit({
+                components: rescinded,
+            });
 
             await interaction.editReply(
                 "This banshare is being rescinded. You may dismiss this message.",
@@ -1000,13 +996,14 @@ async function execute(
                         },
                     );
 
-                    if (!response.ok) console.error(response.status, await response.json());
+                    if (!response.ok)
+                        console.error("[DAEDALUS API]", response.status, await response.json());
                 } catch (error) {
-                    console.error(error);
+                    console.error("[DAEDALUS API FETCH]", error);
                 }
             }
         } catch (error) {
-            console.error(error);
+            console.error("[BAN USER]", error);
             failed.push(user);
         }
     }

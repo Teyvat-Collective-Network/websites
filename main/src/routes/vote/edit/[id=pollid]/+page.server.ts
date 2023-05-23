@@ -128,7 +128,7 @@ export const actions: Actions = {
                 { upsert: true },
             );
         } catch (error) {
-            console.error(error);
+            console.error("[POST POLL]", error);
             return fail("Unexpected error posting the message.");
         }
 
