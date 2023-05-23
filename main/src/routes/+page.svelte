@@ -49,6 +49,15 @@
             justify-content: center;
             border-radius: 5px;
         }
+
+        @media screen and (max-width: 1000px) {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto;
+
+            & > div {
+                grid-column: 1;
+            }
+        }
     }
 
     #box-1 {
