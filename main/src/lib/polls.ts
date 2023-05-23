@@ -208,7 +208,7 @@ export async function render(data: any): Promise<MessageCreateOptions & MessageE
                 (x: string) => disapproval[x] * 2 <= ballot_count,
             );
 
-            eligible.sort((x, y) => points[x] - points[y]);
+            eligible.sort((x, y) => points[y] - points[x]);
             const elected = eligible.filter((x) => points[x] >= points[eligible[data.seats - 1]]);
 
             results = `Elected candidates in arbitrary order: ${elected
