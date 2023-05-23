@@ -40,10 +40,6 @@
 </Modal>
 
 <style lang="scss">
-    :root {
-        --width: calc(min(max(5vw - 45px, 0px), 25px) + 100px);
-    }
-
     #testimonial {
         all: unset;
 
@@ -58,13 +54,13 @@
 
     img {
         padding: 15px;
-        width: var(--width);
+        width: calc(min(max(5vw - 45px, 0px), 25px) + 100px);
     }
 
     #right {
         display: inline-flex;
         flex-direction: column;
-        width: calc(100% - var(--width) - 10px);
+        width: calc(100% - min(max(5vw - 45px, 0px), 25px) + 90px);
 
         &.full {
             width: 100%;
