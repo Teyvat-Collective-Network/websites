@@ -60,7 +60,7 @@
     #right {
         display: inline-flex;
         flex-direction: column;
-        width: calc(100% - min(max(5vw - 45px, 0px), 25px) + 90px);
+        width: calc(100% - min(max(5vw - 45px, 0px), 25px) - 110px);
 
         &.full {
             width: 100%;
