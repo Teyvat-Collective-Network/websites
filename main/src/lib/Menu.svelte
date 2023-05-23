@@ -104,7 +104,6 @@
         <a href="/info/hq" class="t2 {info_open ? '' : 'hidden'}">HQ</a>
         <a href="/info/directory" class="t3 {info_open ? '' : 'hidden'}">Directory</a>
         <a href="/info/voting" class="t3 {info_open ? '' : 'hidden'}">Voting</a>
-        <a href="/info/akasha" class="t3 {info_open ? '' : 'hidden'}">Akasha System</a>
         <a href="/info/quickstart" class="t2 {info_open ? '' : 'hidden'}">Quickstart</a>
         <a href="/info/partner-list" class="t3 {info_open ? '' : 'hidden'}"
             >Partner List &amp; Autosync</a

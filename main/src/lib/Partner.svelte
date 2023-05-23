@@ -41,10 +41,4 @@
         font-size: 150%;
         text-align: center;
     }
-
-    a.button {
-        font-weight: 400;
-        padding-left: 1.5em;
-        padding-right: 1.5em;
-    }
 </style>

@@ -12,5 +12,4 @@
                 h1 HQ
                 ul: li: a(href="/info/directory") Directory
                 ul: li: a(href="/info/voting") Voting
-                ul: li: a(href="/info/akasha") Akasha System
 </template>

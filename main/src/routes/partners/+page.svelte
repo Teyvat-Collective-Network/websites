@@ -22,25 +22,24 @@
     .container
         #main
             h1 Our Partners
+            #box
+                #box-1
+                    p The TCN is a network of {data.partners.length} high-quality Genshin Impact Discord servers that are dedicated to fostering Mains-style fan communities.
+                #box-2
+                    p Do you own a Discord server dedicated to a playable Genshin Impact character and want to join the TCN? Apply here!
+                    a.button(href="/join") Apply To Join
             #searchbar.wide
                 i.material-icons search
                 input(type="text", bind:value!="{ query }")
-            +if("!query")
-                #box
-                    #box-1
-                        p The TCN is a network of {data.partners.length} high-quality Genshin Impact Discord servers that are dedicated to fostering Mains-style fan communities.
-                    #box-2
-                        p Do you own a Discord server dedicated to a playable Genshin Impact character and want to join the TCN? Apply here!
-                        a.button(href="/join") Apply To Join
-                .external.wide
-                    img(
-                        src="https://genshinwizard.com/wp-content/uploads/2022/09/cropped-genshinwizard_logo-192x192.png",
-                        alt="Genshin Wizard Icon"
-                    )
-                    div
-                        h3 Genshin Wizard
-                        p The TCN is partnered with Genshin Wizard, a multi-purpose Genshin Impact utility bot. Check out their website below!
-                        a.button(href="https://genshinwizard.com") Website
+            .external.wide(class!="{ fuzzy('genshin wizard', query) ? '' : 'hidden' }")
+                img(
+                    src="https://genshinwizard.com/wp-content/uploads/2022/09/cropped-genshinwizard_logo-192x192.png",
+                    alt="Genshin Wizard Icon"
+                )
+                div
+                    h3 Genshin Wizard
+                    p The TCN is partnered with Genshin Wizard, a multi-purpose Genshin Impact utility bot. Check out their website below!
+                    a.button(href="https://genshinwizard.com") Website
             +each("data.partners as { character, name, invite, description }")
                 div(class!="{ fuzzy(name, query) || fuzzy(character, query) ? '' : 'hidden' }")
                     Partner(
@@ -48,7 +47,10 @@
                         code!="{ invite }",
                         image!="/images/characters/{character}.png"
                     )
-                        p {@html description ?? ""}
+                        +if("description")
+                            p {@html description ?? ""}
+                            +else
+                                span
 </template>
 
 <style lang="scss">
@@ -81,7 +83,16 @@
         border-radius: 5px;
 
         & > div {
-            margin-bottom: 40px;
+            & > h3 {
+                margin: 0;
+            }
+
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+
+            margin: 20px 0;
         }
 
         @media screen and (max-width: 600px) {
@@ -90,7 +101,7 @@
     }
 
     #box {
-        grid-column: 1/ -1;
+        grid-column: 1 / -1;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
         gap: 20px;
@@ -127,5 +138,12 @@
         left: 100vw;
         opacity: 0;
         pointer-events: none;
+    }
+
+    :global {
+        a.button {
+            font-weight: 400;
+            padding: 0.5em 1.5em !important;
+        }
     }
 </style>

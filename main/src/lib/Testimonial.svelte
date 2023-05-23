@@ -13,8 +13,10 @@
 </script>
 
 <button id="testimonial" on:click={() => ((open = true), dispatch("open"))} bind:this={element}>
-    <img src={image} alt="{name} Icon" />
-    <div id="right">
+    {#if image}
+        <img src={image} alt="{name} Icon" />
+    {/if}
+    <div id="right" class={image ? "" : "full"}>
         <span>{name}</span>
         <div><slot /></div>
     </div>
@@ -27,7 +29,9 @@
     on:close={() => dispatch("close")}
 >
     <div id="top">
-        <img src={image} alt="{name} Icon" />
+        {#if image}
+            <img src={image} alt="{name} Icon" />
+        {/if}
         <span>{name}</span>
     </div>
     <div id="bottom">
@@ -36,6 +40,10 @@
 </Modal>
 
 <style lang="scss">
+    :root {
+        --width: calc(min(max(5vw - 45px, 0px), 25px) + 100px);
+    }
+
     #testimonial {
         all: unset;
 
@@ -50,13 +58,17 @@
 
     img {
         padding: 15px;
-        width: 120px;
+        width: var(--width);
     }
 
     #right {
         display: inline-flex;
         flex-direction: column;
-        width: calc(100% - 150px);
+        width: calc(100% - var(--width) - 10px);
+
+        &.full {
+            width: 100%;
+        }
     }
 
     span {
