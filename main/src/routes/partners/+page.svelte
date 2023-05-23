@@ -22,15 +22,9 @@
     .container
         #main
             h1 Our Partners
-            #box
-                #box-1
-                    p The TCN is a network of {data.partners.length} high-quality Genshin Impact Discord servers that are dedicated to fostering Mains-style fan communities.
-                #box-2
-                    p Do you own a Discord server dedicated to a playable Genshin Impact character and want to join the TCN? Apply here!
-                    a.button(href="/join") Apply To Join
             #searchbar.wide
                 i.material-icons search
-                input(type="text", bind:value!="{ query }")
+                input(type="text", bind:value!="{ query }", placeholder="Filter Servers")
             .external.wide(class!="{ fuzzy('genshin wizard', query) ? '' : 'hidden' }")
                 img(
                     src="https://genshinwizard.com/wp-content/uploads/2022/09/cropped-genshinwizard_logo-192x192.png",
@@ -98,36 +92,6 @@
         @media screen and (max-width: 600px) {
             flex-direction: column;
         }
-    }
-
-    #box {
-        grid-column: 1 / -1;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-        gap: 20px;
-        padding-bottom: 40px;
-
-        & > div {
-            padding: 20px 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 5px;
-        }
-    }
-
-    #box-1 {
-        background-color: var(--background-2);
-        font-size: 125%;
-        line-height: 175%;
-    }
-
-    #box-2 {
-        background-color: var(--background-2);
-        font-size: 125%;
-        line-height: 175%;
     }
 
     .hidden {
