@@ -212,6 +212,7 @@ export async function render(data: any): Promise<MessageCreateOptions & MessageE
             const elected = eligible.filter((x) => points[x] >= points[eligible[data.seats - 1]]);
 
             results = `Elected candidates in arbitrary order: ${elected
+                .sort()
                 .map((x) => `<@${x}>`)
                 .join(" ")}${
                 elected.length > data.seats
