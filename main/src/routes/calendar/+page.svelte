@@ -87,7 +87,7 @@
                                 {@html event.body}
 
                                 {#if event.invite_data?.length}
-                                    <br /><br /><br /><br />
+                                    <br /><br /><br />
                                     <div class="invites">
                                         {#each event.invite_data as invite}
                                             <Invite
