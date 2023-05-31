@@ -1,6 +1,6 @@
 <script lang="ts">
     import Callout from "$lib/Callout.svelte";
-    import Card from "$lib/Card.svelte";
+    import ITitle from "$lib/ITitle.svelte";
     import Linkable from "$lib/Linkable.svelte";
     import Navigation from "$lib/Navigation.svelte";
 </script>
@@ -24,16 +24,18 @@
                     li <b>Partner List:</b> a list of all TCN partners, which must not contain any other servers.
                     li <b>TCN Hub:</b> the description for the TCN Hub and its invite link (<a href="https://discord.gg/FG2wpbywSx">https://discord.gg/FG2wpbywSx</a>).
                     li <b>Genshin Wizard:</b> the description for Genshin Wizard and its website link (<a href="https://genshinwizard.com">https://genshinwizard.com</a>).
-                p You do not need to include all of these verbatim, but here's what we recommend for the description. Your description is expected to be roughly accurate, but you can write it in your own style. Click each card to see what we recommend.
-                .cards
-                    Card(icon="notes", title="General Description", expandable)
-                        p
-                            i "In Teyvat, the stars in the sky will always have a place for you."
-                        p A network of high-quality Genshin Impact character-mains style servers that focus on creating fan communities. Within the network, individual and network-wide events are held such as: tournaments, scavenger hunts and other fun events, community nights, giveaways, and patch preview livestreams.
-                    Card(icon="hub", title="TCN Hub", expandable)
-                        p Join us in the official TCN hub to ask questions about the network, talk to other network members, get information on the network and how to apply, and contact observers (admins)! <a href="https://discord.gg/FG2wpbywSx">https://discord.gg/FG2wpbywSx</a>
-                    Card(icon="auto_fix_high", title="Genshin Wizard", expandable)
-                        p The TCN is partnered with <a href="https://genshinwizard.com">Genshin Wizard</a>, a multipurpose Genshin Impact Discord bot with a wide array of features to let you view your in-game stats, flex your builds, view build guides and hundreds of high-quality infographics, and more!
+                p You do not need to include all of these verbatim, but here's what we recommend for the description. Your description is expected to be roughly accurate, but you can write it in your own style. Here are our recommendations:
+                .panel
+                    ITitle(e="h3", icon="notes", text="General Description")
+                    p
+                        i "In Teyvat, the stars in the sky will always have a place for you."
+                    p A network of high-quality Genshin Impact character-mains style servers that focus on creating fan communities. Within the network, individual and network-wide events are held such as: tournaments, scavenger hunts and other fun events, community nights, giveaways, and patch preview livestreams.
+                    hr
+                    ITitle(e="h3", icon="hub", text="TCN Hub")
+                    p Join us in the official TCN hub to ask questions about the network, talk to other network members, get information on the network and how to apply, and contact observers (admins)! <a href="https://discord.gg/FG2wpbywSx">https://discord.gg/FG2wpbywSx</a>
+                    hr
+                    ITitle(e="h3", icon="auto_fix_high", text="Genshin Wizard")
+                    p The TCN is partnered with <a href="https://genshinwizard.com">Genshin Wizard</a>, a multipurpose Genshin Impact Discord bot with a wide array of features to let you view your in-game stats, flex your builds, view build guides and hundreds of high-quality infographics, and more!
                 Linkable#autosync(e="h2", value="Autosync")
                 Callout(style="info")
                     p <b>Is this for me?</b> If you would like to follow the default format of the TCN partner embed and don't want to have to update it manually, this is for you.

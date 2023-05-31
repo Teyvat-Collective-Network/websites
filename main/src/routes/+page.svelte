@@ -3,6 +3,7 @@
 
     export let data: {
         auth: boolean;
+        partners: any[];
         testimonials: { image: string; name: string; content: string }[];
     };
 </script>
@@ -16,6 +17,12 @@
                     p Welcome to the Teyvat Collective Network (TCN)
                 #box-2
                     p The mission of the TCN is to unite all mains servers across Teyvat and provide support and promote collaboration between partners.
+                #box-3
+                    p The TCN is a network of {data?.partners?.length} high-quality Genshin Impact Discord servers that are dedicated to fostering Mains-style fan communities.
+                #box-4
+                    p Do you own a Discord server dedicated to a playable Genshin Impact character and want to join the TCN? Apply here!
+                    a.button(href="/join") Apply To Join
+            br
             h4.row(style="gap: 10px") Testimonials
                 +if("data.auth")
                     a(href="/admin/testimonials"): i.material-icons edit
@@ -31,24 +38,30 @@
 <style lang="scss">
     #box {
         display: grid;
-        grid-template-columns: 4fr 6fr;
         gap: 20px;
-
-        @media screen and (max-width: 1000px) {
-            grid-template-columns: 1fr;
-            grid-template-rows: auto auto;
-        }
+        grid-template-columns: 4fr 1fr 1fr 4fr;
 
         & > div {
             padding: 20px 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             border-radius: 5px;
+        }
+
+        @media screen and (max-width: 1000px) {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto;
+
+            & > div {
+                grid-column: 1;
+            }
         }
     }
 
     #box-1 {
+        grid-column: 1;
         background-color: var(--background-2);
         font-weight: 600;
         font-size: 200%;
@@ -56,11 +69,26 @@
     }
 
     #box-2 {
+        grid-column: 2 / 5;
         background-color: var(--accent-less);
         font-weight: 400;
         font-size: 150%;
         line-height: 150%;
         justify-content: center;
+    }
+
+    #box-3 {
+        grid-column: 1 / 3;
+        background-color: var(--background-2);
+        font-size: 125%;
+        line-height: 175%;
+    }
+
+    #box-4 {
+        grid-column: 3 / 5;
+        background-color: var(--background-2);
+        font-size: 125%;
+        line-height: 175%;
     }
 
     #testimonials {

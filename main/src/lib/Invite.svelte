@@ -13,7 +13,7 @@
     {/if}
     <img id="icon" src={icon} alt="icon" />
     <b id="title">{title}</b>
-    <a id="join" href="https://discord.gg/{code}" class="button">JOIN</a>
+    <a id="join" class="button" href="https://discord.gg/{code}" target="_blank" rel="noreferrer">JOIN</a>
 </div>
 
 <style lang="scss">

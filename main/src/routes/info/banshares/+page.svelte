@@ -1,7 +1,7 @@
 <script lang="ts">
     import Callout from "$lib/Callout.svelte";
-    import Card from "$lib/Card.svelte";
     import Image from "$lib/Image.svelte";
+    import ITitle from "$lib/ITitle.svelte";
     import Linkable from "$lib/Linkable.svelte";
     import Navigation from "$lib/Navigation.svelte";
 </script>
@@ -16,15 +16,17 @@
                         i.material-icons(style="padding-right: 0.5em") arrow_downward
                         | Submitting Guide
                 Linkable#overview(e="h2", value="Overview")
-                p The lifecycle of a banshare is as follows. Click a card to learn more.
-                .cards
-                    Card(icon="upload", title="Submit", expandable)
-                        p A banshare is submitted to <a href="/banshare">/banshare</a>. It is posted to <b>#ban-share-logs</b> and reviewed by observers.
-                    Card(icon="published_with_changes", title="Publish", expandable)
-                        p Once it is approved, an observer will publish it and it will be posted to all TCN servers that have banshares set up. The bot will also automatically ban the user(s) in servers where that is enabled.
-                    Card(icon="unpublished", title="Rescind", expandable)
-                        p We strive to avoid this from happening, but if a banshare is found to be invalid, we will rescind it with a reason and perform a post-mortem to see why a faulty banshare was approved.
-                        p This may also happen if the user's behavior improves and we retroactively agree to un-banshare them.
+                p The lifecycle of a banshare is as follows.
+                .panel
+                    ITitle(e="h3", icon="upload", text="Submit")
+                    p A banshare is submitted to <a href="/banshare">/banshare</a>. It is posted to <b>#ban-share-logs</b> and reviewed by observers.
+                    hr
+                    ITitle(e="h3", icon="published_with_changes", text="Publish")
+                    p Once it is approved, an observer will publish it and it will be posted to all TCN servers that have banshares set up. The bot will also automatically ban the user(s) in servers where that is enabled.
+                    hr
+                    ITitle(e="h3", icon="unpublished", text="Rescind")
+                    p We strive to avoid this from happening, but if a banshare is found to be invalid, we will rescind it with a reason and perform a post-mortem to see why a faulty banshare was approved.
+                    p This may also happen if the user's behavior improves and we retroactively agree to un-banshare them.
                 br
                 Callout(style="info")
                     p When the bot performs automated actions, either through auto-ban or the ban button, it will log the action in your logging channel if you set it up. Here's what the log message looks like
@@ -42,13 +44,15 @@
                     li If you use <b>Daedalus</b>, you can use <code>/banshare daedalus-integration</code> to enable/disable the integration, which allows the banshare bot to automatically add auto-bans and button bans to the targets' user history.
                 Linkable#severity(e="h2", value="Severity")
                 p Banshares are categorized into three levels of severity. These are not very strictly defined, and observers can tweak the severity before or after publication. Here are our guidelines. These do not matter for anything other than auto-banning, and do not reflect how "bad" we think the user is. Click a card to learn more.
-                .cards
-                    Card(icon="keyboard_arrow_up", title="P0 (Critical)", icon_color="var(--red-text)", expandable)
-                        p Urgent banshares where the user should be immediately removed everywhere, e.g. illegal activity, raids, ongoing harassment, etc.
-                    Card(icon="remove", title="P1 (Medium)", icon_color="var(--yellow-text)", expandable)
-                        p Banshares that aren't very urgent and largely routine cases like low-threat scam bots or more serious accusations like pedophiles/lolicons (that aren't currently actively harming or threatening harm against users).
-                    Card(icon="keyboard_arrow_down", title="P2 (Low)", icon_color="var(--blue-text)", expandable)
-                        p Non-urgent banshares such as a user being problematic in just one server where it should be considered on an individual basis whether to ban or just keep watch.
+                .panel
+                    ITitle(e="h3", icon="keyboard_arrow_up", text="P0 (Critical)", icon_color="var(--red-text)")
+                    p Urgent banshares where the user should be immediately removed everywhere, e.g. illegal activity, raids, ongoing harassment, etc.
+                    hr
+                    ITitle(e="h3", icon="remove", text="P1 (Medium)", icon_color="var(--yellow-text)")
+                    p Banshares that aren't very urgent and largely routine cases like low-threat scam bots or more serious accusations like pedophiles/lolicons (that aren't currently actively harming or threatening harm against users).
+                    hr
+                    ITitle(e="h3", icon="keyboard_arrow_down", text="P2 (Low)", icon_color="var(--blue-text)")
+                    p Non-urgent banshares such as a user being problematic in just one server where it should be considered on an individual basis whether to ban or just keep watch.
                 Linkable#submitting(e="h2", value="Submitting")
                 p To post a banshare, go to <a href="/banshare">this form</a>. All fields should be fairly intuitive, but here is a usage guide for each:
                 ul
