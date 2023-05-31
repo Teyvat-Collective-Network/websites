@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, ApplicationCommandType } from "discord.js";
-import type { RequestHandler } from "@sveltejs/kit";
+import type { RequestHandler } from "./$types.js";
 
 export const GET: RequestHandler = () =>
     new Response(
@@ -76,12 +76,24 @@ export const GET: RequestHandler = () =>
                     {
                         type: ApplicationCommandOptionType.Subcommand,
                         name: "autoban",
-                        description: "set the autoban threshold",
+                        description: "set the autoban thresholds",
                         options: [
                             {
                                 type: ApplicationCommandOptionType.String,
-                                name: "threshold",
-                                description: "the autoban threshold",
+                                name: "default-threshold",
+                                description: "the autoban threshold for non-members",
+                                choices: [
+                                    { name: "None", value: "none" },
+                                    { name: "P0", value: "crit" },
+                                    { name: "P0 + P1", value: "med" },
+                                    { name: "P0, P1, and P2", value: "all" },
+                                ],
+                                required: true,
+                            },
+                            {
+                                type: ApplicationCommandOptionType.String,
+                                name: "member-threshold",
+                                description: "the autoban threshold for members",
                                 choices: [
                                     { name: "None", value: "none" },
                                     { name: "P0", value: "crit" },
@@ -94,5 +106,12 @@ export const GET: RequestHandler = () =>
                     },
                 ],
             },
-        ]),
+            {
+                type: ApplicationCommandType.ChatInput,
+                name: "banshare-publish",
+                description: "publish an arbitrary message through the banshare channels",
+                defaultMemberPermissions: "0",
+                dmPermission: false,
+            }
+        ])
     );
