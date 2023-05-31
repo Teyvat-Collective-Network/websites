@@ -1,4 +1,4 @@
-import { ALERT, DDL_TOKEN, LOG, TOKEN, VOTE_BOT_TOKEN } from "$env/static/private";
+import { ALERT, DDL_TOKEN, HQ, LOG, TOKEN, VOTE_BOT_TOKEN } from "$env/static/private";
 import { PUBLIC_ALLOWLIST, PUBLIC_DDL_API, PUBLIC_TCN_API } from "$env/static/public";
 import {
     type ButtonInteraction,
@@ -138,8 +138,12 @@ bot.on("interactionCreate", async (interaction) => {
         if (!["banshare", "banshare-publish"].includes(interaction.commandName)) return;
 
         if (interaction.commandName === "banshare-publish") {
-            if (interaction.guild?.id !== "804174916907171870") {
-                await interaction.reply("This command can only be called by observers in HQ.");
+            if (interaction.guild?.id !== HQ) {
+                await interaction.reply({
+                    content: "This command can only be called by observers in HQ.",
+                    ephemeral: true,
+                });
+
                 return;
             }
 
