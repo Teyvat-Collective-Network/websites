@@ -39,13 +39,12 @@
                     p <b>Is this for me?</b> If you would like to follow the default format of the TCN partner embed and don't want to have to update it manually, this is for you.
                     p You can choose a message that will be automatically edited each time or for the bot to automatically delete and re-post the message each time it is updated.
                 ol
-                    li Invite the bot using <a href="https://discord.com/api/oauth2/authorize?client_id=713773560371609660&permissions=536871936&scope=bot%20applications.commands">this link</a>.
-                    li Set up the bot:
+                    li Invite the TCN bot using <a href="https://discord.com/api/oauth2/authorize?client_id=959360773518413824&permissions=1512097303623&scope=applications.commands%20bot">this link</a>.
+                    li Run <code>/partnerlist post</code> to set up an embed instance:
                         ul
-                            li <b>Quick Setup:</b> Right click your current partner embed and select <code>Apps &gt; Set Target</code>. If this doesn't work, it will tell you why. Then, call <code>/autosync update</code> to call in an update.
-                            li Use <code>/autosync webhook set</code> with the webhook's URL.
-                            li Use <code>/autosync message set</code> with the message URL that points to the current embed (if you don't have one, you can skip this step).
-                    li If you would like the message to be deleted and reposted each time instead of edited, use <code>/autosync mode repost</code>. To switch it back to edit mode (default), use <code>/autosync mode edit</code>.
-                    li If your embed is out of date, use <code>/autosync update</code> to trigger an update.
+                            li Specify <b>channel</b> if you do not want it to post in the current channel.
+                            li Set <b>repost</b> to true if you want the embed to be reposted instead of edited each time there is an update.
+                            li Set <b>webhook</b> if you want it to post via a webhook instead of from the bot itself (in this case, the channel argument is ignored).
+                    li To change the format (template) of the embed, use <code>/partnerlist edit</code>. For help with using this, ask in <span class="mention">#dev-chat</span> in HQ or Hub.
                 p Just like that, you're all done and as long as you don't remove the bot or delete the webhook, you will never need to update it yourself again!
 </template>
