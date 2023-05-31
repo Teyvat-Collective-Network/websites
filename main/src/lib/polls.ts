@@ -355,13 +355,8 @@ vote_bot.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isMessageComponent() && !interaction.isModalSubmit()) return;
     if (!interaction.message) return;
 
-    let poll: any;
-
-    try {
-        poll = await db.polls.findOne({ message: interaction.message.id });
-    } catch {
-        return;
-    }
+    const poll = await db.polls.findOne({ message: interaction.message.id });
+    if (!poll) return;
 
     const update = async () => await interaction.message!.edit(await render(poll));
     const reply = (embed: APIEmbed) => interaction.reply({ embeds: [embed], ephemeral: true });
