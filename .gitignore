@@ -1,3 +1,9 @@
 node_modules
 dist
 .env
+.DS_Store
+/main/build
+/main/.svelte-kit
+/main/package
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
