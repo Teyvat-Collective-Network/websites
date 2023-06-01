@@ -71,6 +71,12 @@ export function components(published: boolean, severity?: string): any[] {
                     style: ButtonStyle.Success,
                     customId: "publish",
                     label: "PUBLISH"
+                },
+                {
+                    type: ComponentType.Button,
+                    style: ButtonStyle.Danger,
+                    customId: "reject",
+                    label: "REJECT"
                 }
             ]
         }
