@@ -638,6 +638,19 @@ bot.on("interactionCreate", async (interaction) => {
                     await message.edit({ components: finished.concat(report) });
                 });
             }
+        } else if (interaction.customId === "reject") {
+            await interaction.reply({
+                components: confirm(false, "-reject"),
+                ephemeral: true,
+            });
+        } else if (interaction.customId === "confirm-reject") {
+            const message = await interaction.message.fetchReference();
+            await message.edit({ components: [] });
+
+            await interaction.update({
+                content: "This banshare has been rejected.",
+                components: [],
+            });
         } else if (interaction.customId === "cancel") {
             await interaction.update({
                 components: confirm(true).concat(report),
