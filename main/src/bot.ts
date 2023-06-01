@@ -645,7 +645,27 @@ bot.on("interactionCreate", async (interaction) => {
             });
         } else if (interaction.customId === "confirm-reject") {
             const message = await interaction.message.fetchReference();
-            await message.edit({ components: [] });
+
+            const embed = message.embeds[0].toJSON();
+            embed.fields = embed.fields.slice(0, -1);
+
+            await message.edit({
+                embeds: [embed],
+                components: [
+                    {
+                        type: ComponentType.ActionRow,
+                        components: [
+                            {
+                                type: ComponentType.Button,
+                                style: ButtonStyle.Secondary,
+                                customId: ".",
+                                label: "REJECTED",
+                                disabled: true,
+                            },
+                        ],
+                    },
+                ],
+            });
 
             await interaction.update({
                 content: "This banshare has been rejected.",
