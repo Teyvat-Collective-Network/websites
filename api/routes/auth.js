@@ -1,4 +1,4 @@
-import oauth from '$lib/oauth.js';
+import oauth from '../lib/oauth.js';
 
 export default function(fastify, opts, done) {
   fastify.get('/', async (request, reply) => {
