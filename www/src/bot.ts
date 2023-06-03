@@ -670,7 +670,9 @@ bot.on("interactionCreate", async (interaction) => {
                 content: "This banshare has been rejected.",
                 components: [],
             });
-        } else if (interaction.customId === "cancel") {
+        } else if (interaction.customId === "cancel-reject")
+            await interaction.update({ components: confirm(true, "-reject") });
+        else if (interaction.customId === "cancel") {
             await interaction.update({ components: confirm(true) });
         } else if (interaction.customId === "rescind") {
             await interaction.showModal({
