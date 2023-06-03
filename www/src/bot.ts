@@ -510,7 +510,6 @@ bot.on("interactionCreate", async (interaction) => {
                     .concat(PUBLIC_ALLOWLIST.split(/\s+/));
             } catch {
                 await interaction.editReply("An unexpected issue occurred with the TCN API.");
-
                 return;
             }
 
@@ -672,9 +671,7 @@ bot.on("interactionCreate", async (interaction) => {
                 components: [],
             });
         } else if (interaction.customId === "cancel") {
-            await interaction.update({
-                components: confirm(true).concat(report),
-            });
+            await interaction.update({ components: confirm(true) });
         } else if (interaction.customId === "rescind") {
             await interaction.showModal({
                 title: "Rescind Banshare",
