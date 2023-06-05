@@ -92,7 +92,7 @@
             .container
                 #main
                     h2 Banshare Form
-                    LoggedInAs(user!="{data.user}", redirect!="{PUBLIC_DOMAIN}/apply")
+                    LoggedInAs(user!="{data.user}", redirect!="{PUBLIC_DOMAIN}/banshare")
                     +if("servers?.length === 0")
                         Callout(style="red")
                             p You are not staff on any TCN servers. If you believe this is a mistake, contact your server's owner or a TCN observer.
