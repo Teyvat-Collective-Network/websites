@@ -34,7 +34,7 @@
                         li <b>Growth</b> - The Council seeks to discuss and develop methods to grow the TCN both in terms of its size (number of servers) and its ability to provide resources and meet its goals for its constituent servers.
                     Linkable#structure(e="h3", value="Structure")
                     h4 Observer Committee
-                    p The observer committee is a group of TCN Council members who are elected by the Council to carry out official/administrative tasks, represent the network, and maintain its values and enforce rules within the network and HQ. The specific responsibilities and expectations of the observer committee and the mechanics of elections is discussed later in the constitution [TODO].
+                    p The observer committee is a group of TCN Council members who are elected by the Council to carry out official/administrative tasks, represent the network, and maintain its values and enforce rules within the network and HQ. The specific responsibilities and expectations of the observer committee<sup><a href="#observer-committee">[link]</a></sup> and the mechanics of elections<sup><a href="#election-votes">[link]</a></sup> are discussed later in the constitution.
                     h4 Constituent Servers
                     p Member servers of the TCN are character mains servers that have passed an induction vote to join the network. Each server must be associated with one playable character and cannot rebrand while within the network, but one playable character may have multiple constituent servers.
                     h4 External Partners
