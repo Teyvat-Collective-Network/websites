@@ -135,18 +135,11 @@
                                                     option(value!="{id}" selected!="{form?.server === id}") {name}
                                 .panel
                                     h4 Severity
-                                    p The severity is used to determine auto-banning. A lower number indicates a greater threat.
-                                    ul
-                                        li
-                                            <b>P0</b> &mdash; e.g. raids, harassment, etc.
-                                        li
-                                            <b>P1</b> &mdash; e.g. low-threat scam bots
-                                        li
-                                            <b>P2</b> &mdash; e.g. user causing a bit of trouble
+                                    p The severity is used to determine auto-banning. A lower number indicates a greater threat. Read the <a href="/info/banshares#severity">info page</a> for more information.
                                     select(name="severity" required)
                                         option(selected disabled hidden value="") Select Severity
-                                        +each("['P0', 'P1', 'P2'] as sev")
-                                            option(value!="{sev.toLowerCase()}" selected!="{form?.severity === sev.toLowerCase()}") {sev}
+                                        +each("['P0', 'P1', 'P2', 'DM SCAM'] as sev")
+                                            option(value!="{sev.toLowerCase().replace('dm scam', 'dm')}" selected!="{form?.severity === sev.toLowerCase()}") {sev}
                                 .panel
                                     h4 Urgency
                                     p Check the box below to instruct the bot to ping all observers instead of just a few to review this.
