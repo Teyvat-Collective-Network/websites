@@ -86,7 +86,8 @@ export const GET: RequestHandler = () =>
                                     { name: "None", value: "none" },
                                     { name: "P0", value: "crit" },
                                     { name: "P0 + P1", value: "med" },
-                                    { name: "P0, P1, and P2", value: "all" },
+                                    { name: "P0, P1, and P2", value: "nondm" },
+                                    { name: "P0, P1, P2, and DM scams", value: "all" },
                                 ],
                                 required: true,
                             },
@@ -98,12 +99,26 @@ export const GET: RequestHandler = () =>
                                     { name: "None", value: "none" },
                                     { name: "P0", value: "crit" },
                                     { name: "P0 + P1", value: "med" },
-                                    { name: "P0, P1, and P2", value: "all" },
+                                    { name: "P0, P1, and P2", value: "nondm" },
+                                    { name: "P0, P1, P2, and DM scams", value: "all" },
                                 ],
                                 required: true,
                             },
                         ],
                     },
+                    {
+                        type: ApplicationCommandOptionType.Subcommand,
+                        name: "receive-dm-scams",
+                        description: "set whether or not to receive DM scam banshares",
+                        options: [
+                            {
+                                type: ApplicationCommandOptionType.Boolean,
+                                name: "enable",
+                                description: "whether or not to receive DM scam banshares",
+                                required: true,
+                            }
+                        ]
+                    }
                 ],
             },
             {

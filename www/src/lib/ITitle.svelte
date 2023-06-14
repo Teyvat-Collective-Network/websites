@@ -2,10 +2,11 @@
     export let e: string;
     export let icon: string = "";
     export let text: string;
+    export let icon_color: string;
 </script>
 
 <svelte:element this={e} class="item">
-    <i class="material-icons">{icon}</i>
+    <i class="material-icons" style="color: {icon_color}">{icon}</i>
     {text}
 </svelte:element>
 

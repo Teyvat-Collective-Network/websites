@@ -270,11 +270,24 @@ bot.on("interactionCreate", async (interaction) => {
                         none: "none",
                         crit: "P0 only",
                         med: "P0 and P1",
-                        all: "P0, P1, and P2",
+                        nondm: "P0, P1, and P2",
+                        all: "P0, P1, P2, and DM scams",
                     } as { [key: string]: string };
 
                     await interaction.editReply(
                         `Set the autoban threshold to ${k[non_member_threshold]} (${k[member_threshold]} will apply to server members).`,
+                    );
+                } else if (subcommand === "receive-scam-dms") {
+                    const enable = interaction.options.getBoolean("enable", true);
+
+                    await banshares.settings.findOneAndUpdate(
+                        { guild: interaction.guild!.id },
+                        { $set: { suppress_dm_scams: !enable } },
+                        { upsert: true },
+                    );
+
+                    await interaction.editReply(
+                        `${enable ? "Enabled" : "Disabled"} scam DM banshares.`,
                     );
                 }
             }
@@ -582,6 +595,9 @@ bot.on("interactionCreate", async (interaction) => {
                         if (!channel?.isTextBased()) return;
 
                         const settings = await banshares.settings.findOne({ guild });
+
+                        if (settings.suppress_dm_scams && banshare.value!.severity === "dm")
+                            return;
 
                         const threshold = settings?.autoban ?? "none";
 
@@ -1111,8 +1127,8 @@ async function get_post(banshare: any, guild: string) {
     } catch {}
 }
 
-const thresholds = { all: 0, med: 1, crit: 2, none: 3 } as any;
-const severities = { p0: 2, p1: 1, p2: 0 } as any;
+const thresholds = { all: -1, nondm: 0, med: 1, crit: 2, none: 3 } as any;
+const severities = { p0: 2, p1: 1, p2: 0, dm: -1 } as any;
 
 function autoban(threshold: string, severity: string) {
     return (thresholds[threshold] ?? Infinity) <= (severities[severity] ?? -Infinity);
