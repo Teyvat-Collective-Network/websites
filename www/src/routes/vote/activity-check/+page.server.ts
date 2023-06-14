@@ -11,7 +11,11 @@ export const load: ServerLoad = async () => {
         .map((x) => x.id);
 
     return {
-        polls: fix(await db.polls.find().toArray()),
+        polls: fix(
+            (await db.polls.find().toArray()).filter(
+                (poll) => poll.close < new Date() && poll.required,
+            ),
+        ),
         votes: fix(await db.poll_votes.find().toArray()),
         ids,
         map: ids.reduce((o, id) => ({ ...o, [id]: vote_bot.users.cache.get(id)?.tag }), {}),
