@@ -277,7 +277,7 @@ bot.on("interactionCreate", async (interaction) => {
                     await interaction.editReply(
                         `Set the autoban threshold to ${k[non_member_threshold]} (${k[member_threshold]} will apply to server members).`,
                     );
-                } else if (subcommand === "receive-scam-dms") {
+                } else if (subcommand === "receive-dm-scams") {
                     const enable = interaction.options.getBoolean("enable", true);
 
                     await banshares.settings.findOneAndUpdate(
@@ -452,7 +452,7 @@ bot.on("interactionCreate", async (interaction) => {
                             ...interaction.message.embeds[0].fields.slice(0, -1),
                             {
                                 name: "Severity",
-                                value: severity[0].toUpperCase() + severity.substring(1),
+                                value: severity.toUpperCase(),
                             },
                         ],
                     },
