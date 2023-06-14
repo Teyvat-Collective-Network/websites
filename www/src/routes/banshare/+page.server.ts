@@ -55,7 +55,7 @@ export const actions: Actions = {
         if (!server) return abort(400, "You must select the server.");
         if (!severity) return abort(400, "You must select the severity.");
 
-        if (!severity.match(/^p[0-4]$/)) return abort(400, "Invalid severity selection.");
+        if (!severity.match(/^p[0-2]|dm$/)) return abort(400, "Invalid severity selection.");
 
         if (reason.length > 498) return abort(400, "Maximum reason length is 498.");
 
