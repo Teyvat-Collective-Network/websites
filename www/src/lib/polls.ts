@@ -142,7 +142,10 @@ const default_row = (id: number, closed: boolean) => ({
     ],
 });
 
-export async function render(data: any, required?: string[]): Promise<MessageCreateOptions & MessageEditOptions> {
+export async function render(
+    data: any,
+    required?: string[],
+): Promise<MessageCreateOptions & MessageEditOptions> {
     let results: string = "";
 
     required ??= await get_required(data);
@@ -151,7 +154,7 @@ export async function render(data: any, required?: string[]): Promise<MessageCre
 
     const turnout = ((votes.length ?? 0) * 100) / required.length;
 
-    const valid = turnout * 100 >= data.quorum;
+    const valid = turnout >= data.quorum;
     const closed = new Date() > data.close;
 
     let abstain: number = -1;
