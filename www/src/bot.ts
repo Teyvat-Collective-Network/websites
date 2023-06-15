@@ -592,66 +592,65 @@ bot.on("interactionCreate", async (interaction) => {
 
                 await Promise.all(
                     places.map(async ({ guild, channel }) => {
-                        if (!channel?.isTextBased()) return;
+                        try {
+                            if (!channel?.isTextBased()) return;
 
-                        const settings = await banshares.settings.findOne({ guild });
+                            const settings = await banshares.settings.findOne({ guild });
 
-                        if (settings?.suppress_dm_scams && banshare.value!.severity === "dm")
-                            return;
+                            if (settings?.suppress_dm_scams && banshare.value!.severity === "dm")
+                                return;
 
-                        const threshold = settings?.autoban ?? "none";
+                            const threshold = settings?.autoban ?? "none";
 
-                        let components: any[] = [];
+                            let components: any[] = [];
 
-                        if (!banshare.value!.id_list?.length) {
-                            // Submitted without checking IDs, so no automation is possible.
-                        } else if (autoban(threshold, banshare.value!.severity)) {
-                            components = autoban_scheduled;
-                        } else if (!settings?.no_button) {
-                            components = [
-                                {
-                                    type: ComponentType.ActionRow,
-                                    components: [
-                                        {
-                                            type: ComponentType.Button,
-                                            style: ButtonStyle.Danger,
-                                            customId: "ban",
-                                            label: "Ban",
-                                        },
-                                    ],
-                                },
-                            ];
+                            if (!banshare.value!.id_list?.length) {
+                                // Submitted without checking IDs, so no automation is possible.
+                            } else if (autoban(threshold, banshare.value!.severity)) {
+                                components = autoban_scheduled;
+                            } else if (!settings?.no_button) {
+                                components = [
+                                    {
+                                        type: ComponentType.ActionRow,
+                                        components: [
+                                            {
+                                                type: ComponentType.Button,
+                                                style: ButtonStyle.Danger,
+                                                customId: "ban",
+                                                label: "Ban",
+                                            },
+                                        ],
+                                    },
+                                ];
+                            }
+
+                            const post = await channel.send({
+                                embeds,
+                                components: components.concat(report),
+                            });
+
+                            await save(banshare, guild, post); 
+
+                            if (!channel?.isTextBased()) return;
+
+                            if (post.components?.[0]?.components?.[0]?.customId !== "-") return;
+
+                            await post.edit({ components: autobanning.concat(report) });
+
+                            await execute(
+                                banshare.value,
+                                await banshares.settings.findOne({ guild }),
+                                post.guild!,
+                                post,
+                                undefined,
+                            );
+
+                            await post.edit({ components: finished.concat(report) });
+                        } catch (error) {
+                            console.error("[PUBLISH ERROR]", error);
                         }
-
-                        const post = await channel.send({
-                            embeds,
-                            components: components.concat(report),
-                        });
-
-                        await save(banshare, guild, post);
-                    }),
+                    })
                 );
-
-                places.forEach(async ({ guild, channel }) => {
-                    if (!channel?.isTextBased()) return;
-
-                    const message = await get_post(banshare, guild);
-                    if (!message) return;
-
-                    if (message.components?.[0]?.components?.[0]?.customId !== "-") return;
-
-                    await message.edit({ components: autobanning.concat(report) });
-
-                    await execute(
-                        banshare.value,
-                        await banshares.settings.findOne({ guild }),
-                        message.guild!,
-                        message,
-                        undefined,
-                    );
-
-                    await message.edit({ components: finished.concat(report) });
-                });
             }
         } else if (interaction.customId === "reject") {
             await interaction.reply({
