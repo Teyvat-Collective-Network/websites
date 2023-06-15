@@ -25,20 +25,21 @@ setInterval(async () => {
     const threshold = new Date();
     threshold.setHours(threshold.getHours() + 24);
 
-    for (const poll of await db.polls.find({ close: { $lt: new Date() } }).toArray()) {
-        await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false } });
+    for (const poll of await db.polls.find({ close: { $lt: new Date() }, closed: { $ne: true } }).toArray()) {
+        const required = await get_required(poll);
+        await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false, closed: true, required } });
 
         try {
             const channel = await vote_bot.channels.fetch(poll.channel);
             if (!channel?.isTextBased()) throw "Channel is not text-based.";
             const message = await channel.messages.fetch(poll.message);
-            await message.edit(await render(poll));
+            await message.edit(await render(poll, required));
         } catch (error) {
             console.error("[AUTO-CLOSE POLL]", error);
         }
     }
 
-    for (const poll of await db.polls.find({ dm: true, close: { $lt: threshold } }).toArray()) {
+    for (const poll of await db.polls.find({ dm: true, closed: { $ne: true }, close: { $lt: threshold } }).toArray()) {
         await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false } });
 
         const required = await get_required(poll);
@@ -141,16 +142,19 @@ const default_row = (id: number, closed: boolean) => ({
     ],
 });
 
-export async function render(data: any): Promise<MessageCreateOptions & MessageEditOptions> {
+export async function render(
+    data: any,
+    required?: string[],
+): Promise<MessageCreateOptions & MessageEditOptions> {
     let results: string = "";
 
-    const required = await get_required(data);
+    required ??= await get_required(data);
 
     const votes = await db.poll_votes.find({ poll: data.id, user: { $in: required } }).toArray();
 
     const turnout = ((votes.length ?? 0) * 100) / required.length;
 
-    const valid = turnout * 100 >= data.quorum;
+    const valid = turnout >= data.quorum;
     const closed = new Date() > data.close;
 
     let abstain: number = -1;

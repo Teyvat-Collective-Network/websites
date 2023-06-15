@@ -67,7 +67,7 @@
                         p If you haven't already, read out <a href="/join">info page</a> on what the process for joining the TCN is and what to expect. If you have any questions, comments, or concerns, please reach out to us. See our <a href="/contact">contact information</a> page.
                         p Please make sure your DMs are open so that we can reach out to you to respond to your application.
                     br
-                    LoggedInAs(user!="{data.user}")
+                    LoggedInAs(user!="{data.user}", redirect!="{PUBLIC_DOMAIN}/apply")
                     .panel
                         h5 Which Genshin Impact character is your server based on?
                         input(type="text" name="mascot" placeholder="Character name..." style="width: 50%" on:keydown!="{suppress}" required autocomplete="off" value!="{form?.mascot ?? ''}")

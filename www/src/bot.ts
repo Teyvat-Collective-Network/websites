@@ -270,11 +270,24 @@ bot.on("interactionCreate", async (interaction) => {
                         none: "none",
                         crit: "P0 only",
                         med: "P0 and P1",
-                        all: "P0, P1, and P2",
+                        nondm: "P0, P1, and P2",
+                        all: "P0, P1, P2, and DM scams",
                     } as { [key: string]: string };
 
                     await interaction.editReply(
                         `Set the autoban threshold to ${k[non_member_threshold]} (${k[member_threshold]} will apply to server members).`,
+                    );
+                } else if (subcommand === "receive-dm-scams") {
+                    const enable = interaction.options.getBoolean("enable", true);
+
+                    await banshares.settings.findOneAndUpdate(
+                        { guild: interaction.guild!.id },
+                        { $set: { suppress_dm_scams: !enable } },
+                        { upsert: true },
+                    );
+
+                    await interaction.editReply(
+                        `${enable ? "Enabled" : "Disabled"} scam DM banshares.`,
                     );
                 }
             }
@@ -439,7 +452,7 @@ bot.on("interactionCreate", async (interaction) => {
                             ...interaction.message.embeds[0].fields.slice(0, -1),
                             {
                                 name: "Severity",
-                                value: severity[0].toUpperCase() + severity.substring(1),
+                                value: severity.toUpperCase(),
                             },
                         ],
                     },
@@ -510,7 +523,6 @@ bot.on("interactionCreate", async (interaction) => {
                     .concat(PUBLIC_ALLOWLIST.split(/\s+/));
             } catch {
                 await interaction.editReply("An unexpected issue occurred with the TCN API.");
-
                 return;
             }
 
@@ -580,63 +592,65 @@ bot.on("interactionCreate", async (interaction) => {
 
                 await Promise.all(
                     places.map(async ({ guild, channel }) => {
-                        if (!channel?.isTextBased()) return;
+                        try {
+                            if (!channel?.isTextBased()) return;
 
-                        const settings = await banshares.settings.findOne({ guild });
+                            const settings = await banshares.settings.findOne({ guild });
 
-                        const threshold = settings?.autoban ?? "none";
+                            if (settings?.suppress_dm_scams && banshare.value!.severity === "dm")
+                                return;
 
-                        let components: any[] = [];
+                            const threshold = settings?.autoban ?? "none";
 
-                        if (!banshare.value!.id_list?.length) {
-                            // Submitted without checking IDs, so no automation is possible.
-                        } else if (autoban(threshold, banshare.value!.severity)) {
-                            components = autoban_scheduled;
-                        } else if (!settings?.no_button) {
-                            components = [
-                                {
-                                    type: ComponentType.ActionRow,
-                                    components: [
-                                        {
-                                            type: ComponentType.Button,
-                                            style: ButtonStyle.Danger,
-                                            customId: "ban",
-                                            label: "Ban",
-                                        },
-                                    ],
-                                },
-                            ];
+                            let components: any[] = [];
+
+                            if (!banshare.value!.id_list?.length) {
+                                // Submitted without checking IDs, so no automation is possible.
+                            } else if (autoban(threshold, banshare.value!.severity)) {
+                                components = autoban_scheduled;
+                            } else if (!settings?.no_button) {
+                                components = [
+                                    {
+                                        type: ComponentType.ActionRow,
+                                        components: [
+                                            {
+                                                type: ComponentType.Button,
+                                                style: ButtonStyle.Danger,
+                                                customId: "ban",
+                                                label: "Ban",
+                                            },
+                                        ],
+                                    },
+                                ];
+                            }
+
+                            const post = await channel.send({
+                                embeds,
+                                components: components.concat(report),
+                            });
+
+                            await save(banshare, guild, post); 
+
+                            if (!channel?.isTextBased()) return;
+
+                            if (post.components?.[0]?.components?.[0]?.customId !== "-") return;
+
+                            await post.edit({ components: autobanning.concat(report) });
+
+                            await execute(
+                                banshare.value,
+                                await banshares.settings.findOne({ guild }),
+                                post.guild!,
+                                post,
+                                undefined,
+                            );
+
+                            await post.edit({ components: finished.concat(report) });
+                        } catch (error) {
+                            console.error("[PUBLISH ERROR]", error);
                         }
-
-                        const post = await channel.send({
-                            embeds,
-                            components: components.concat(report),
-                        });
-
-                        await save(banshare, guild, post);
-                    }),
+                    })
                 );
-
-                places.forEach(async ({ guild, channel }) => {
-                    if (!channel?.isTextBased()) return;
-
-                    const message = await get_post(banshare, guild);
-                    if (!message) return;
-
-                    if (message.components?.[0]?.components?.[0]?.customId !== "-") return;
-
-                    await message.edit({ components: autobanning.concat(report) });
-
-                    await execute(
-                        banshare.value,
-                        await banshares.settings.findOne({ guild }),
-                        message.guild!,
-                        message,
-                        undefined,
-                    );
-
-                    await message.edit({ components: finished.concat(report) });
-                });
             }
         } else if (interaction.customId === "reject") {
             await interaction.reply({
@@ -671,10 +685,10 @@ bot.on("interactionCreate", async (interaction) => {
                 content: "This banshare has been rejected.",
                 components: [],
             });
-        } else if (interaction.customId === "cancel") {
-            await interaction.update({
-                components: confirm(true).concat(report),
-            });
+        } else if (interaction.customId === "cancel-reject")
+            await interaction.update({ components: confirm(true, "-reject") });
+        else if (interaction.customId === "cancel") {
+            await interaction.update({ components: confirm(true) });
         } else if (interaction.customId === "rescind") {
             await interaction.showModal({
                 title: "Rescind Banshare",
@@ -1112,8 +1126,8 @@ async function get_post(banshare: any, guild: string) {
     } catch {}
 }
 
-const thresholds = { all: 0, med: 1, crit: 2, none: 3 } as any;
-const severities = { p0: 2, p1: 1, p2: 0 } as any;
+const thresholds = { all: -1, nondm: 0, med: 1, crit: 2, none: 3 } as any;
+const severities = { p0: 2, p1: 1, p2: 0, dm: -1 } as any;
 
 function autoban(threshold: string, severity: string) {
     return (thresholds[threshold] ?? Infinity) <= (severities[severity] ?? -Infinity);

@@ -22,7 +22,7 @@ export function components(published: boolean, severity?: string): any[] {
                               }
                           ]
                         : []),
-                    ...(severity !== "p0"
+                    ...(severity === "p2" || severity === "p1"
                         ? [
                               {
                                   type: ComponentType.Button,
@@ -40,6 +40,13 @@ export function components(published: boolean, severity?: string): any[] {
         {
             type: ComponentType.ActionRow,
             components: [
+                {
+                    type: ComponentType.Button,
+                    style: ButtonStyle.Secondary,
+                    customId: "sev:dm",
+                    label: "TYPE: DM SCAM",
+                    disabled: severity === "dm"
+                },
                 {
                     type: ComponentType.Button,
                     style: ButtonStyle.Secondary,

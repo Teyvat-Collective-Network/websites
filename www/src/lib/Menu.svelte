@@ -127,7 +127,7 @@
                 </a>
                 <a href="/banshare" class="t2 {staff_open ? '' : 'hidden'}">Submit a Banshare</a>
                 {#if data.auth}
-                    <a href="/vote" class="t2 {staff_open ? '' : 'hidden'}">Vote</a>
+                    <a href="/vote" class="t2 {staff_open ? '' : 'hidden'}">Voting Center</a>
                 {/if}
             {/if}
             <a

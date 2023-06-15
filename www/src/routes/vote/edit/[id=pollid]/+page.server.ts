@@ -100,6 +100,8 @@ export const actions: Actions = {
         }
 
         data.id = params.id === "new" ? await autoinc("polls") : parseInt(params.id as string);
+        data.closed = data.duration === 0;
+
         const { id } = data;
 
         const entry = await db.polls.findOne({ id });
