@@ -87,7 +87,7 @@
 
 <template lang="pug">
     +if("!data.user")
-        Redirect
+        Redirect(to!="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/banshare`)}")
         +else
             .container
                 #main
