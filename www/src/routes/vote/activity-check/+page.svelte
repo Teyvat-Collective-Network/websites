@@ -6,8 +6,7 @@
 
     let users: { id: string; tag: string }[] = [];
 
-    for (const id of data.ids)
-        if (data.map[id]) console.log("!", id, data.map[id]), users.push({ id, tag: data.map[id] });
+    for (const id of data.ids) if (data.map[id]) users.push({ id, tag: data.map[id] });
 
     let loading = users.length < data.ids.length;
 
@@ -44,45 +43,51 @@
         <br />
     {/if}
 
-    <table>
-        <tr>
-            <td />
-            {#each data.polls as poll}
-                <th style="cursor: default" title={poll.question}>{poll.id}</th>
-            {/each}
-        </tr>
-
-        {#each users as { id, tag }}
+    <div id="table-wrapper">
+        <table>
             <tr>
-                <td class="row user">
-                    <button on:click={() => navigator.clipboard.writeText(id)}>
-                        <i class="material-icons" title="Copy User ID">content_copy</i>
-                    </button>
-                    {display(tag)}
-                </td>
-
+                <td />
                 {#each data.polls as poll}
-                    {@const status = poll.required?.includes(id)
-                        ? votes.has(`${poll.id}/${id}`)
-                            ? 0
-                            : 1
-                        : 2}
-
-                    <td
-                        style="cursor: default"
-                        title={["voted", "missing vote", "not eligible"][status]}
-                    >
-                        <center>
-                            {["✅", "❌", "-"][status]}
-                        </center>
-                    </td>
+                    <th style="cursor: default" title={poll.question}>{poll.id}</th>
                 {/each}
             </tr>
-        {/each}
-    </table>
+
+            {#each users as { id, tag }}
+                <tr>
+                    <td class="row user">
+                        <button on:click={() => navigator.clipboard.writeText(id)}>
+                            <i class="material-icons" title="Copy User ID">content_copy</i>
+                        </button>
+                        {display(tag)}
+                    </td>
+
+                    {#each data.polls as poll}
+                        {@const status = poll.required?.includes(id)
+                            ? votes.has(`${poll.id}/${id}`)
+                                ? 0
+                                : 1
+                            : 2}
+
+                        <td
+                            style="cursor: default"
+                            title={["voted", "missing vote", "not eligible"][status]}
+                        >
+                            <center>
+                                {["✅", "❌", "-"][status]}
+                            </center>
+                        </td>
+                    {/each}
+                </tr>
+            {/each}
+        </table>
+    </div>
 </div>
 
 <style lang="scss">
+    div#table-wrapper {
+        overflow-x: scroll;
+    }
+
     table {
         border-collapse: collapse;
     }
