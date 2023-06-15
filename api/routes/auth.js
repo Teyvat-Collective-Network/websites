@@ -21,7 +21,7 @@ export default function(fastify, opts, done) {
     const jwt = fastify.jwt.sign({ id: user.id });
 
     reply.setCookie('token', jwt, { sameSite: 'lax', domain: process.env.COOKIE_DOMAIN, expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) });
-    return reply.redirect(request.query.state || '/');
+    return reply.redirect(request.query.state || `https://${process.env.COOKIE_DOMAIN}`);
   });
 
   fastify.get('/token', async (request, reply) => {
@@ -37,7 +37,7 @@ export default function(fastify, opts, done) {
 
   fastify.get('/logout', async (request, reply) => {
     reply.clearCookie('token', { sameSite: 'lax', domain: process.env.COOKIE_DOMAIN });
-    return reply.redirect(request.query.redirect || '/');
+    return reply.redirect(request.query.redirect || `https://${process.env.COOKIE_DOMAIN}`);
   });
 
   done();
