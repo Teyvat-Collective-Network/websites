@@ -13,7 +13,7 @@ export const load: ServerLoad = async () => {
     return {
         polls: fix(
             (await db.polls.find().toArray()).filter(
-                (poll) => poll.close < new Date() && poll.required,
+                (poll) => poll.closed && poll.required,
             ),
         ),
         votes: fix(await db.poll_votes.find().toArray()),

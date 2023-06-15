@@ -596,7 +596,7 @@ bot.on("interactionCreate", async (interaction) => {
 
                         const settings = await banshares.settings.findOne({ guild });
 
-                        if (settings.suppress_dm_scams && banshare.value!.severity === "dm")
+                        if (settings?.suppress_dm_scams && banshare.value!.severity === "dm")
                             return;
 
                         const threshold = settings?.autoban ?? "none";

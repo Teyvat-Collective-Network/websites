@@ -25,9 +25,9 @@ setInterval(async () => {
     const threshold = new Date();
     threshold.setHours(threshold.getHours() + 24);
 
-    for (const poll of await db.polls.find({ close: { $lt: new Date() } }).toArray()) {
+    for (const poll of await db.polls.find({ close: { $lt: new Date() }, closed: { $ne: true } }).toArray()) {
         const required = await get_required(poll);
-        await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false, required } });
+        await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false, closed: true, required } });
 
         try {
             const channel = await vote_bot.channels.fetch(poll.channel);
@@ -39,7 +39,7 @@ setInterval(async () => {
         }
     }
 
-    for (const poll of await db.polls.find({ dm: true, close: { $lt: threshold } }).toArray()) {
+    for (const poll of await db.polls.find({ dm: true, closed: { $ne: true }, close: { $lt: threshold } }).toArray()) {
         await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false } });
 
         const required = await get_required(poll);
