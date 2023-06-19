@@ -102,13 +102,16 @@ export async function get_required(data: any): Promise<string[]> {
     const request = await fetch(`${PUBLIC_TCN_API}/users`);
     const response = await request.json();
 
-    return response
+    const ids = response
         .filter((x: any) =>
             data.restricted
                 ? x.roles.includes("voter")
                 : x.roles.includes("owner") || x.roles.includes("advisor"),
         )
         .map((x: any) => x.id);
+
+    if (data.mode === "election") return ids.filter((x: string) => !data.candidates.includes(x));
+    return ids;
 }
 
 const default_row = (id: number, closed: boolean) => ({
