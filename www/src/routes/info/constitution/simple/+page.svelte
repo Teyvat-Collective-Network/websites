@@ -23,6 +23,7 @@
                         li Each server's owner is on the council as the <b>Server Owner</b>.
                         li Each server owner can choose another council member as their <b>Council Advisor</b>.
                         li Each server has a primary representative who is the server owner by default unless delegated<sup><a href="#delegation">[link]</a></sup>.
+                        li Each council member may only have one position on the council.
                     Linkable#objectives(e="h3", value="Objectives")
                     p The objective of the TCN is to unite mains servers and facilitate communication, collaboration, and the sharing of information and resources to enable stable, healthy communities.
                     p The objective of the TCN Council is to provide the space to allow the TCN's objectives to be realized, provide help and resources, and promote and uphold the TCN's reputation, stability, and future. Linkable#duties(e="h2", value="Duties")
