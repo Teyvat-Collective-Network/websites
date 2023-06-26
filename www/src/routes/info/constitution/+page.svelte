@@ -19,6 +19,7 @@
                                 li Each server's owner must be present on the council as the <b>Server Owner</b>.
                                 li Each server may designate one other person to be present on the council as the <b>Council Advisor</b>.
                                 li Each server has a primary representative, who is by default the server owner unless delegated<sup><a href="#delegation">[link]</a></sup> to the council advisor.
+                                li One person may only hold one council position. That is, owning or advising multiple TCN servers, or being both an owner and an advisor are both not allowed.
                         li The <b>Observer Committee</b> refers to elected official administrators of the council itself who carry out official/administrative actions and tasks<sup><a href="#observer-committee">[link]</a></sup>.
                         li <b>HQ</b> refers to the private server belonging to the council which is used for internal operations and collaboration/communication.
                         li The <b>TCN Hub</b> refers to the public server which serves to provide a medium of communication between the council and TCN members and the general public.
