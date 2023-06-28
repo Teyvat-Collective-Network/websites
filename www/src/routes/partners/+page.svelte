@@ -45,7 +45,7 @@
                 )
                 div
                     h3 Genshin Impact Tavern
-                    p The TCN is partnered with Genshin Impact Tavern, a multifaceted Discord Community Server for Genshin Impact! Check out their RPG-like experience through a custom bot, which lets you earn Mora that can be used to redeem official merchandise, their Cat's Tail Gathering TCG tournament, and more!
+                    p The TCN is partnered with Genshin Impact Tavern, a multifaceted Discord Community Server for Genshin Impact! Check out their RPG-like experience through a custom bot, which lets you earn Mora that can be used to redeem official merchandise, their Cat's Tail Gathering TCG tournament, and more! <i>Genshin Impact Tavern is an officially endorsed server.</i>
                     a.button(href="https://discord.gg/genshinimpacttavern", target="_blank", rel="noreferrer") Join
             +each("data.partners as { character, name, invite, description }")
                 div(class!="{ fuzzy(name, query) || fuzzy(character, query) ? '' : 'hidden' }")
