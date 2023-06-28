@@ -24,6 +24,7 @@
                     li <b>Partner List:</b> a list of all TCN partners, which must not contain any other servers.
                     li <b>TCN Hub:</b> the description for the TCN Hub and its invite link (<a href="https://discord.gg/FG2wpbywSx">https://discord.gg/FG2wpbywSx</a>).
                     li <b>Genshin Wizard:</b> the description for Genshin Wizard and its website link (<a href="https://genshinwizard.com">https://genshinwizard.com</a>).
+                    li <b>Genshin Impact Tavern:</b> the description for Genshin Impact Tavern and its invite (<a href="https://discord.gg/genshinimpacttavern">https://discord.gg/genshinimpacttavern</a>).
                 p You do not need to include all of these verbatim, but here's what we recommend for the description. Your description is expected to be roughly accurate, but you can write it in your own style. Here are our recommendations:
                 .panel
                     ITitle(e="h3", icon="notes", text="General Description")
@@ -36,6 +37,9 @@
                     hr
                     ITitle(e="h3", icon="auto_fix_high", text="Genshin Wizard")
                     p The TCN is partnered with <a href="https://genshinwizard.com">Genshin Wizard</a>, a multipurpose Genshin Impact Discord bot with a wide array of features to let you view your in-game stats, flex your builds, view build guides and hundreds of high-quality infographics, and more!
+                    hr
+                    ITitle(e="h3", icon="sports_bar", text="Genshin Impact Tavern")
+                    p The TCN is partnered with <a href="https://discord.gg/genshinimpacttavern">Genshin Impact Tavern</a>, a multifaceted Discord Community Server hosting a custom bot designed to emulate an "RPG-like" experience. This includes the earning of Mora (Server digital currency), a Vision, farming for weapons and upgrades with continuously expanding systems related to each. Mora can be redeemed to make use of several server functions, including redemption for Official Merchandise. Genshin Impact Tavern is also the proud host of the Cat's Tail Gathering TCG Tournament! <i>Genshin Impact Tavern is an officially endorsed server.</i>
                 Linkable#autosync(e="h2", value="Autosync")
                 Callout(style="info")
                     p <b>Is this for me?</b> If you would like to follow the default format of the TCN partner embed and don't want to have to update it manually, this is for you.
