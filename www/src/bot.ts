@@ -250,10 +250,13 @@ bot.on("interactionCreate", async (interaction) => {
                         "default-threshold",
                         true,
                     );
+                    
                     const member_threshold = interaction.options.getString(
                         "member-threshold",
                         true,
                     );
+
+                    const autoban_dm_scams = interaction.options.getBoolean("autoban-dm-scams", true);
 
                     await banshares.settings.findOneAndUpdate(
                         { guild: interaction.guild!.id },
@@ -261,6 +264,7 @@ bot.on("interactionCreate", async (interaction) => {
                             $set: {
                                 autoban: non_member_threshold,
                                 autoban_member: member_threshold,
+                                autoban_dm_scams,
                             },
                         },
                         { upsert: true },
@@ -270,12 +274,11 @@ bot.on("interactionCreate", async (interaction) => {
                         none: "none",
                         crit: "P0 only",
                         med: "P0 and P1",
-                        nondm: "P0, P1, and P2",
-                        all: "P0, P1, P2, and DM scams",
+                        all: "P0, P1, and P2",
                     } as { [key: string]: string };
 
                     await interaction.editReply(
-                        `Set the autoban threshold to ${k[non_member_threshold]} (${k[member_threshold]} will apply to server members).`,
+                        `Set the autoban threshold to ${k[non_member_threshold]} (${k[member_threshold]} will apply to server members). DM scams will ${autoban_dm_scams ? "" : "not "}be automatically banned.`,
                     );
                 } else if (subcommand === "receive-dm-scams") {
                     const enable = interaction.options.getBoolean("enable", true);
@@ -606,7 +609,7 @@ bot.on("interactionCreate", async (interaction) => {
 
                             if (!banshare.value!.id_list?.length) {
                                 // Submitted without checking IDs, so no automation is possible.
-                            } else if (autoban(threshold, banshare.value!.severity)) {
+                            } else if (banshare.value!.severity === "dm" && settings?.autoban_dm_scams || autoban(threshold, banshare.value!.severity)) {
                                 components = autoban_scheduled;
                             } else if (!settings?.no_button) {
                                 components = [
@@ -991,10 +994,11 @@ async function execute(
         let user: User;
 
         try {
-            if (executor || settings.autoban_member)
+            if ((executor || settings.autoban_member) && banshare.severity !== "dm")
                 try {
                     member = await guild.members.fetch(id);
                 } catch {}
+
             if (member) {
                 user = member.user;
 
@@ -1126,8 +1130,8 @@ async function get_post(banshare: any, guild: string) {
     } catch {}
 }
 
-const thresholds = { all: -1, nondm: 0, med: 1, crit: 2, none: 3 } as any;
-const severities = { p0: 2, p1: 1, p2: 0, dm: -1 } as any;
+const thresholds = { all: 0, med: 1, crit: 2, none: 3 } as any;
+const severities = { p0: 2, p1: 1, p2: 0 } as any;
 
 function autoban(threshold: string, severity: string) {
     return (thresholds[threshold] ?? Infinity) <= (severities[severity] ?? -Infinity);

@@ -48,7 +48,7 @@
                         li It must be clearly separate from other partner lists (servers' other affiliations are not restricted or controlled by the TCN).
                         li It must contain all TCN servers and must not contain any non-TCN servers.
                         li It must be visible to the general public of the server.
-                        li In addition to TCN servers, it must contain the TCN website URL, the TCN Hub invite and description, and the Genshin Wizard website URL and description.
+                        li In addition to TCN servers, it must contain the TCN website URL, the TCN Hub invite and description, the Genshin Wizard website URL and description, and the Genshin Impact Tavern invite and description.
                     h4 Network Events
                     p Servers must follow <span class="mention">#network-events</span> in a channel visible to the general public of the server.
                     ul
