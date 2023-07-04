@@ -145,7 +145,9 @@ export const actions: Actions = {
                         { name: "Evidence", value: evidence },
                         {
                             name: "Submitted by",
-                            value: `${user.username}#${user.discriminator} (\`${user.id}\`) from ${server_name}`,
+                            value: `${user.username}${
+                                user.discriminator === "0" ? "" : `#${user.discriminator}`
+                            } (\`${user.id}\`) from ${server_name}`,
                         },
                         {
                             name: "Severity",

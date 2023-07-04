@@ -1,18 +1,23 @@
 <script lang="ts">
+    export let id: string;
     export let name: string;
     export let code: string = "";
     export let link: string = `https://discord.gg/${code}`;
     export let image: string;
     export let button: string = "Join";
+
+    let open: boolean = false;
 </script>
 
 <div class="outer">
     <div id="top">
         <img src={image} alt="{name} Icon" width="150px" height="150px" />
-        <b>{name}</b>
+        <a href="/server/{id}"><b>{name}</b></a>
         <slot />
     </div>
-    <a href={link} target="_blank" rel="noreferrer" class="button">{button}</a>
+    <div class="row">
+        <a href={link} target="_blank" rel="noreferrer" class="button">{button}</a>
+    </div>
 </div>
 
 <style lang="scss">

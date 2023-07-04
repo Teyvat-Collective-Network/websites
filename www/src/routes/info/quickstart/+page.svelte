@@ -6,7 +6,7 @@
 
 <template lang="pug">
     .container
-        Navigation(last!="{['/info/hq', 'HQ']}" next!="{['/info/discord', 'Discord Help']}")
+        Navigation(last!="{['/info/constitution', 'TCN Constitution']}" next!="{['/info/discord', 'Discord Help']}")
             #main
                 h1 Quickstart
                 Linkable#requirements(e="h2", value="Requirements")
@@ -34,8 +34,8 @@
                 Callout(style="info")
                     p These bots are not TCN-exclusive, so feel free to use them in other servers!
                 ul
-                    li <b>Genshin Wizard</b> [hatter#6666] <span style="color: var(--text-accent)">Official Partner</span> - A Genshin Impact utility bot.
-                    li <b>Ruin Hunter</b> [Leaf#1950] - A configurable anti-raid bot.
-                    li <b>Banhammer</b> [HyperNeutrino#1759] - A utility bot for massbanning.
-                    li <b>Daedalus</b> [HyperNeutrino#1759] - A general-purpose bot.
+                    li <b>Genshin Wizard</b> [@hattvr] <span style="color: var(--text-accent)">Official Partner</span> - A Genshin Impact utility bot.
+                    li <b>Ruin Hunter</b> [@leaf.moe] - A configurable anti-raid bot.
+                    li <b>Banhammer</b> [@hyperneutrino] - A utility bot for massbanning.
+                    li <b>Daedalus</b> [@hyperneutrino] - A general-purpose bot.
 </template>

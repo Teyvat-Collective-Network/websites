@@ -9,7 +9,7 @@
             #main
                 h1 Banhammer
                 Callout(style="info")
-                    p Developed by <b>HyperNeutrino#1759</b>
+                    p Developed by <b>@hyperneutrino</b>
                     p <a href="https://discord.com/api/oauth2/authorize?client_id=994100815402909817&permissions=274877959172&scope=bot">Add To Server</a>
                 br
                 Callout(style="info")

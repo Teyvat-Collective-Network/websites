@@ -9,7 +9,7 @@
             #main
                 h1 Daedalus
                 Callout(style="info")
-                    p Developed by <b>HyperNeutrino#1759</b>
+                    p Developed by <b>@hyperneutrino</b>
                     p <a href="https://discord.com/api/oauth2/authorize?client_id=989173789482975262&permissions=1428010036470&scope=applications.commands+bot">Add To Server</a> &mdash; <a href="https://daedalus.hyper-neutrino.xyz/">Website / Dashboard</a>
                 p Daedalus is a highly customizable general-purpose bot supporting all of the features you expect from public bots but with better workflows, easier customization, a simple-to-use interface that still enables complex use cases, and transparent permissions. Here are some examples of some of its features and how they stand out:
                 ul

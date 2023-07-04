@@ -9,7 +9,7 @@
             #main
                 h1 Ruin Hunter
                 Callout(style="info")
-                    p Developed by <b>Leaf#1950</b>
+                    p Developed by <b>@leaf.moe</b>
                     p <a href="https://discord.com/api/oauth2/authorize?client_id=927626506937720862&permissions=1099511635974&scope=bot%20applications.commands">Add To Server</a>
                 p The bot starts working as soon as it's added and requires no setup, though you may want to adjust the settings.
                 ul

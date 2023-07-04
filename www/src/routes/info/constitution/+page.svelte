@@ -5,7 +5,7 @@
 
 <template lang="pug">
     .container
-        Navigation(next!="{ ['/info/hq', 'HQ'] }")
+        Navigation(next!="{ ['/info/quickstart', 'Quickstart'] }")
             #main
                 div
                     h1 <b>TCN</b> Constitution

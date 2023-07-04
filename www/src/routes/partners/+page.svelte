@@ -28,28 +28,32 @@
             .external.wide(class!="{ fuzzy('genshin wizard', query) ? '' : 'hidden' }")
                 img(
                     src="https://genshinwizard.com/wp-content/uploads/2022/09/cropped-genshinwizard_logo-192x192.png",
-                    alt="Genshin Wizard Icon"
-                    width="192"
+                    alt="Genshin Wizard Icon",
+                    width="192",
                     height="192"
                 )
                 div
                     h3 Genshin Wizard
                     p The TCN is partnered with Genshin Wizard, a multi-purpose Genshin Impact utility bot. Check out their website below!
                     a.button(href="https://genshinwizard.com", target="_blank", rel="noreferrer") Website
-            .external.wide(class!="{ fuzzy('genshin impact tavern', query) ? '' : 'hidden' }")
+            .external.wide.impact(class!="{ fuzzy('genshin tavern', query) ? '' : 'hidden' }")
                 img(
                     src="https://i.imgur.com/pwzRnxW.png",
-                    alt="Genshin Impact Tavern Icon"
-                    width="192"
+                    alt="Genshin Impact Tavern Icon",
+                    width="192",
                     height="192"
                 )
                 div
                     h3 Genshin Impact Tavern
                     p The TCN is partnered with Genshin Impact Tavern, a multifaceted Discord Community Server for Genshin Impact! Check out their RPG-like experience through a custom bot, which lets you earn Mora that can be used to redeem official merchandise, their Cat's Tail Gathering TCG tournament, and more! <i>Genshin Impact Tavern is an officially endorsed server.</i>
-                    a.button(href="https://discord.gg/genshinimpacttavern", target="_blank", rel="noreferrer") Join
-            +each("data.partners as { character, name, invite, description }")
+                    a.button(
+                        href="https://discord.gg/genshinimpacttavern",
+                        target="_blank",
+                        rel="noreferrer"
+                    ) Join
+            +each("data.partners as { id, character, name, invite, description }")
                 div(class!="{ fuzzy(name, query) || fuzzy(character, query) ? '' : 'hidden' }")
-                    Partner(
+                    Partner(id!="{ id }",
                         name!="{ name }",
                         code!="{ invite }",
                         image!="/images/characters/{character}.png"

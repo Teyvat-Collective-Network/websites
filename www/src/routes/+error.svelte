@@ -9,7 +9,7 @@
         {#if $page.status === 404}
             <p>
                 If you arrived at this page from a link on this website, please report it as an
-                error to HyperNeutrino#1759. Otherwise, please check the spelling of the URL
+                error to @hyperneutrino. Otherwise, please check the spelling of the URL
                 (including capitalization) and try again.
             </p>
         {/if}
