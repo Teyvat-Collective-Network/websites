@@ -4,13 +4,38 @@
 
     export let data: any;
 
-    let users: { id: string; tag: string }[] = [];
+    const votes = new Set();
+    for (const vote of data.votes) votes.add(`${vote.poll}/${vote.user}`);
+
+    type User = { id: string; tag: string };
+    let users: User[] = [];
 
     for (const id of data.ids) if (data.map[id]) users.push({ id, tag: data.map[id] });
 
     let loading = users.length < data.ids.length;
 
-    users = users.sort((x, y) => x.tag.localeCompare(y.tag));
+    const key = (user: User) => {
+        let num = 0;
+        let den = 0;
+
+        for (const poll of data.polls) {
+            if (poll.required?.includes(user.id)) {
+                den++;
+                if (votes.has(`${poll.id}/${user.id}`)) num++;
+            }
+        }
+
+        return [num || num / den, -den];
+    };
+
+    const sort = (x: User, y: User) => {
+        const kx = key(x),
+            ky = key(y);
+
+        return kx[0] - ky[0] || kx[1] - ky[1] || x.tag.localeCompare(y.tag);
+    };
+
+    users = users.sort(sort);
 
     if (loading)
         onMount(async () => {
@@ -19,7 +44,7 @@
                     users = [
                         ...users,
                         { id, tag: await (await fetch(`/api/get-tag/${id}`)).text() },
-                    ].sort((x, y) => x.tag.localeCompare(y.tag));
+                    ].sort(sort);
                 }
 
             loading = false;
@@ -29,9 +54,6 @@
         if (tag.endsWith("#0")) return tag.slice(0, -2);
         return tag;
     }
-
-    const votes = new Set();
-    for (const vote of data.votes) votes.add(`${vote.poll}/${vote.user}`);
 </script>
 
 <div class="container">
