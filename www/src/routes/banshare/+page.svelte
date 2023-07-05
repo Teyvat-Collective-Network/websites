@@ -152,8 +152,7 @@
                                     input(type="submit" name="submit" value="Submit Without Checking IDs")
                                     br
                                     p <b>WARNING:</b> You should only submit without checking IDs if your ID list is a link instead of an actual list of IDs. Doing this will also prevent automatic banning. Consider just pasting your entire ID list instead if possible - the bot will collapse it into a document link if it's too long.
-                                    p <b>This may take some time</b> if you have submitted a long ID list, as the
-                                    bot needs time to fetch all of the users.
+                                    p <b>This may take some time</b> if you have submitted a long ID list, as the bot needs time to fetch all of the users.
                                     p If the list is very long and you want to get the banshare published ASAP, use "Submit Without Validation", which will check if the IDs look correct but won't fetch all of the users.
     
     Modal(bind:open!="{open}", background_color="var(--background-1)", overlay_color="rgb(var(--pure-rgb), 80%)", on:click!="{close_modal}")

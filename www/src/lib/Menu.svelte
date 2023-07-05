@@ -110,6 +110,9 @@
         <a href="/info/staff-link" class="t3 {info_open ? '' : 'hidden'}">Staff Link</a>
         <a href="/info/other-bots" class="t3 {info_open ? '' : 'hidden'}">Other Bots</a>
         <a href="/info/discord" class="t2 {info_open ? '' : 'hidden'}">Discord Help</a>
+        <a href="/info/miscellaneous" class="t2 {info_open ? '' : 'hidden'}">Miscellaneous</a>
+        <a href="/info/exit-procedure" class="t3 {info_open ? '' : 'hidden'}">Exit Procedure</a>
+        <a href="/info/glossary" class="t3 {info_open ? '' : 'hidden'}">Glossary</a>
         {#if user}
             {#if api_user?.guilds?.length > 0}
                 <a

@@ -6,7 +6,7 @@
 
 <template lang="pug">
     .container
-        Navigation(last!="{['/info/quickstart', 'Quickstart']}")
+        Navigation(last!="{['/info/quickstart', 'Quickstart']}", next!="{['/info/miscellaneous', 'Miscellaneous']}")
             #main
                 h1 Discord Help
                 Linkable#permissions(e="h2", value="Discord Permissions")
