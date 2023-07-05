@@ -22,10 +22,10 @@ export const actions: Actions = {
         const ownerid = role === "owner" ? "" : (data.get("ownerid") as string | null)?.trim();
         const invite = (data.get("invite") as string | null)?.trim();
         const nsfw = data.get("nsfw") as string;
-        const experience = (data.get("experience") as string | null)?.trim();
-        const shortgoals = (data.get("shortgoals") as string | null)?.trim();
-        const longgoals = (data.get("longgoals") as string | null)?.trim();
-        const additional = (data.get("additional") as string | null)?.trim();
+        const experience = (data.get("experience") as string | null)?.trim()?.replace(/\r\n/, "\n");
+        const shortgoals = (data.get("shortgoals") as string | null)?.trim()?.replace(/\r\n/, "\n");
+        const longgoals = (data.get("longgoals") as string | null)?.trim()?.replace(/\r\n/, "\n");
+        const additional = (data.get("additional") as string | null)?.trim()?.replace(/\r\n/, "\n");
         const observerchannelconsent = data.has("observerchannelconsent");
         const observerauditconsent = data.has("observerauditconsent");
         const partnerlistconsent = data.has("partnerlistconsent");
