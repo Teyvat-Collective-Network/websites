@@ -15,24 +15,20 @@
     let loading = users.length < data.ids.length;
 
     const key = (user: User) => {
-        let num = 0;
-        let den = 0;
+        let val = 0;
 
         for (const poll of data.polls) {
             if (poll.required?.includes(user.id)) {
-                den++;
-                if (votes.has(`${poll.id}/${user.id}`)) num++;
+                if (votes.has(`${poll.id}/${user.id}`)) val = 0.8 * val;
+                else val = 0.6 * val + 0.4;
             }
         }
 
-        return [num || num / den, -den];
+        return val;
     };
 
     const sort = (x: User, y: User) => {
-        const kx = key(x),
-            ky = key(y);
-
-        return kx[0] - ky[0] || kx[1] - ky[1] || x.tag.localeCompare(y.tag);
+        return key(y) - key(x) || x.tag.localeCompare(y.tag);
     };
 
     users = users.sort(sort);
