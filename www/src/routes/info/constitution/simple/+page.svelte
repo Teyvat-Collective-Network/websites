@@ -40,6 +40,12 @@
                     h4 Terms of Service
                     p Servers must follow the Discord Terms of Service and Community Guidelines.
                     Linkable#council-members(e="h3", value="Council Members")
+                    h4 HQ Membership
+                    ul
+                        li Council members are required to be in the HQ Discord server.
+                        li If a member does not join within 7 days or leaves, they will be contacted by an observer.
+                        li Opportunity will be given to explain and there will be no punishment for genuine mistakes or if there is reasonable justification.
+                        li If a member deliberately refuses to (re)join or fails to respond within 7 days (or longer, if it is seen fit), they will be removed from the council with no vote needed.
                     h4 Discussions
                     ul
                         li Council members are <b>encouraged</b> to participate in all discussions and <b>expected</b> to do so when it involves their server.
