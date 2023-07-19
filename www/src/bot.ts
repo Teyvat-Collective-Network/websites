@@ -1022,7 +1022,7 @@ async function execute(
                 (Array.isArray(executor.roles)
                     ? executor.roles
                     : executor.roles.cache.toJSON()
-                ).some((role) => member!.roles.highest.comparePositionTo(role) >= 0)
+                ).every((role) => member!.roles.highest.comparePositionTo(role) >= 0)
             )
                 throw 0;
 
