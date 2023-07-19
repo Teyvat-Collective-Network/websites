@@ -167,16 +167,18 @@ async function reminder_cycle() {
             const message = await channel.messages.fetch(id);
 
             all.push(message);
+
             if (
                 now - (reminded ?? message.createdTimestamp) >
                 (urgent ? +URGENT_DELAY : +NON_URGENT_DELAY)
-            )
+            ) {
                 filtered.push(message);
 
-            await banshares.banshares.findOneAndUpdate(
-                { message: id },
-                { $set: { reminded: now } },
-            );
+                await banshares.banshares.findOneAndUpdate(
+                    { message: id },
+                    { $set: { reminded: now } },
+                );
+            }
         } catch {
             await banshares.banshares.findOneAndUpdate(
                 { message: id },
