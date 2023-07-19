@@ -127,6 +127,9 @@
                         Textarea(name="shortgoals" required value!="{form?.shortgoals}" placeholder="Up to 1024 characters" maxlength="1024")
                         h5 What are some of your long term goals or ideas for the server?
                         Textarea(name="longgoals" required value!="{form?.longgoals}" placeholder="Up to 1024 characters" maxlength="1024")
+                        h5 Please give us a rough outline of your server's history.
+                        h6 For example, if your server has ever rebranded, please list its former identities/identity. Additionally, what inspired/motivated you to start the server, and what notable events or changes have occurred or what troubles have you had to overcome?
+                        Textarea(name="history" required value!="{form?.history}" placeholder="Up to 1024 characters" maxlength="1024")
                     .panel
                         h5 You must consent to all of the following to apply.
                         label

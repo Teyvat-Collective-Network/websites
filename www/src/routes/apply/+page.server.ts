@@ -25,6 +25,7 @@ export const actions: Actions = {
         const experience = (data.get("experience") as string | null)?.trim()?.replace(/\r\n/, "\n");
         const shortgoals = (data.get("shortgoals") as string | null)?.trim()?.replace(/\r\n/, "\n");
         const longgoals = (data.get("longgoals") as string | null)?.trim()?.replace(/\r\n/, "\n");
+        const history = (data.get("history") as string | null)?.trim()?.replace(/\r\n/, "\n");
         const additional = (data.get("additional") as string | null)?.trim()?.replace(/\r\n/, "\n");
         const observerchannelconsent = data.has("observerchannelconsent");
         const observerauditconsent = data.has("observerauditconsent");
@@ -41,6 +42,7 @@ export const actions: Actions = {
             experience,
             shortgoals,
             longgoals,
+            history,
             additional,
             observerchannelconsent,
             observerauditconsent,
@@ -73,6 +75,7 @@ export const actions: Actions = {
             return abort(400, "Invalid NSFW selection.");
         if (!shortgoals) return abort(400, "Missing short-term goals.");
         if (!longgoals) return abort(400, "Missing long-term goals.");
+        if (!history) return abort(400, "Missing server history.");
         if (
             !observerchannelconsent ||
             !observerauditconsent ||
@@ -167,6 +170,7 @@ export const actions: Actions = {
                             experience && { name: "Prior Experience", value: experience },
                             { name: "Short-Term Server Goals", value: shortgoals },
                             { name: "Long-Term Server Goals", value: longgoals },
+                            { name: "Server History", value: history },
                             additional && {
                                 name: "Additional Questions/Comments",
                                 value: additional,
