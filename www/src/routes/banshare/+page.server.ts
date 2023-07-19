@@ -193,6 +193,7 @@ export const actions: Actions = {
             id_list,
             reason,
             severity,
+            urgent,
         });
 
         if (ALERT) {

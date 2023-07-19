@@ -1,4 +1,13 @@
-import { ALERT, DDL_TOKEN, HQ, LOG, TOKEN, VOTE_BOT_TOKEN } from "$env/static/private";
+import {
+    ALERT,
+    DDL_TOKEN,
+    HQ,
+    LOG,
+    NON_URGENT,
+    TOKEN,
+    URGENT,
+    VOTE_BOT_TOKEN,
+} from "$env/static/private";
 import { PUBLIC_ALLOWLIST, PUBLIC_DDL_API, PUBLIC_TCN_API } from "$env/static/public";
 import {
     type ButtonInteraction,
@@ -17,6 +26,7 @@ import {
     type APIEmbed,
     GuildMember,
     type APIGuildMember,
+    Role,
 } from "discord.js";
 import { banshares } from "./db.js";
 import { components } from "./lib.js";
@@ -132,6 +142,51 @@ const published = new Set<string>();
 bot.once("ready", async () => {
     console.log("[BOT] ready!");
 });
+
+async function reminder_cycle() {
+    const pending = await banshares.banshares
+        .find({
+            published: { $ne: true },
+            rejected: { $ne: true },
+        })
+        .toArray();
+
+    const now = new Date().getTime();
+
+    const filtered = [];
+    const all = [];
+
+    for (const { message: id, url, urgent } of pending)
+        try {
+            const channel = await bot.channels.fetch(url.split("/").at(-2));
+            if (!channel?.isTextBased()) throw 0;
+
+            const message = await channel.messages.fetch(id);
+
+            all.push(message);
+            if (now - message.createdTimestamp > (urgent ? 7200000 : 21600000))
+                filtered.push(message);
+        } catch {
+            await banshares.banshares.findOneAndUpdate(
+                { message: id },
+                { $set: { rejected: true } },
+            );
+        }
+
+    if (filtered.length > 0) {
+        const alert = bot.channels.cache.get(ALERT);
+        if (alert?.isTextBased())
+            try {
+                await alert.send(
+                    `${URGENT} One or more banshares has exceeded the allowed pending time. All pending banshares have been listed: ${all
+                        .map((m) => `${m.url} (<t:${Math.floor(m.createdTimestamp / 1000)}:R>)`)
+                        .join(", ")}`.substring(0, 2000),
+                );
+            } catch {}
+    }
+}
+
+setTimeout(reminder_cycle, 3600000 - (new Date().getTime() % 3600000));
 
 bot.on("interactionCreate", async (interaction) => {
     if (interaction.isChatInputCommand()) {
@@ -250,13 +305,16 @@ bot.on("interactionCreate", async (interaction) => {
                         "default-threshold",
                         true,
                     );
-                    
+
                     const member_threshold = interaction.options.getString(
                         "member-threshold",
                         true,
                     );
 
-                    const autoban_dm_scams = interaction.options.getBoolean("autoban-dm-scams", true);
+                    const autoban_dm_scams = interaction.options.getBoolean(
+                        "autoban-dm-scams",
+                        true,
+                    );
 
                     await banshares.settings.findOneAndUpdate(
                         { guild: interaction.guild!.id },
@@ -278,7 +336,11 @@ bot.on("interactionCreate", async (interaction) => {
                     } as { [key: string]: string };
 
                     await interaction.editReply(
-                        `Set the autoban threshold to ${k[non_member_threshold]} (${k[member_threshold]} will apply to server members). DM scams will ${autoban_dm_scams ? "" : "not "}be automatically banned.`,
+                        `Set the autoban threshold to ${k[non_member_threshold]} (${
+                            k[member_threshold]
+                        } will apply to server members). DM scams will ${
+                            autoban_dm_scams ? "" : "not "
+                        }be automatically banned.`,
                     );
                 } else if (subcommand === "receive-dm-scams") {
                     const enable = interaction.options.getBoolean("enable", true);
@@ -609,7 +671,10 @@ bot.on("interactionCreate", async (interaction) => {
 
                             if (!banshare.value!.id_list?.length) {
                                 // Submitted without checking IDs, so no automation is possible.
-                            } else if (banshare.value!.severity === "dm" && settings?.autoban_dm_scams || autoban(threshold, banshare.value!.severity)) {
+                            } else if (
+                                (banshare.value!.severity === "dm" && settings?.autoban_dm_scams) ||
+                                autoban(threshold, banshare.value!.severity)
+                            ) {
                                 components = autoban_scheduled;
                             } else if (!settings?.no_button) {
                                 components = [
@@ -632,7 +697,7 @@ bot.on("interactionCreate", async (interaction) => {
                                 components: components.concat(report),
                             });
 
-                            await save(banshare, guild, post); 
+                            await save(banshare, guild, post);
 
                             if (!channel?.isTextBased()) return;
 
@@ -652,7 +717,7 @@ bot.on("interactionCreate", async (interaction) => {
                         } catch (error) {
                             console.error("[PUBLISH ERROR]", error);
                         }
-                    })
+                    }),
                 );
             }
         } else if (interaction.customId === "reject") {
@@ -662,10 +727,13 @@ bot.on("interactionCreate", async (interaction) => {
             });
         } else if (interaction.customId === "confirm-reject") {
             const message = await interaction.message.fetchReference();
-            await banshares.banshares.findOneAndUpdate({ message: message.id }, { $set: { rejected: true } });
+            await banshares.banshares.findOneAndUpdate(
+                { message: message.id },
+                { $set: { rejected: true } },
+            );
 
             const embed = message.embeds[0].toJSON();
-            embed.fields = embed.fields.slice(0, -1);
+            embed.fields = embed.fields!.slice(0, -1);
 
             await message.edit({
                 embeds: [embed],
@@ -1022,8 +1090,8 @@ async function execute(
                 member &&
                 (Array.isArray(executor.roles)
                     ? executor.roles
-                    : executor.roles.cache.toJSON()
-                ).every((role) => member!.roles.highest.comparePositionTo(role) >= 0)
+                    : executor.roles.cache.toJSON().map((x) => x.id)
+                ).every((role: string) => member!.roles.highest.comparePositionTo(role) >= 0)
             )
                 throw 0;
 
