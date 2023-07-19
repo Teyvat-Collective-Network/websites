@@ -4,8 +4,11 @@ import {
     HQ,
     LOG,
     NON_URGENT,
+    NON_URGENT_DELAY,
+    REMINDER_CYCLE,
     TOKEN,
     URGENT,
+    URGENT_DELAY,
     VOTE_BOT_TOKEN,
 } from "$env/static/private";
 import { PUBLIC_ALLOWLIST, PUBLIC_DDL_API, PUBLIC_TCN_API } from "$env/static/public";
@@ -156,7 +159,7 @@ async function reminder_cycle() {
     const filtered = [];
     const all = [];
 
-    for (const { message: id, url, urgent } of pending)
+    for (const { message: id, url, urgent, reminded } of pending)
         try {
             const channel = await bot.channels.fetch(url.split("/").at(-2));
             if (!channel?.isTextBased()) throw 0;
@@ -164,8 +167,16 @@ async function reminder_cycle() {
             const message = await channel.messages.fetch(id);
 
             all.push(message);
-            if (now - message.createdTimestamp > (urgent ? 7200000 : 21600000))
+            if (
+                now - (reminded ?? message.createdTimestamp) >
+                (urgent ? +URGENT_DELAY : +NON_URGENT_DELAY)
+            )
                 filtered.push(message);
+
+            await banshares.banshares.findOneAndUpdate(
+                { message: id },
+                { $set: { reminded: now } },
+            );
         } catch {
             await banshares.banshares.findOneAndUpdate(
                 { message: id },
@@ -186,7 +197,10 @@ async function reminder_cycle() {
     }
 }
 
-setTimeout(reminder_cycle, 3600000 - (new Date().getTime() % 3600000));
+setTimeout(
+    () => setInterval(reminder_cycle, +REMINDER_CYCLE),
+    +REMINDER_CYCLE - (new Date().getTime() % +REMINDER_CYCLE),
+);
 
 bot.on("interactionCreate", async (interaction) => {
     if (interaction.isChatInputCommand()) {
