@@ -662,6 +662,7 @@ bot.on("interactionCreate", async (interaction) => {
             });
         } else if (interaction.customId === "confirm-reject") {
             const message = await interaction.message.fetchReference();
+            await banshares.banshares.findOneAndUpdate({ message: message.id }, { $set: { rejected: true } });
 
             const embed = message.embeds[0].toJSON();
             embed.fields = embed.fields.slice(0, -1);
