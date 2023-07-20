@@ -146,6 +146,7 @@ const published = new Set<string>();
 
 bot.once("ready", async () => {
     console.log("[BOT] ready!");
+    await sync_dashboard();
 });
 
 async function reminder_cycle() {
@@ -229,8 +230,6 @@ export async function sync_dashboard() {
         await dashboard.send(text);
     }
 }
-
-sync_dashboard();
 
 bot.on("interactionCreate", async (interaction) => {
     if (interaction.isChatInputCommand()) {
