@@ -45,7 +45,7 @@ setInterval(async () => {
         advisor && expected.add(advisor),
     ]);
 
-    for (const member of hq.members.cache.values())
+    for (const [, member] of await hq.members.fetch())
         if (!expected.has(member.id)) {
             try {
                 const user = await api(`/users/${member.id}`);
