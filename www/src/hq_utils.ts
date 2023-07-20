@@ -38,6 +38,23 @@ setInterval(async () => {
             alerts.push(["invite", guild.id, guild]);
         }
 
+    const expected = new Set();
+
+    guilds.forEach(({ owner, advisor }: any) => [
+        owner && expected.add(owner),
+        advisor && expected.add(advisor),
+    ]);
+
+    for (const member of hq.members.cache.values())
+        if (!expected.has(member.id)) {
+            try {
+                const user = await api(`/users/${member.id}`);
+                if (!user.roles.includes("guest")) throw 0;
+            } catch {
+                alerts.push(["unauthorized", member.id, member]);
+            }
+        }
+
     const lines = [];
     const now = new Date().getTime();
     const thresh = now - 86400000;
@@ -56,20 +73,28 @@ setInterval(async () => {
                         `- invalid invite / invite points elsewhere for ${item.name} (\`${item.id}\`): https://discord.gg/${item.invite}`,
                     );
                     break;
+                case "unauthorized":
+                    lines.push(
+                        `- member in the server is not in the council or a guest: ${item} (\`${item.id}\`)`,
+                    );
+                    break;
             }
         }
 
     if (lines.length === 0) return;
 
+    let texts = ["Server/API issues or discrepancies detected:"];
+
+    for (const line of lines) {
+        if (texts.at(-1)!.length + line.length + 1 <= 2000) texts[texts.length - 1] += `\n ${line}`;
+        else texts.push(line);
+    }
+
     const alert = await hq_bot.channels.fetch(ALERT);
 
     if (alert?.isTextBased())
-        await alert.send(
-            ("Server/API issues or discrepancies detected:\n" + lines.join("\n")).substring(
-                0,
-                2000,
-            ),
-        );
+        for (const text of texts)
+            await alert.send({ content: text, allowedMentions: { parse: [] } });
 }, +MONITOR_DELAY);
 
 async function sweep_invites() {
