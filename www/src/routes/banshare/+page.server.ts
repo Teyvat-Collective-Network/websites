@@ -189,9 +189,11 @@ export const actions: Actions = {
         await banshares.banshares.insertOne({
             message: post.id,
             url: post.url,
+            user: user.id,
             server,
             id_list,
             reason,
+            evidence,
             severity,
             urgent,
         });

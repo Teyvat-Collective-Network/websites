@@ -176,7 +176,7 @@ async function reminder_cycle() {
 
                 await banshares.banshares.findOneAndUpdate(
                     { message: id },
-                    { $set: { reminded: now } },
+                    { $set: { reminded: now - +REMINDER_CYCLE / 2 } },
                 );
             }
         } catch {
