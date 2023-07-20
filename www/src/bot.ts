@@ -29,10 +29,7 @@ import {
     type APIEmbed,
     GuildMember,
     type APIGuildMember,
-    Role,
     SnowflakeUtil,
-    ApplicationCommandType,
-    ApplicationCommandOptionType,
 } from "discord.js";
 import { banshares } from "./db.js";
 import { components } from "./lib.js";

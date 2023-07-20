@@ -10,11 +10,59 @@ import {
 } from "discord.js";
 import { hq_bot } from "./bot.js";
 import { PUBLIC_TCN_API } from "$env/static/public";
-import { ELECTION_FORUM, HQ, LANDING, LOG, NOMINATING_TAG } from "$env/static/private";
+import { ALERT, ELECTION_FORUM, HQ, LANDING, LOG, NOMINATING_TAG } from "$env/static/private";
 import { bar, characters, get_image } from "./lib/data.js";
+import db from "./db.js";
 
 const api = async (route: string) => await (await fetch(`${PUBLIC_TCN_API}${route}`)).json();
 let hq: Guild;
+
+setInterval(async () => {
+    const alerts: [string, string, any][] = [];
+
+    const guilds = await api(`/guilds`);
+
+    for (const guild of guilds)
+        try {
+            const invite = await hq_bot.fetchInvite(guild.invite);
+            if (invite.guild?.id !== guild.id) throw 0;
+        } catch {
+            alerts.push(["invite", guild.id, guild]);
+        }
+
+    const lines = [];
+    const now = new Date().getTime();
+    const thresh = now - 86400000;
+
+    for (const [key, id, item] of alerts)
+        if (!(await db.alerts.findOne({ key, id, time: { $gt: thresh } }))) {
+            await db.alerts.findOneAndUpdate(
+                { key, id },
+                { $set: { time: now } },
+                { upsert: true },
+            );
+
+            switch (key) {
+                case "invite":
+                    lines.push(
+                        `- invalid invite / invite points elsewhere for ${item.name} (\`${item.id}\`): https://discord.gg/${item.invite}`,
+                    );
+                    break;
+            }
+        }
+
+    if (lines.length === 0) return;
+
+    const alert = await hq_bot.channels.fetch(ALERT);
+
+    if (alert?.isTextBased())
+        await alert.send(
+            ("Server/API issues or discrepancies detected:\n" + lines.join("\n")).substring(
+                0,
+                2000,
+            ),
+        );
+}, 600000);
 
 async function sweep_invites() {
     let channel: Channel | null = null;
@@ -41,6 +89,8 @@ async function sweep_invites() {
 
 hq_bot.once("ready", async () => {
     hq = await hq_bot.guilds.fetch(HQ);
+
+    sweep_invites();
 
     await hq_bot.application!.commands.set([
         {
@@ -244,4 +294,22 @@ Thanks!`);
             });
         }
     }
+});
+
+hq_bot.on("inviteCreate", async (invite) => {
+    if (invite.inviterId === null || invite.inviterId === hq_bot.user!.id) return;
+
+    const channel = await hq_bot.channels.fetch(LOG);
+    if (!channel?.isTextBased()) return;
+
+    await channel.send({
+        content: `${invite.inviter} created an invite (max age: ${
+            invite.maxAge ? `${invite.maxAge} seconds` : "infinite"
+        }, max uses: ${invite.maxUses || "unlimited"})`,
+        allowedMentions: { parse: [] },
+    });
+});
+
+hq_bot.on("guildMemberAdd", async (member) => {
+    if (member.guild.id === HQ) sweep_invites();
 });
