@@ -18,6 +18,7 @@ import {
     LOG,
     MONITOR_DELAY,
     NOMINATING_TAG,
+    VOTE_BOT_TOKEN,
 } from "$env/static/private";
 import { bar, characters, get_image } from "./lib/data.js";
 import db from "./db.js";
@@ -48,93 +49,151 @@ async function sweep_invites() {
     }
 }
 
-hq_bot.once("ready", async () => {
-    console.log("[HQ BOT] initializing...");
+async function monitor() {
+    const alerts: [string, string, any][] = [];
 
-    hq = await hq_bot.guilds.fetch(HQ);
+    const guilds = await api(`/guilds`);
 
-    setInterval(async () => {
-        console.log("running monitor...");
-
-        const alerts: [string, string, any][] = [];
-
-        const guilds = await api(`/guilds`);
-
-        console.log("inspecting invites...");
-
-        for (const guild of guilds)
-            try {
-                const invite = await hq_bot.fetchInvite(guild.invite);
-                if (invite.guild?.id !== guild.id) throw 0;
-            } catch {
-                alerts.push(["invite", guild.id, guild]);
-            }
-
-        console.log("inspecting HQ membership...");
-
-        const expected = new Set();
-
-        guilds.forEach(({ owner, advisor }: any) => [
-            owner && expected.add(owner),
-            advisor && expected.add(advisor),
-        ]);
-
-        for (const [, member] of await hq.members.fetch())
-            if (!expected.has(member.id)) {
-                try {
-                    const user = await api(`/users/${member.id}`);
-                    if (!user.roles.includes("guest")) throw 0;
-                } catch {
-                    alerts.push(["unauthorized", member.id, member]);
-                }
-            }
-
-        const lines = [];
-        const now = new Date().getTime();
-        const thresh = now - 86400000;
-
-        console.log("finalizing results...");
-
-        for (const [key, id, item] of alerts)
-            if (!(await db.alerts.findOne({ key, id, time: { $gt: thresh } }))) {
-                await db.alerts.findOneAndUpdate(
-                    { key, id },
-                    { $set: { time: now } },
-                    { upsert: true },
-                );
-
-                switch (key) {
-                    case "invite":
-                        lines.push(
-                            `- invalid invite / invite points elsewhere for ${item.name} (\`${item.id}\`): https://discord.gg/${item.invite}`,
-                        );
-                        break;
-                    case "unauthorized":
-                        lines.push(
-                            `- member in the server is not in the council or a guest: ${item} (\`${item.id}\`)`,
-                        );
-                        break;
-                }
-            }
-
-        if (lines.length === 0) return;
-
-        let texts = ["Server/API issues or discrepancies detected:"];
-
-        for (const line of lines) {
-            if (texts.at(-1)!.length + line.length + 1 <= 2000)
-                texts[texts.length - 1] += `\n ${line}`;
-            else texts.push(line);
+    for (const guild of guilds)
+        try {
+            const invite = await hq_bot.fetchInvite(guild.invite);
+            if (invite.guild?.id !== guild.id) throw 0;
+        } catch {
+            alerts.push(["invite", guild.id, guild]);
         }
 
-        const alert = await hq_bot.channels.fetch(ALERT);
+    const expected = new Set<string>();
 
-        if (alert?.isTextBased())
-            for (const text of texts)
-                await alert.send({ content: text, allowedMentions: { parse: [] } });
-    }, +MONITOR_DELAY);
+    guilds.forEach(({ owner, advisor }: any) => [
+        owner && expected.add(owner),
+        advisor && expected.add(advisor),
+    ]);
+
+    for (const [, member] of await hq.members.fetch())
+        if (!member.user.bot && !expected.has(member.id)) {
+            try {
+                const user = await api(`/users/${member.id}`);
+                if (!user.roles.includes("guest")) throw 0;
+            } catch {
+                alerts.push(["unauthorized", member.id, member]);
+            }
+        }
+
+    const rep: Record<string, { user: any; positions: string[] }> = {};
+
+    for (const guild of guilds) {
+        if (!guild.owner) alerts.push(["missing-owner", guild.id, guild]);
+        if (!guild.voter) alerts.push(["missing-voter", guild.id, guild]);
+        if (guild.voter !== guild.owner && guild.voter !== guild.advisor)
+            alerts.push(["invalid-voter", guild.id, guild]);
+
+        for (const [id, role] of [
+            [guild.owner, "server owner"],
+            [guild.advisor, "council advisor"],
+        ])
+            if (id) {
+                try {
+                    if (!rep[id]) {
+                        const user = await hq_bot.users.fetch(id);
+                        rep[id] = { user, positions: [] };
+                    }
+
+                    rep[id].positions.push(`${guild.name} (\`${guild.id}\`) ${role}`);
+                } catch {}
+
+                try {
+                    await hq.members.fetch(id);
+                } catch {
+                    try {
+                        const user = await hq_bot.users.fetch(id);
+                        alerts.push(["missing", id, { guild, user, role }]);
+                    } catch {
+                        alerts.push(["invalid-id", id, { guild, id, role }]);
+                    }
+                }
+            }
+    }
+
+    for (const id of Object.keys(rep))
+        if (rep[id].positions.length > 1) alerts.push(["duplicate", id, rep[id]]);
+
+    const lines = [];
+    const now = new Date().getTime();
+    const thresh = now - 86400000;
+
+    for (const [key, id, item] of alerts)
+        if (!(await db.alerts.findOne({ key, id, time: { $gt: thresh } }))) {
+            await db.alerts.findOneAndUpdate(
+                { key, id },
+                { $set: { time: now } },
+                { upsert: true },
+            );
+
+            switch (key) {
+                case "invite":
+                    lines.push(
+                        `- invalid invite / invite points elsewhere for ${item.name} (\`${item.id}\`): https://discord.gg/${item.invite}`,
+                    );
+                    break;
+                case "unauthorized":
+                    lines.push(
+                        `- member in the server is not in the council or a guest: ${item} (\`${item.id}\`)`,
+                    );
+                    break;
+                case "missing-owner":
+                    lines.push(`- ${item.name} (\`${item.id}\`) is missing a server owner`);
+                    break;
+                case "missing-voter":
+                    lines.push(`- ${item.name} (\`${item.id}\`) is missing a voter`);
+                    break;
+                case "invalid-voter":
+                    lines.push(
+                        `- voter for ${item.name} (\`${item.id}\`) is neither its owner nor its advisor`,
+                    );
+                    break;
+                case "missing":
+                    lines.push(
+                        `- ${item.role} for ${item.guild.name} is missing from the server: ${item.user} (\`${item.user.id}\`)`,
+                    );
+                    break;
+                case "invalid-id":
+                    lines.push(
+                        `- ${item.role} for ${item.guild.name} corresponds to an invalid ID: \`${item.id}\``,
+                    );
+                    break;
+                case "duplicate":
+                    lines.push(
+                        `- ${item.user} (\`${
+                            item.user.id
+                        }\`) has multiple council positions: ${item.positions.join(", ")}`,
+                    );
+                    break;
+            }
+        }
+
+    if (lines.length === 0) return;
+
+    let texts = ["Server/API issues or discrepancies detected:"];
+
+    for (const line of lines) {
+        if (texts.at(-1)!.length + line.length + 1 <= 2000) texts[texts.length - 1] += `\n${line}`;
+        else texts.push(line);
+    }
+
+    const alert = await hq_bot.channels.fetch(ALERT);
+
+    if (alert?.isTextBased())
+        for (const text of texts)
+            await alert.send({ content: text, allowedMentions: { parse: [] } });
+
+    setTimeout(monitor, +MONITOR_DELAY);
+}
+
+hq_bot.once("ready", async () => {
+    hq = await hq_bot.guilds.fetch(HQ);
 
     sweep_invites();
+    monitor();
 
     await hq_bot.application!.commands.set([
         {
@@ -357,3 +416,5 @@ hq_bot.on("inviteCreate", async (invite) => {
 hq_bot.on("guildMemberAdd", async (member) => {
     if (member.guild.id === HQ) sweep_invites();
 });
+
+await hq_bot.login(VOTE_BOT_TOKEN);

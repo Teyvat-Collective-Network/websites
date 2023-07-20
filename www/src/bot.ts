@@ -47,8 +47,6 @@ export const hq_bot = new Client({
         IntentsBitField.Flags.GuildInvites,
 });
 
-await hq_bot.login(VOTE_BOT_TOKEN);
-
 const finished = [
     {
         type: ComponentType.ActionRow,
