@@ -52,9 +52,13 @@ hq_bot.once("ready", async () => {
     hq = await hq_bot.guilds.fetch(HQ);
 
     setInterval(async () => {
+        console.log("running monitor...");
+
         const alerts: [string, string, any][] = [];
 
         const guilds = await api(`/guilds`);
+
+        console.log("inspecting invites...");
 
         for (const guild of guilds)
             try {
@@ -63,6 +67,8 @@ hq_bot.once("ready", async () => {
             } catch {
                 alerts.push(["invite", guild.id, guild]);
             }
+
+        console.log("inspecting HQ membership...");
 
         const expected = new Set();
 
@@ -84,6 +90,8 @@ hq_bot.once("ready", async () => {
         const lines = [];
         const now = new Date().getTime();
         const thresh = now - 86400000;
+
+        console.log("finalizing results...");
 
         for (const [key, id, item] of alerts)
             if (!(await db.alerts.findOne({ key, id, time: { $gt: thresh } }))) {
