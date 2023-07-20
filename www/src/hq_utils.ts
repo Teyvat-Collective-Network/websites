@@ -49,6 +49,8 @@ async function sweep_invites() {
 }
 
 hq_bot.once("ready", async () => {
+    console.log("[HQ BOT] initializing...");
+
     hq = await hq_bot.guilds.fetch(HQ);
 
     setInterval(async () => {
