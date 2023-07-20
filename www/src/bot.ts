@@ -158,9 +158,7 @@ async function reminder_cycle() {
         .toArray();
 
     const now = new Date().getTime();
-
-    const filtered = [];
-    const all = [];
+    let notice = false;
 
     for (const { message: id, url, urgent, reminded } of pending)
         try {
@@ -169,13 +167,11 @@ async function reminder_cycle() {
 
             const message = await channel.messages.fetch(id);
 
-            all.push(message);
-
             if (
                 now - (reminded ?? message.createdTimestamp) >
                 (urgent ? +URGENT_DELAY : +NON_URGENT_DELAY)
             ) {
-                filtered.push(message);
+                notice = true;
 
                 await banshares.banshares.findOneAndUpdate(
                     { message: id },
@@ -189,14 +185,12 @@ async function reminder_cycle() {
             );
         }
 
-    if (filtered.length > 0) {
+    if (notice) {
         const alert = bot.channels.cache.get(ALERT);
         if (alert?.isTextBased())
             try {
                 await alert.send(
-                    `${URGENT} One or more banshares has exceeded the allowed pending time. All pending banshares have been listed: ${all
-                        .map((m) => `${m.url} (<t:${Math.floor(m.createdTimestamp / 1000)}:R>)`)
-                        .join(", ")}`.substring(0, 2000),
+                    `${URGENT} One or more banshares has exceeded the allowed pending time. Please check the list of all pending banshares in <#${BANSHARE_DASHBOARD}>.`,
                 );
             } catch {}
     }
