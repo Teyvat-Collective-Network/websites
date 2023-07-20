@@ -223,12 +223,10 @@ export async function sync_dashboard() {
             )
             .join("\n") || "No pending banshares!";
 
-    try {
-        await dashboard.messages.fetch();
-        await dashboard.lastMessage?.edit(text);
-    } catch {
-        await dashboard.send(text);
-    }
+    await dashboard.messages.fetch();
+
+    if (dashboard.lastMessage?.author.id === bot.user!.id) await dashboard.lastMessage.edit(text);
+    else await dashboard.send(text);
 }
 
 bot.on("interactionCreate", async (interaction) => {
