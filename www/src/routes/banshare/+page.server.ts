@@ -2,7 +2,7 @@ import { ALERT, CHANNEL, NON_URGENT, URGENT } from "$env/static/private";
 import { PUBLIC_TCN_API } from "$env/static/public";
 import { fail, type Actions } from "@sveltejs/kit";
 import { escape } from "svelte/internal";
-import bot from "../../bot.js";
+import bot, { sync_dashboard } from "../../bot.js";
 import { banshares } from "../../db.js";
 import { create_gist } from "../../gists.js";
 import { components } from "../../lib.js";
@@ -211,6 +211,10 @@ export const actions: Actions = {
                     );
                 } catch {}
         }
+
+        try {
+            await sync_dashboard();
+        } catch {}
 
         return { success: true };
     },

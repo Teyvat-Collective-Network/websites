@@ -1,5 +1,6 @@
 import {
     ALERT,
+    BANSHARE_DASHBOARD,
     DDL_TOKEN,
     HQ,
     LOG,
@@ -30,6 +31,7 @@ import {
     GuildMember,
     type APIGuildMember,
     Role,
+    SnowflakeUtil,
 } from "discord.js";
 import { banshares } from "./db.js";
 import { components } from "./lib.js";
@@ -203,6 +205,32 @@ setTimeout(
     () => setInterval(reminder_cycle, +REMINDER_CYCLE),
     +REMINDER_CYCLE - (new Date().getTime() % +REMINDER_CYCLE),
 );
+
+export async function sync_dashboard() {
+    const dashboard = await bot.channels.fetch(BANSHARE_DASHBOARD);
+    if (!dashboard?.isTextBased()) return;
+
+    const pending = await banshares.banshares
+        .find({ published: { $ne: true }, rejected: { $ne: true } })
+        .toArray();
+
+    const text =
+        pending
+            .map(
+                (x) =>
+                    `${x.url} (<t:${Math.floor(SnowflakeUtil.timestampFrom(x.message) / 1000)}:R>)`,
+            )
+            .join("\n") || "No pending banshares!";
+
+    try {
+        await dashboard.messages.fetch();
+        await dashboard.lastMessage?.edit(text);
+    } catch {
+        await dashboard.send(text);
+    }
+}
+
+sync_dashboard();
 
 bot.on("interactionCreate", async (interaction) => {
     if (interaction.isChatInputCommand()) {
@@ -645,6 +673,10 @@ bot.on("interactionCreate", async (interaction) => {
                     return;
                 }
 
+                try {
+                    await sync_dashboard();
+                } catch {}
+
                 await interaction.editReply({
                     content: "Banshare is being published! You may dismiss this message.",
                     components: [],
@@ -768,6 +800,10 @@ bot.on("interactionCreate", async (interaction) => {
                     },
                 ],
             });
+
+            try {
+                await sync_dashboard();
+            } catch {}
 
             await interaction.update({
                 content: "This banshare has been rejected.",
