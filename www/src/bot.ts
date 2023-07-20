@@ -216,12 +216,17 @@ export async function sync_dashboard() {
         .toArray();
 
     const text =
-        pending
-            .map(
-                (x) =>
-                    `${x.url} (<t:${Math.floor(SnowflakeUtil.timestampFrom(x.message) / 1000)}:R>)`,
-            )
-            .join("\n") || "No pending banshares!";
+        pending.length > 0
+            ? "Pending Banshares:\n\n" +
+              pending
+                  .map(
+                      (x) =>
+                          `${x.url} (<t:${Math.floor(
+                              SnowflakeUtil.timestampFrom(x.message) / 1000,
+                          )}:R>)`,
+                  )
+                  .join("\n")
+            : "No pending banshares!";
 
     await dashboard.messages.fetch();
 
