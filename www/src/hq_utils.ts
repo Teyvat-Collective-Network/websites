@@ -25,78 +25,6 @@ import db from "./db.js";
 const api = async (route: string) => await (await fetch(`${PUBLIC_TCN_API}${route}`)).json();
 let hq: Guild;
 
-setInterval(async () => {
-    const alerts: [string, string, any][] = [];
-
-    const guilds = await api(`/guilds`);
-
-    for (const guild of guilds)
-        try {
-            const invite = await hq_bot.fetchInvite(guild.invite);
-            if (invite.guild?.id !== guild.id) throw 0;
-        } catch {
-            alerts.push(["invite", guild.id, guild]);
-        }
-
-    const expected = new Set();
-
-    guilds.forEach(({ owner, advisor }: any) => [
-        owner && expected.add(owner),
-        advisor && expected.add(advisor),
-    ]);
-
-    for (const [, member] of await hq.members.fetch())
-        if (!expected.has(member.id)) {
-            try {
-                const user = await api(`/users/${member.id}`);
-                if (!user.roles.includes("guest")) throw 0;
-            } catch {
-                alerts.push(["unauthorized", member.id, member]);
-            }
-        }
-
-    const lines = [];
-    const now = new Date().getTime();
-    const thresh = now - 86400000;
-
-    for (const [key, id, item] of alerts)
-        if (!(await db.alerts.findOne({ key, id, time: { $gt: thresh } }))) {
-            await db.alerts.findOneAndUpdate(
-                { key, id },
-                { $set: { time: now } },
-                { upsert: true },
-            );
-
-            switch (key) {
-                case "invite":
-                    lines.push(
-                        `- invalid invite / invite points elsewhere for ${item.name} (\`${item.id}\`): https://discord.gg/${item.invite}`,
-                    );
-                    break;
-                case "unauthorized":
-                    lines.push(
-                        `- member in the server is not in the council or a guest: ${item} (\`${item.id}\`)`,
-                    );
-                    break;
-            }
-        }
-
-    if (lines.length === 0) return;
-
-    let texts = ["Server/API issues or discrepancies detected:"];
-
-    for (const line of lines) {
-        if (texts.at(-1)!.length + line.length + 1 <= 2000) texts[texts.length - 1] += `\n ${line}`;
-        else texts.push(line);
-    }
-
-    const alert = await hq_bot.channels.fetch(ALERT);
-
-    if (alert?.isTextBased())
-        for (const text of texts)
-            await alert.send({ content: text, allowedMentions: { parse: [] } });
-}, +MONITOR_DELAY);
-
 async function sweep_invites() {
     let channel: Channel | null = null;
 
@@ -122,6 +50,79 @@ async function sweep_invites() {
 
 hq_bot.once("ready", async () => {
     hq = await hq_bot.guilds.fetch(HQ);
+
+    setInterval(async () => {
+        const alerts: [string, string, any][] = [];
+
+        const guilds = await api(`/guilds`);
+
+        for (const guild of guilds)
+            try {
+                const invite = await hq_bot.fetchInvite(guild.invite);
+                if (invite.guild?.id !== guild.id) throw 0;
+            } catch {
+                alerts.push(["invite", guild.id, guild]);
+            }
+
+        const expected = new Set();
+
+        guilds.forEach(({ owner, advisor }: any) => [
+            owner && expected.add(owner),
+            advisor && expected.add(advisor),
+        ]);
+
+        for (const [, member] of await hq.members.fetch())
+            if (!expected.has(member.id)) {
+                try {
+                    const user = await api(`/users/${member.id}`);
+                    if (!user.roles.includes("guest")) throw 0;
+                } catch {
+                    alerts.push(["unauthorized", member.id, member]);
+                }
+            }
+
+        const lines = [];
+        const now = new Date().getTime();
+        const thresh = now - 86400000;
+
+        for (const [key, id, item] of alerts)
+            if (!(await db.alerts.findOne({ key, id, time: { $gt: thresh } }))) {
+                await db.alerts.findOneAndUpdate(
+                    { key, id },
+                    { $set: { time: now } },
+                    { upsert: true },
+                );
+
+                switch (key) {
+                    case "invite":
+                        lines.push(
+                            `- invalid invite / invite points elsewhere for ${item.name} (\`${item.id}\`): https://discord.gg/${item.invite}`,
+                        );
+                        break;
+                    case "unauthorized":
+                        lines.push(
+                            `- member in the server is not in the council or a guest: ${item} (\`${item.id}\`)`,
+                        );
+                        break;
+                }
+            }
+
+        if (lines.length === 0) return;
+
+        let texts = ["Server/API issues or discrepancies detected:"];
+
+        for (const line of lines) {
+            if (texts.at(-1)!.length + line.length + 1 <= 2000)
+                texts[texts.length - 1] += `\n ${line}`;
+            else texts.push(line);
+        }
+
+        const alert = await hq_bot.channels.fetch(ALERT);
+
+        if (alert?.isTextBased())
+            for (const text of texts)
+                await alert.send({ content: text, allowedMentions: { parse: [] } });
+    }, +MONITOR_DELAY);
 
     sweep_invites();
 
