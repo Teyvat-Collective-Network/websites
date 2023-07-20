@@ -10,7 +10,15 @@ import {
 } from "discord.js";
 import { hq_bot } from "./bot.js";
 import { PUBLIC_TCN_API } from "$env/static/public";
-import { ALERT, ELECTION_FORUM, HQ, LANDING, LOG, NOMINATING_TAG } from "$env/static/private";
+import {
+    ALERT,
+    ELECTION_FORUM,
+    HQ,
+    LANDING,
+    LOG,
+    MONITOR_DELAY,
+    NOMINATING_TAG,
+} from "$env/static/private";
 import { bar, characters, get_image } from "./lib/data.js";
 import db from "./db.js";
 
@@ -62,7 +70,7 @@ setInterval(async () => {
                 2000,
             ),
         );
-}, 600000);
+}, +MONITOR_DELAY);
 
 async function sweep_invites() {
     let channel: Channel | null = null;
@@ -207,7 +215,7 @@ hq_bot.on("interactionCreate", async (interaction) => {
             await interaction.followUp({ content: "Done!", ephemeral: true });
         } else if (interaction.commandName === "election") {
             const wave = interaction.options.getInteger("wave", true);
-            const seats = interaction.options.getInteger("wave", true);
+            const seats = interaction.options.getInteger("seats", true);
 
             const short_reason = interaction.options.getString("short-reason", true);
 
