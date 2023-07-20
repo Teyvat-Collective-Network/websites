@@ -1,5 +1,5 @@
 import { PUBLIC_TCN_API } from "$env/static/public";
-import { vote_bot } from "../../../bot.js";
+import { hq_bot } from "../../../bot.js";
 import type { Load } from "@sveltejs/kit";
 
 export const load: Load = async ({ params }) => {
@@ -9,13 +9,13 @@ export const load: Load = async ({ params }) => {
     const data = await request.json();
 
     try {
-        const user = await vote_bot.users.fetch(data.owner);
+        const user = await hq_bot.users.fetch(data.owner);
         data.owner_tag = user.discriminator === "0" ? `@${user.username}` : user.tag;
     } catch {}
 
     if (data.advisor)
         try {
-            const user = await vote_bot.users.fetch(data.advisor);
+            const user = await hq_bot.users.fetch(data.advisor);
             data.advisor_tag = user.discriminator === "0" ? `@${user.username}` : user.tag;
         } catch {}
 

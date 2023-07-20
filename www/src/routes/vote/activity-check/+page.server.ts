@@ -1,5 +1,5 @@
 import { PUBLIC_TCN_API } from "$env/static/public";
-import { vote_bot } from "../../../bot.js";
+import { hq_bot } from "../../../bot.js";
 import db from "../../../db.js";
 import { fix } from "$lib/util.js";
 import type { ServerLoad } from "@sveltejs/kit";
@@ -18,6 +18,6 @@ export const load: ServerLoad = async () => {
         ),
         votes: fix(await db.poll_votes.find().toArray()),
         ids,
-        map: ids.reduce((o, id) => ({ ...o, [id]: vote_bot.users.cache.get(id)?.tag }), {}),
+        map: ids.reduce((o, id) => ({ ...o, [id]: hq_bot.users.cache.get(id)?.tag }), {}),
     };
 };

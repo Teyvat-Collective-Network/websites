@@ -11,15 +11,15 @@ import {
     MessageFlags,
 } from "discord.js";
 import db from "../db.js";
-import { vote_bot } from "../bot.js";
+import { hq_bot } from "../bot.js";
 import { HQ, VOTE_CHANNEL, VOTE_LOG } from "$env/static/private";
 
 fetch(`${PUBLIC_TCN_API}/users`)
     .then((response) => response.json())
-    .then((data) => data.forEach(({ id }: { id: string }) => id && vote_bot.users.fetch(id)));
+    .then((data) => data.forEach(({ id }: { id: string }) => id && hq_bot.users.fetch(id)));
 
 setInterval(async () => {
-    const log = vote_bot.channels.cache.get(VOTE_LOG);
+    const log = hq_bot.channels.cache.get(VOTE_LOG);
     if (!log?.isTextBased()) throw "Vote log channel is not text-based.";
 
     const threshold = new Date();
@@ -30,7 +30,7 @@ setInterval(async () => {
         await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false, closed: true, required } });
 
         try {
-            const channel = await vote_bot.channels.fetch(poll.channel);
+            const channel = await hq_bot.channels.fetch(poll.channel);
             if (!channel?.isTextBased()) throw "Channel is not text-based.";
             const message = await channel.messages.fetch(poll.message);
             await message.edit(await render(poll, required));
@@ -54,7 +54,7 @@ setInterval(async () => {
             if (votes.has(id)) continue;
 
             try {
-                const user = await vote_bot.guilds.cache.get(HQ)!.members.fetch(id);
+                const user = await hq_bot.guilds.cache.get(HQ)!.members.fetch(id);
                 await user.send({
                     embeds: [
                         {
@@ -80,7 +80,7 @@ setInterval(async () => {
         }
 
         if (failed.length > 0) {
-            const channel = vote_bot.channels.cache.get(VOTE_CHANNEL);
+            const channel = hq_bot.channels.cache.get(VOTE_CHANNEL);
 
             if (channel?.isTextBased())
                 await channel.send({
@@ -358,7 +358,7 @@ export async function render(
     };
 }
 
-vote_bot.on(Events.InteractionCreate, async (interaction) => {
+hq_bot.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isMessageComponent() && !interaction.isModalSubmit()) return;
     if (!interaction.message) return;
 
@@ -430,7 +430,7 @@ vote_bot.on(Events.InteractionCreate, async (interaction) => {
 
             for (const id of required) {
                 try {
-                    users.push([(await vote_bot.users.fetch(id)).tag, id]);
+                    users.push([(await hq_bot.users.fetch(id)).tag, id]);
                 } catch {
                     users.push([`Unknown [${id}]`, id]);
                 }
@@ -502,7 +502,7 @@ vote_bot.on(Events.InteractionCreate, async (interaction) => {
                                 value: `${poll.candidates
                                     .map(
                                         (x: string) =>
-                                            `${vote_bot.users.cache.get(x)?.tag ?? x}: ${
+                                            `${hq_bot.users.cache.get(x)?.tag ?? x}: ${
                                                 vote.rankings?.includes(x)
                                                     ? poll.candidates.length > poll.seats
                                                         ? vote.rankings.indexOf(x) + 1
@@ -552,7 +552,7 @@ vote_bot.on(Events.InteractionCreate, async (interaction) => {
                 (o: any, x: string) => ({
                     ...o,
                     [x]: x,
-                    [vote_bot.users.cache.get(x)?.tag ?? x]: x,
+                    [hq_bot.users.cache.get(x)?.tag ?? x]: x,
                 }),
                 {},
             );

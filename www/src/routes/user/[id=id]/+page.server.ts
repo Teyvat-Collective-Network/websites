@@ -1,5 +1,5 @@
 import { PUBLIC_TCN_API } from "$env/static/public";
-import { vote_bot } from "../../../bot.js";
+import { hq_bot } from "../../../bot.js";
 import type { Load } from "@sveltejs/kit";
 
 export const load: Load = async ({ params }) => {
@@ -21,7 +21,7 @@ export const load: Load = async ({ params }) => {
     }
 
     try {
-        const user = await vote_bot.users.fetch(params.id);
+        const user = await hq_bot.users.fetch(params.id);
         data.discord = {
             icon: user.displayAvatarURL({ dynamic: true }),
             tag: user.discriminator === "0" ? `@${user.username}` : user.tag,

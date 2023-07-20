@@ -4,7 +4,6 @@ import {
     DDL_TOKEN,
     HQ,
     LOG,
-    NON_URGENT,
     NON_URGENT_DELAY,
     REMINDER_CYCLE,
     TOKEN,
@@ -32,6 +31,8 @@ import {
     type APIGuildMember,
     Role,
     SnowflakeUtil,
+    ApplicationCommandType,
+    ApplicationCommandOptionType,
 } from "discord.js";
 import { banshares } from "./db.js";
 import { components } from "./lib.js";
@@ -42,11 +43,14 @@ const bot = new Client({
     intents: IntentsBitField.Flags.Guilds | IntentsBitField.Flags.MessageContent,
 });
 
-export const vote_bot = new Client({
-    intents: IntentsBitField.Flags.Guilds | IntentsBitField.Flags.GuildMembers,
+export const hq_bot = new Client({
+    intents:
+        IntentsBitField.Flags.Guilds |
+        IntentsBitField.Flags.GuildMembers |
+        IntentsBitField.Flags.GuildInvites,
 });
 
-await vote_bot.login(VOTE_BOT_TOKEN);
+await hq_bot.login(VOTE_BOT_TOKEN);
 
 const finished = [
     {

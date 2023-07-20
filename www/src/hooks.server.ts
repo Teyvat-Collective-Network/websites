@@ -3,6 +3,7 @@ import { PUBLIC_DIS_API, PUBLIC_STAGING, PUBLIC_TCN_AUTH } from "$env/static/pub
 import type { Handle } from "@sveltejs/kit";
 
 import "./lib/polls.js";
+import "./hq_utils.js";
 
 export const handle: Handle = async ({ event, resolve }) => {
     const locals = event.locals as any;

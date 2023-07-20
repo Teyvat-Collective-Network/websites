@@ -1,6 +1,6 @@
 import { PUBLIC_TCN_API } from "$env/static/public";
 import type { Actions, ServerLoad } from "@sveltejs/kit";
-import { vote_bot } from "../../../../bot.js";
+import { hq_bot } from "../../../../bot.js";
 import db, { autoinc } from "../../../../db.js";
 import { render } from "$lib/polls.js";
 import { VOTE_CHANNEL } from "$env/static/private";
@@ -94,7 +94,7 @@ export const actions: Actions = {
             const ids = api_response.map((x: any) => x.id).filter((x: string) => x);
 
             for (const id of data.candidates) {
-                if (!vote_bot.users.cache.has(id)) return fail("Invalid candidate ID provided.");
+                if (!hq_bot.users.cache.has(id)) return fail("Invalid candidate ID provided.");
                 if (!ids.includes(id)) return fail("Candidates must be council members.");
             }
         }
@@ -108,7 +108,7 @@ export const actions: Actions = {
 
         if (entry)
             try {
-                const channel = await vote_bot.channels.fetch(entry.channel);
+                const channel = await hq_bot.channels.fetch(entry.channel);
                 if (!channel?.isTextBased()) throw 0;
                 const message = await channel.messages.fetch(entry.message);
                 await message.edit(await render(data));
@@ -119,7 +119,7 @@ export const actions: Actions = {
             } catch {}
 
         try {
-            const channel = await vote_bot.channels.fetch(VOTE_CHANNEL);
+            const channel = await hq_bot.channels.fetch(VOTE_CHANNEL);
             if (!channel?.isTextBased()) throw 0;
 
             const message = await channel.send(await render(data));
