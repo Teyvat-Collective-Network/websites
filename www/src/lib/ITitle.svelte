@@ -2,7 +2,7 @@
     export let e: string;
     export let icon: string = "";
     export let text: string;
-    export let icon_color: string;
+    export let icon_color: string = "inherit";
 </script>
 
 <svelte:element this={e} class="item">

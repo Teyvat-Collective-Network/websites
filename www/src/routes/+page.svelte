@@ -8,32 +8,49 @@
     };
 </script>
 
-<template lang="pug">
-    .container
-        br
-        #main
-            #box
-                #box-1
-                    p Welcome to the Teyvat Collective Network (TCN)
-                #box-2
-                    p The mission of the TCN is to unite all mains servers across Teyvat and provide support and promote collaboration between partners.
-                #box-3
-                    p The TCN is a network of {data?.partners?.length} high-quality Genshin Impact Discord servers that are dedicated to fostering Mains-style fan communities.
-                #box-4
-                    p Do you own a Discord server dedicated to a playable Genshin Impact character and want to join the TCN? Apply here!
-                    a.button(href="/join") Apply To Join
-            br
-            h4.row(style="gap: 10px") Testimonials
-                +if("data.auth")
-                    a(href="/admin/testimonials"): i.material-icons edit
-            #testimonials
-                +each("data.testimonials as testimonial")
-                    Testimonial(
-                        image!="{ testimonial.image }",
-                        name!="{ testimonial.name }",
-                        on:open!="{ () => (stop = true) }"
-                    ) {@html testimonial.content}
-</template>
+<div class="container">
+    <br />
+    <div id="main">
+        <div id="box">
+            <div id="box-1">
+                <p>Welcome to the Teyvat Collective Network (TCN)</p>
+            </div>
+            <div id="box-2">
+                <p>
+                    The mission of the TCN is to unite all mains servers across Teyvat and provide
+                    support and promote collaboration between partners.
+                </p>
+            </div>
+            <div id="box-3">
+                <p>
+                    The TCN is a network of {data?.partners?.length} high-quality Genshin Impact Discord
+                    servers that are dedicated to fostering Mains-style fan communities.
+                </p>
+            </div>
+            <div id="box-4">
+                <p>
+                    Do you own a Discord server dedicated to a playable Genshin Impact character and
+                    want to join the TCN? Apply here!
+                </p>
+                <a href="/join" class="button">Apply To Join</a>
+            </div>
+        </div>
+        <br />
+        <h4 class="row" style="gap: 10px">
+            Testimonials
+            {#if data.auth}
+                <a href="/admin/testimonials"><i class="material-icons">edit</i></a>
+            {/if}
+        </h4>
+        <div id="testimonials">
+            {#each data.testimonials as testimonial}
+                <Testimonial image={testimonial.image} name={testimonial.name}>
+                    {@html testimonial.content}
+                </Testimonial>
+            {/each}
+        </div>
+    </div>
+</div>
 
 <style lang="scss">
     #box {
