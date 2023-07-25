@@ -81,6 +81,8 @@ export const load: ServerLoad = async ({ params, locals }) => {
                 }</i>&nbsp;${match[3]}</span>${match[1] ? "</a>" : ""}`,
             );
 
+        console.log(Intl.DateTimeFormat().resolvedOptions().timeZone);
+
         doc.parsed = doc.parsed.replace(
             /\[reader\]/g,
             `<span class="mention"${reader ? ` data-id="${reader.id}"` : ""}>${
