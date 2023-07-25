@@ -121,5 +121,11 @@
         a span.mention {
             cursor: inherit;
         }
+
+        blockquote {
+            margin-left: 0px;
+            padding-left: 25px;
+            border-left: 2px solid var(--text-secondary);
+        }
     }
 </style>
