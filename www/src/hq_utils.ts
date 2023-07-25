@@ -360,6 +360,7 @@ hq_bot.on("interactionCreate", async (interaction) => {
 **Reason**: ${short_reason}
 **Seats**: ${seats}
 **Window**: Nominations and statements scheduled for <t:${now}:F> - <t:${mid}:F>, voting scheduled for <t:${mid}:F> - <t:${end}:F>`,
+                    allowedMentions: { parse: [] },
                 },
             });
 
