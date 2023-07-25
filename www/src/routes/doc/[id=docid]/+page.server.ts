@@ -15,8 +15,7 @@ export const load: ServerLoad = async ({ params, locals }) => {
         (locals as any).observer ||
         reader?.id === doc.author ||
         ((locals as any).council && doc.allow_council) ||
-        (reader && doc.allow_logged_in) ||
-        doc.allowlist.match(new RegExp(`\b${reader.id}\b`))
+        (reader && (doc.allow_logged_in || doc.allowlist.match(new RegExp(`\b${reader.id}\b`))))
     ) {
         if (doc.anon && reader?.id !== doc.author && !(locals as any).observer) delete doc.author;
         else
