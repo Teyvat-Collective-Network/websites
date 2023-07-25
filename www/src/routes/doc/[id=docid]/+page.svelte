@@ -46,7 +46,22 @@
             }
         }
     });
+
+    let width = 0;
+    let scroll = 0;
 </script>
+
+<svelte:window bind:innerWidth={width} bind:scrollY={scroll} />
+
+<a
+    id="top"
+    class="row"
+    href={"javascript:void(0)"}
+    on:click={() => scrollTo({ top: 0 })}
+    style="opacity: {scroll ? 1 : 0}"
+>
+    <i class="material-icons">expand_less</i>
+</a>
 
 <html lang="en">
     <head>
