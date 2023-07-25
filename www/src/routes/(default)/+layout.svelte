@@ -1,6 +1,5 @@
 <script lang="ts">
     import { PUBLIC_DOMAIN } from "$env/static/public";
-    import { page } from "$app/stores";
     import Menu from "$lib/Menu.svelte";
     import Navbar from "$lib/Navbar.svelte";
 
@@ -61,20 +60,7 @@
         <Menu bind:dark={data.dark} {data} user={data.user} api_user={data.api_user} />
         <Navbar />
         <div id="slot">
-            <div class="container">
-                <div id="main">
-                    <h1><b>{$page.status}</b> {$page.error?.message}</h1>
-                    <p><a href="/">&lt; Return to Home Page</a></p>
-                    {#if $page.status === 404}
-                        <p>
-                            If you arrived at this page from a link on this website, please report
-                            it as an error to <span class="mention">@hyperneutrino</span>.
-                            Otherwise, please check the spelling of the URL (including
-                            capitalization) and try again.
-                        </p>
-                    {/if}
-                </div>
-            </div>
+            <slot />
         </div>
     </body>
 </html>
