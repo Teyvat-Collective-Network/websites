@@ -15,7 +15,7 @@ export const load: ServerLoad = async ({ params, locals }) => {
                 embed_title: "Missing Document",
                 embed_body: "This document either does not exist or was deleted.",
                 embed_color: "f35b5b",
-                id: doc.id,
+                id,
             },
         };
 

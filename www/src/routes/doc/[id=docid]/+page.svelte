@@ -141,6 +141,13 @@
                                 </p>
                             </Callout>
                         {/if}
+                        <Callout style="info">
+                            <p>
+                                This document is user-generated content and is not endorsed by the
+                                Teyvat Collective Network. Please report abuse to any of our
+                                <a href="/contact">observers</a>.
+                            </p>
+                        </Callout>
                         <h3>
                             {data.doc.name}
                             {#if data.doc.author.id === data.user?.id}&nbsp;<a
