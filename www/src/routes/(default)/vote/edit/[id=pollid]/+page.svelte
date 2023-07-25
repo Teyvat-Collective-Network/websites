@@ -1,9 +1,9 @@
 <script lang="ts">
     import { Textarea } from "@daedalus-discord/webkit";
     import Callout from "$lib/Callout.svelte";
+    import Redirect from "$lib/Redirect.svelte";
     import { without } from "$lib/util.js";
     import { onMount } from "svelte";
-    import Redirect from "../../../../lib/Redirect.svelte";
     import { page } from "$app/stores";
 
     export let data: any;

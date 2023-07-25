@@ -1,6 +1,8 @@
 <script lang="ts">
     import { PUBLIC_DOMAIN } from "$env/static/public";
     import Callout from "$lib/Callout.svelte";
+    import Menu from "$lib/Menu.svelte";
+    import Navbar from "$lib/Navbar.svelte";
     import { onMount } from "svelte";
 
     export let data: any;
@@ -97,79 +99,91 @@
 
         <title>TCN</title>
     </head>
-    <div class="container">
-        <div id="main">
-            {#if data.missing}
-                <Callout style="red">
-                    <p>
-                        There is no document with ID <code>{data.id}</code>, or it has been deleted.
-                    </p>
-                </Callout>
-            {:else if data.unauthorized}
-                <Callout style="red">
-                    <p>You are not authorized to view this document.</p>
-                </Callout>
-            {:else}
-                {#if data.doc.deleted}
-                    <Callout style="red">
+
+    <body>
+        <Menu bind:dark={data.dark} {data} user={data.user} api_user={data.api_user} />
+        <Navbar />
+        <div id="slot">
+            <div class="container">
+                <div id="main">
+                    {#if data.missing}
+                        <Callout style="red">
+                            <p>
+                                There is no document with ID <code>{data.id}</code>, or it has been
+                                deleted.
+                            </p>
+                        </Callout>
+                    {:else if data.unauthorized}
+                        <Callout style="red">
+                            <p>You are not authorized to view this document.</p>
+                        </Callout>
+                    {:else}
+                        {#if data.doc.deleted}
+                            <Callout style="red">
+                                <p>
+                                    This document has been deleted. You are able to see it only
+                                    because you are an observer.
+                                </p>
+                            </Callout>
+                        {/if}
+                        <h3>
+                            {data.doc.name}
+                            {#if data.doc.author.id === data.user?.id}&nbsp;<a
+                                    href="/docs/edit/{data.doc.id}"
+                                    ><i class="material-icons">edit</i></a
+                                >{/if}
+                        </h3>
+                        {#if data.doc.author}
+                            <p>
+                                Written by
+                                <span class="mention" data-id={data.doc.author.id}>
+                                    {#if data.doc.author.missing}
+                                        <div class="material-icons">pin</div>
+                                        &nbsp;
+                                        <code class="plain" style="padding: 0"
+                                            >{data.doc.author.id}</code
+                                        >
+                                    {:else}
+                                        <i class="material-icons">alternate_email</i>
+                                        <b>{data.doc.author.username}</b
+                                        >{#if data.doc.author.discriminator !== "0"}#{data.doc
+                                                .author.discriminator}{/if}
+                                    {/if}
+                                </span>{#if data.doc.anon} <b>(anonymously)</b>{/if}.
+                            </p>
+                        {:else}
+                            <p>Anonymously Written</p>
+                        {/if}
                         <p>
-                            This document has been deleted. You are able to see it only because you
-                            are an observer.
+                            Click on any user mention to copy the ID. <span class="mention">
+                                <i class="material-icons">pin</i> &nbsp; ###
+                            </span>
+                            indicates an invalid user ID. Role mentions (<span class="mention"
+                                ><i class="material-icons">group</i> &nbsp; role name</span
+                            >) may also be clickable to copy an ID. Channel mentions may be
+                            clickable to open them in your Discord client (they will appear as
+                            links). Click on times (not dates) to copy the timestamp.
                         </p>
-                    </Callout>
-                {/if}
-                <h3>
-                    {data.doc.name}
-                    {#if data.doc.author.id === data.user?.id}&nbsp;<a
-                            href="/docs/edit/{data.doc.id}"><i class="material-icons">edit</i></a
-                        >{/if}
-                </h3>
-                {#if data.doc.author}
-                    <p>
-                        Written by
-                        <span class="mention" data-id={data.doc.author.id}>
-                            {#if data.doc.author.missing}
-                                <div class="material-icons">pin</div>
-                                &nbsp;
-                                <code class="plain" style="padding: 0">{data.doc.author.id}</code>
-                            {:else}
-                                <i class="material-icons">alternate_email</i>
-                                <b>{data.doc.author.username}</b
-                                >{#if data.doc.author.discriminator !== "0"}#{data.doc.author
-                                        .discriminator}{/if}
-                            {/if}
-                        </span>{#if data.doc.anon} <b>(anonymously)</b>{/if}.
-                    </p>
-                {:else}
-                    <p>Anonymously Written</p>
-                {/if}
-                <p>
-                    Click on any user mention to copy the ID. <span class="mention">
-                        <i class="material-icons">pin</i> &nbsp; ###
-                    </span>
-                    indicates an invalid user ID. Role mentions (<span class="mention"
-                        ><i class="material-icons">group</i> &nbsp; role name</span
-                    >) may also be clickable to copy an ID. Channel mentions may be clickable to
-                    open them in your Discord client (they will appear as links). Click on times
-                    (not dates) to copy the timestamp.
-                </p>
-                <p>
-                    Times are being displayed in your detected timezone,
-                    <b>{Intl.DateTimeFormat().resolvedOptions().timeZone}</b> (UTC{offset === 0
-                        ? ""
-                        : `${offset > 0 ? "-" : "+"}${Math.floor(Math.abs(offset) / 60)}:${(
-                              Math.abs(offset) % 60
-                          )
-                              .toString()
-                              .padStart(2, "0")}`}).
-                </p>
-                <hr />
-                <div>
-                    {@html data.doc.parsed}
+                        <p>
+                            Times are being displayed in your detected timezone,
+                            <b>{Intl.DateTimeFormat().resolvedOptions().timeZone}</b>
+                            (UTC{offset === 0
+                                ? ""
+                                : `${offset > 0 ? "-" : "+"}${Math.floor(Math.abs(offset) / 60)}:${(
+                                      Math.abs(offset) % 60
+                                  )
+                                      .toString()
+                                      .padStart(2, "0")}`}).
+                        </p>
+                        <hr />
+                        <div>
+                            {@html data.doc.parsed}
+                        </div>
+                    {/if}
                 </div>
-            {/if}
+            </div>
         </div>
-    </div>
+    </body>
 </html>
 
 <style lang="scss">
