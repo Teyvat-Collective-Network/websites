@@ -39,6 +39,14 @@
                 <p>You are not authorized to view this document.</p>
             </Callout>
         {:else}
+            {#if data.doc.deleted}
+                <Callout style="red">
+                    <p>
+                        This document has been deleted. You are able to see it only because you are
+                        an observer.
+                    </p>
+                </Callout>
+            {/if}
             <h3>
                 {data.doc.name}
                 {#if data.doc.author.id === data.user?.id}&nbsp;<a href="/docs/edit/{data.doc.id}"
@@ -136,7 +144,7 @@
         tr,
         th,
         td {
-            border: 1px solid var(--text-primary);
+            border: 1px solid rgb(var(--invert-rgb), 32%);
             border-collapse: collapse;
         }
 
