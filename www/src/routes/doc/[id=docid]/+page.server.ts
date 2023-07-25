@@ -81,7 +81,19 @@ export const load: ServerLoad = async ({ params, locals }) => {
                 }</i>&nbsp;${match[3]}</span>${match[1] ? "</a>" : ""}`,
             );
 
-        console.log(Intl.DateTimeFormat().resolvedOptions().timeZone);
+        regex = /\[:(\d+)\]/;
+        while ((match = doc.parsed.match(regex)))
+            doc.parsed = doc.parsed.replace(
+                regex,
+                `<span class="mention" data-id="${match[1]}"><i class="material-icons">schedule</i> &nbsp; <span class="time" data-timestamp="${match[1]}" /></span>`,
+            );
+
+        regex = /\[:(\d+\-\d+\-\d+)\]/;
+        while ((match = doc.parsed.match(regex)))
+            doc.parsed = doc.parsed.replace(
+                regex,
+                `<span class="mention"><i class="material-icons">schedule</i> &nbsp; ${match[1]}</span>`,
+            );
 
         doc.parsed = doc.parsed.replace(
             /\[reader\]/g,

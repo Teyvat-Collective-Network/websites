@@ -4,6 +4,8 @@
 
     export let data: any;
 
+    const offset = new Date().getTimezoneOffset();
+
     onMount(() => {
         document.addEventListener("click", (e) => {
             const target = e.target as any;
@@ -15,6 +17,14 @@
             target.style.backgroundColor = "var(--green-callout)";
             setTimeout(() => (target.style.backgroundColor = ""), 1000);
         });
+
+        for (const element of document.querySelectorAll("span.time") as any) {
+            const timestamp = parseInt(element.dataset.timestamp);
+            element.innerHTML = new Date(timestamp * 1000 - offset * 60000)
+                .toISOString()
+                .replace("T", "&nbsp;&nbsp;")
+                .slice(0, -5);
+        }
     });
 </script>
 
@@ -61,7 +71,18 @@
                 indicates an invalid user ID. Role mentions (<span class="mention"
                     ><i class="material-icons">group</i> &nbsp; role name</span
                 >) may also be clickable to copy an ID. Channel mentions may be clickable to open
-                them in your Discord client (they will appear as links).
+                them in your Discord client (they will appear as links). Click on times (not dates)
+                to copy the timestamp.
+            </p>
+            <p>
+                Times are being displayed in your detected timezone,
+                <b>{Intl.DateTimeFormat().resolvedOptions().timeZone}</b> (UTC{offset === 0
+                    ? ""
+                    : `${offset > 0 ? "-" : "+"}${Math.floor(Math.abs(offset) / 60)}:${(
+                          Math.abs(offset) % 60
+                      )
+                          .toString()
+                          .padStart(2, "0")}`}).
             </p>
             <hr />
             <div>
