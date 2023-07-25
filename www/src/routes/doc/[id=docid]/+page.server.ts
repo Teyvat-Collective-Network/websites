@@ -6,7 +6,25 @@ import bot from "../../../bot.js";
 export const load: ServerLoad = async ({ params, locals }) => {
     const { id } = params;
     const doc = await db.docs.findOne({ id });
-    if (!doc || (doc.deleted && !(locals as any).observer)) return { missing: true, id };
+
+    if (!doc || (doc.deleted && !(locals as any).observer))
+        return {
+            missing: true,
+            id,
+            doc: {
+                embed_title: "Missing Document",
+                embed_body: "This document either does not exist or was deleted.",
+                id: doc.id,
+            },
+        };
+
+    const min = {
+        embed_title: doc.embed_title,
+        embed_body: doc.embed_body,
+        id: doc.id,
+        embed_image: doc.embed_image,
+        thumbnail: doc.thumbnail,
+    };
 
     const reader = (locals as any).user;
 
@@ -96,5 +114,5 @@ export const load: ServerLoad = async ({ params, locals }) => {
         return { doc: fix(doc) };
     }
 
-    return { unauthorized: true };
+    return { unauthorized: true, doc: min };
 };
