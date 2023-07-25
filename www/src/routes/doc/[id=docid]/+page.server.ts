@@ -61,7 +61,7 @@ export const load: ServerLoad = async ({ params, locals }) => {
                 }><i class="material-icons">group</i> &nbsp; ${match[2]}</span>`,
             );
 
-        regex = /\[(\d+\/\d+)?([tavfsc]?)#((\\]|[^\]])+)\]/;
+        regex = /\[(\d+\/\d+(\/\d+)?)?([tavfsc]?)#((\\]|[^\]])+)\]/;
         while ((match = doc.parsed.match(regex)))
             doc.parsed = doc.parsed.replace(
                 regex,
@@ -77,8 +77,8 @@ export const load: ServerLoad = async ({ params, locals }) => {
                         f: "forum",
                         s: "podcasts",
                         c: "folder",
-                    }[match[2] || "t"]
-                }</i>&nbsp;${match[3]}</span>${match[1] ? "</a>" : ""}`,
+                    }[match[3] || "t"]
+                }</i>&nbsp;${match[4]}</span>${match[1] ? "</a>" : ""}`,
             );
 
         regex = /\[:(\d+)\]/;
