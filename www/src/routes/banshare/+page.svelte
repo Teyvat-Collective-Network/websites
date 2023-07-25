@@ -126,9 +126,9 @@
                         {#if ids.trim() !== ""}
                             <div>
                                 <br />
-                                <a class="button" href={"javascript:void(0)"} on:click={check_ids}
-                                    >Check IDs</a
-                                > (shows the users' tags if all IDs are valid)
+                                <a class="button" href={"javascript:void(0)"} on:click={check_ids}>
+                                    Check IDs
+                                </a> (shows the users' tags if all IDs are valid)
                             </div>
                         {/if}
                         <h4>Reason</h4>

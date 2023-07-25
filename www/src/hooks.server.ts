@@ -23,6 +23,7 @@ export const handle: Handle = async ({ event, resolve }) => {
             roles: ["observer"],
         };
 
+        locals.observer = true;
         locals.auth = true;
         locals.council = true;
     } else {
@@ -41,6 +42,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
             locals.api_user = api_user;
 
+            locals.observer = api_user.roles?.includes("observer");
             locals.auth = ["observer", "website"].some((x) => api_user.roles?.includes(x));
 
             locals.council = ["owner", "advisor", "observer", "website"].some((x) =>
