@@ -6,7 +6,7 @@
 
     const offset = new Date().getTimezoneOffset();
 
-    onMount(() => {
+    onMount(async () => {
         document.addEventListener("click", (e) => {
             const target = e.target as any;
 
@@ -24,6 +24,23 @@
                 .toISOString()
                 .replace("T", "&nbsp;&nbsp;")
                 .slice(0, -5);
+        }
+
+        for (const element of document.querySelectorAll(".user") as any) {
+            const id = element.dataset.id;
+
+            try {
+                const request = await fetch(`/api/get-tag/${id}`);
+                const response = await request.text();
+
+                const inner = response.endsWith("#0")
+                    ? `<b>${response.slice(0, -2)}</b>`
+                    : `<b>${response.slice(0, -5)}</b>${response.slice(-5)}`;
+
+                element.outerHTML = `<span class="mention" data-id=${id}><i class="material-icons">alternate_email</i> ${inner}</span>`;
+            } catch {
+                element.outerHTML = `<span class="mention" data-id=${id}><i class="material-icons">pin</i> &nbsp; <code class="plain" style="padding: 0">${id}</code></span>`;
+            }
         }
     });
 </script>
@@ -60,7 +77,7 @@
                         {#if data.doc.author.missing}
                             <div class="material-icons">pin</div>
                             &nbsp;
-                            {data.doc.author.id}
+                            <code class="plain" style="padding: 0">{data.doc.author.id}</code>
                         {:else}
                             <i class="material-icons">alternate_email</i>
                             <b>{data.doc.author.username}</b

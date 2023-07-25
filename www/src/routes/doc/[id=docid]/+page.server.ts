@@ -34,23 +34,11 @@ export const load: ServerLoad = async ({ params, locals }) => {
         let match: RegExpMatchArray, regex: RegExp;
 
         regex = /\[@(\d+)\]/;
-        while ((match = doc.parsed.match(regex))) {
-            let inner: string;
-
-            try {
-                const user = await bot.users.fetch(match[1]);
-                inner = `<i class="material-icons">alternate_email</i> <b>${user.username}</b>${
-                    user.discriminator === "0" ? "" : `#${user.discriminator}`
-                }`;
-            } catch {
-                inner = `<i class="material-icons">pin</i> &nbsp; ${match[1]}`;
-            }
-
+        while ((match = doc.parsed.match(regex)))
             doc.parsed = doc.parsed.replace(
                 regex,
-                `<span class="mention" data-id="${match[1]}">${inner}</span>`,
+                `<span class="mention user" data-id=${match[1]}><i class="material-icons">pending</i> &nbsp; Loading User...</span>`,
             );
-        }
 
         regex = /\[(\d*)&amp;((\\]|[^\]])+)\]/;
         while ((match = doc.parsed.match(regex)))
