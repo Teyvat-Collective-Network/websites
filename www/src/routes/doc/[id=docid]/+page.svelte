@@ -127,5 +127,22 @@
             padding-left: 25px;
             border-left: 2px solid var(--text-secondary);
         }
+
+        table {
+            width: 100%;
+        }
+
+        table,
+        tr,
+        th,
+        td {
+            border: 1px solid var(--text-primary);
+            border-collapse: collapse;
+        }
+
+        td,
+        th {
+            padding: 5px;
+        }
     }
 </style>
