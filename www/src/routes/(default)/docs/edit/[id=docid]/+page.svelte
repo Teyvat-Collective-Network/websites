@@ -146,7 +146,7 @@
                     bind:value={data.doc.embed_body}
                     placeholder={data.doc.anon
                         ? "Sign in to view this document."
-                        : `${data.user.username}${
+                        : `Author: ${data.user.username}${
                               data.user.discriminator === "0" ? "" : `#${data.user.discriminator}`
                           }`}
                 />

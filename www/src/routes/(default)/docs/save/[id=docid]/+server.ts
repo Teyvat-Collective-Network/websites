@@ -18,7 +18,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         doc.embed_title ||= doc.anon ? "TCN Document" : doc.name;
         doc.embed_body ||= doc.anon
             ? "Sign in to view this document."
-            : `${(locals as any).user.username}${
+            : `Author: ${(locals as any).user.username}${
                   (locals as any).user.discriminator === "0"
                       ? ""
                       : `#${(locals as any).user.discriminator}`
