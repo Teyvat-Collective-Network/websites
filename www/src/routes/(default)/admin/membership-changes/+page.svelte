@@ -90,7 +90,7 @@
                                 type="text"
                                 placeholder="Server ID"
                                 bind:value={entry.guild}
-                                style="width: 160px"
+                                style="width: 200px"
                             />
                         </td>
                         <td>
@@ -105,7 +105,7 @@
                                 type="text"
                                 placeholder={actions[entry.action][1]}
                                 bind:value={entry.primary}
-                                style="width: 160px"
+                                style="width: 200px"
                             />
                         </td>
                         <td>
@@ -114,7 +114,7 @@
                                     type="text"
                                     placeholder={actions[entry.action][2]}
                                     bind:value={entry.secondary}
-                                    style="width: 160px"
+                                    style="width: 200px"
                                 />
                             {/if}
                         </td>
