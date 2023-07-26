@@ -2,6 +2,19 @@
     import { actions } from "../admin/membership-changes/+page.svelte";
 
     export let data: any;
+
+    data.entries.forEach((entry: any) => {
+        const regex = /\[(\d*)&amp;((\\]|[^\]])+)\]/;
+        let match;
+
+        while ((match = entry.notes.match(regex)))
+            entry.notes = entry.notes.replace(
+                regex,
+                `<span class="mention"${
+                    match[1] ? ` data-id="${match[1]}"` : ""
+                }><i class="material-icons">group</i> &nbsp; ${match[2]}</span>`,
+            );
+    });
 </script>
 
 <div class="container">
@@ -58,7 +71,7 @@
                         {/if}
                         {#if entry.notes}
                             <td class="label"><span class="mini">notes</span></td>
-                            <td class="label-right">{entry.notes}</td>
+                            <td class="label-right">{@html entry.notes}</td>
                         {:else}
                             <td class="label" />
                             <td class="label-right" />
