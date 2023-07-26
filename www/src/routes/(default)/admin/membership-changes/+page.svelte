@@ -85,13 +85,14 @@
                                 style="width: 80px"
                             />
                         </td>
-                        <td
-                            ><input
+                        <td>
+                            <input
                                 type="text"
                                 placeholder="Server ID"
                                 bind:value={entry.guild}
-                            /></td
-                        >
+                                style="width: 160px"
+                            />
+                        </td>
                         <td>
                             <select bind:value={entry.action}>
                                 {#each Object.entries(actions) as [key, value]}
@@ -104,6 +105,7 @@
                                 type="text"
                                 placeholder={actions[entry.action][1]}
                                 bind:value={entry.primary}
+                                style="width: 160px"
                             />
                         </td>
                         <td>
@@ -112,11 +114,17 @@
                                     type="text"
                                     placeholder={actions[entry.action][2]}
                                     bind:value={entry.secondary}
+                                    style="width: 160px"
                                 />
                             {/if}
                         </td>
                         <td>
-                            <input type="text" placeholder="Notes" bind:value={entry.notes} />
+                            <input
+                                type="text"
+                                placeholder="Notes"
+                                bind:value={entry.notes}
+                                style="width: 500px"
+                            />
                         </td>
                         <td>
                             {#if last && (last.year > entry.year || (last.year === entry.year && (last.month > entry.month || (last.month === entry.month && last.date >= entry.date))))}
