@@ -80,7 +80,7 @@
             <a href="/docs" class="button">Docs Home</a>
         {:else if data.unauthorized}
             <Callout style="red">
-                <p>You can only edit your own documents.</p>
+                <p>You are not authorized to edit this document.</p>
             </Callout>
             <br />
             <a href="/docs" class="button">Docs Home</a>
@@ -98,37 +98,53 @@
                 <h5>Content</h5>
                 <Textarea bind:value={data.doc.content} />
             </div>
-            <div class="panel">
-                <h3>Access</h3>
-                <p>
-                    Control view access here. Only you can edit/delete this document. Observers will
-                    always have view access.
-                </p>
-                <label>
-                    <input type="checkbox" bind:checked={data.doc.allow_council} />
-                    Allow TCN Council
-                </label>
-                <label>
-                    <input type="checkbox" bind:checked={data.doc.allow_logged_in} />
-                    Allow Logged In Users
-                </label>
-                <label>
-                    <input type="checkbox" bind:checked={data.doc.allow_everyone} />
-                    Make Public
-                </label>
-                <h5>Allowlist</h5>
-                <p>
-                    Input a space, comma, or newline separated list of user IDs to grant view
-                    access.
-                </p>
-                <input type="text" bind:value={data.doc.allowlist} />
-            </div>
+            {#if data.doc.author === data.user.id}
+                <div class="panel">
+                    <h3>Access</h3>
+                    <p>
+                        Control view access here. Only you can edit/delete this document. Observers
+                        will always have view access.
+                    </p>
+                    <label>
+                        <input type="checkbox" bind:checked={data.doc.allow_council} />
+                        Allow TCN Council
+                    </label>
+                    <label>
+                        <input type="checkbox" bind:checked={data.doc.allow_logged_in} />
+                        Allow Logged In Users
+                    </label>
+                    <label>
+                        <input type="checkbox" bind:checked={data.doc.editable_observers} />
+                        Allow Observers to Edit
+                    </label>
+                    <label>
+                        <input type="checkbox" bind:checked={data.doc.editable_council} />
+                        Allow TCN Council to Edit
+                    </label>
+                    <label>
+                        <input type="checkbox" bind:checked={data.doc.allow_everyone} />
+                        Make Public
+                    </label>
+                    <h5>Allowlist</h5>
+                    <p>
+                        Input a space, comma, or newline separated list of user IDs to grant view
+                        access.
+                    </p>
+                    <input type="text" bind:value={data.doc.allowlist} />
+                </div>
+            {/if}
             <div class="panel">
                 <h3>Appearance</h3>
                 <label>
                     <input type="checkbox" bind:checked={data.doc.anon} />
                     Anonymous (Observers will always be able to see your name)
                 </label>
+                {#if data.observer}
+                    <label>
+                        <input type="checkbox" bind:checked={data.doc.official} />
+                        Official (Use this responsibly! Observer-only)
+                    </label>
+                {/if}
                 <h5>Embed Data</h5>
                 <p>
                     This controls the embed that appears when you paste your document link into
@@ -167,7 +183,7 @@
             </div>
             <div class="panel row" style="gap: 1em">
                 <button on:click={save}>Save (Ctrl+S)</button>
-                {#if data.id !== "new"}
+                {#if data.id !== "new" && data.doc.author === data.user.id}
                     <button on:click={del} style="background-color: var(--red-button)">
                         Delete
                     </button>

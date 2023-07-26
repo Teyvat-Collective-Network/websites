@@ -8,7 +8,13 @@ export const load: ServerLoad = async ({ locals, params }) => {
 
     const doc = await db.docs.findOne({ id: params.id });
     if (!doc || doc.deleted) return { missing: true, id: params.id };
-    if (doc.author !== (locals as any).user.id) return { unauthorized: true };
+
+    if (
+        doc.author !== (locals as any).user.id &&
+        !(doc.editable_observers && (locals as any).observer) &&
+        !(doc.editable_council && (locals as any).council)
+    )
+        return { unauthorized: true };
 
     return { doc: fix(doc), id: params.id };
 };

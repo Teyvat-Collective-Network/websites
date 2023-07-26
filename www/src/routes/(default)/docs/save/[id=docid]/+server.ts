@@ -9,7 +9,15 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     let id = params.id;
 
     try {
-        if (!(locals as any).auth) throw "You are not authorized to use the TCN Documents feature.";
+        if (!(locals as any).council)
+            throw "You are not authorized to use the TCN Documents feature.";
+        if (
+            doc.author !== (locals as any).user.id &&
+            !(doc.editable_observers && (locals as any).observer) &&
+            !(doc.editable_council && (locals as any).council)
+        )
+            throw "You are not authorized to edit this document.";
+        if (!(locals as any).observer) doc.official = false;
         if (!doc.name) throw "No name provided.";
         if (doc.name.length > 100) throw "Name cannot exceed 100 characters.";
         if (doc.embed_color && !doc.embed_color.match(/^[0-9a-f]{6}$/i))

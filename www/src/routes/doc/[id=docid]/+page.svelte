@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import { PUBLIC_DOMAIN } from "$env/static/public";
     import Callout from "$lib/Callout.svelte";
     import Menu from "$lib/Menu.svelte";
@@ -10,6 +11,26 @@
 
     let width = 0;
     let scroll = 0;
+
+    async function del() {
+        if (
+            confirm(
+                "Are you sure you want to delete this document? It will become inaccessible and appear as though it does not exist to everyone, including yourself, except TCN observers.",
+            )
+        ) {
+            const request = await fetch(`/docs/delete/${data.doc.id}`, {
+                method: "post",
+                body: "",
+            });
+            const { error } = await request.json();
+
+            if (error) alert(error);
+            else {
+                alert("Deleted.");
+                goto("/docs");
+            }
+        }
+    }
 </script>
 
 <svelte:window bind:innerWidth={width} bind:scrollY={scroll} />
@@ -101,19 +122,34 @@
                                     because you are an observer.
                                 </p>
                             </Callout>
+                            <br />
                         {/if}
                         <Callout style="info">
                             <p>
-                                This document is user-generated content and is not endorsed by the
-                                Teyvat Collective Network. Please report abuse to any of our
-                                <a href="/contact">observers</a>.
+                                {#if data.doc.official}
+                                    This is an official document as designated by the observer team.
+                                    {#if data.observer}
+                                        <a href="/docs/demote/{data.doc.id}">[remove designation]</a
+                                        >
+                                    {/if}
+                                {:else}
+                                    This document is user-generated content and is not endorsed by
+                                    the Teyvat Collective Network. Please report abuse to any of our
+                                    <a href="/contact">observers</a>.
+                                {/if}
                             </p>
                         </Callout>
                         <h3>
                             {data.doc.name}
-                            {#if data.doc.author.id === data.user?.id}&nbsp;<a
+                            {#if data.doc.author.id === data.user?.id || (data.doc.editable_observers && data.observer) || (data.doc.editable_council && data.council)}&nbsp;<a
                                     href="/docs/edit/{data.doc.id}"
                                     ><i class="material-icons">edit</i></a
+                                >{/if}
+                            {#if data.doc.author.id === data.user?.id || data.observer}&nbsp;<a
+                                    href={"javascript:void(0)"}
+                                    on:click={del}
+                                    style="color: var(--red-text)"
+                                    ><i class="material-icons">delete</i></a
                                 >{/if}
                         </h3>
                         {#if data.doc.author}
@@ -132,7 +168,12 @@
                                         >{#if data.doc.author.discriminator !== "0"}#{data.doc
                                                 .author.discriminator}{/if}
                                     {/if}
-                                </span>{#if data.doc.anon} <b>(anonymously)</b>{/if}.
+                                </span>{#if data.doc.anon}
+                                    <b>(anonymously)</b
+                                    >{/if}{#if data.doc.editable_observers || data.doc.editable_council}
+                                    (editable by {data.doc.editable_council
+                                        ? "the TCN Council"
+                                        : "TCN observers"}){/if}.
                             </p>
                         {:else}
                             <p>Anonymously Written</p>
