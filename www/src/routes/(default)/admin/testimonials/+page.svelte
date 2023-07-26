@@ -10,8 +10,6 @@
 
 <svelte:window
     on:keydown={(e) => {
-        console.log(e);
-
         if (e.key === "s" && e.ctrlKey) {
             button.click();
             e.preventDefault();

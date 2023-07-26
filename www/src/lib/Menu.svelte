@@ -131,6 +131,9 @@
                     <a href="/vote" class="t2 {staff_open ? '' : 'hidden'}">Voting Center</a>
                 {/if}
                 <a href="/docs" class="t2 {staff_open ? '' : 'hidden'}">Documents</a>
+                <a href="/membership-changes" class="t2 {staff_open ? '' : 'hidden'}"
+                    >Membership Changes</a
+                >
             {/if}
             <a
                 href="{PUBLIC_TCN_AUTH}/logout?redirect={encodeURIComponent(PUBLIC_DOMAIN)}"

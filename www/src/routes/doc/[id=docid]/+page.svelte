@@ -3,49 +3,10 @@
     import Callout from "$lib/Callout.svelte";
     import Menu from "$lib/Menu.svelte";
     import Navbar from "$lib/Navbar.svelte";
-    import { onMount } from "svelte";
 
     export let data: any;
 
     const offset = new Date().getTimezoneOffset();
-
-    onMount(async () => {
-        document.addEventListener("click", (e) => {
-            const target = e.target as any;
-
-            if (!target.classList.contains("mention")) return;
-            if (!target.dataset.id) return;
-
-            navigator.clipboard.writeText(target.dataset.id);
-            target.style.backgroundColor = "var(--green-callout)";
-            setTimeout(() => (target.style.backgroundColor = ""), 1000);
-        });
-
-        for (const element of document.querySelectorAll("span.time") as any) {
-            const timestamp = parseInt(element.dataset.timestamp);
-            element.innerHTML = new Date(timestamp * 1000 - offset * 60000)
-                .toISOString()
-                .replace("T", "&nbsp;&nbsp;")
-                .slice(0, -5);
-        }
-
-        for (const element of document.querySelectorAll(".user") as any) {
-            const id = element.dataset.id;
-
-            try {
-                const request = await fetch(`/api/get-tag/${id}`);
-                const response = await request.text();
-
-                const inner = response.endsWith("#0")
-                    ? `<b>${response.slice(0, -2)}</b>`
-                    : `<b>${response.slice(0, -5)}</b>${response.slice(-5)}`;
-
-                element.outerHTML = `<span class="mention" data-id=${id}><i class="material-icons">alternate_email</i> ${inner}</span>`;
-            } catch {
-                element.outerHTML = `<span class="mention" data-id=${id}><i class="material-icons">pin</i> &nbsp; <code class="plain" style="padding: 0">${id}</code></span>`;
-            }
-        }
-    });
 
     let width = 0;
     let scroll = 0;
@@ -210,34 +171,6 @@
 
 <style lang="scss">
     :global {
-        span.mention {
-            position: relative;
-            display: inline-flex;
-            flex-direction: row;
-            align-items: center;
-            margin: 2px;
-            top: 5px;
-
-            background-color: var(--blue-callout);
-            cursor: default;
-            padding: 0px 5px;
-            border-radius: 5px;
-            font-size: 90%;
-
-            &:hover::after {
-                content: "";
-                position: absolute;
-                inset: 0;
-                border-radius: 5px;
-                background-color: rgb(var(--invert-rgb));
-                opacity: 0.1;
-            }
-        }
-
-        a span.mention {
-            cursor: inherit;
-        }
-
         blockquote {
             margin-left: 0px;
             padding-left: 25px;

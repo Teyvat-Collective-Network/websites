@@ -263,10 +263,32 @@ label {
     background-color: var(--background-3);
 }
 
-.mention {
+span.mention {
+    position: relative;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 2px;
+    top: 5px;
+
     background-color: var(--blue-callout);
-    padding: 0 3px;
+    cursor: default;
+    padding: 0px 5px;
     border-radius: 5px;
+    font-size: 90%;
+}
+
+span.mention:hover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 5px;
+    background-color: rgb(var(--invert-rgb));
+    opacity: 0.1;
+}
+
+a span.mention {
+    cursor: inherit;
 }
 
 a#top {
