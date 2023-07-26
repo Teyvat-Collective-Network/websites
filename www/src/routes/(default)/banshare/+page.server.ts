@@ -6,6 +6,7 @@ import { components } from "../../../lib.js";
 import bot, { sync_dashboard } from "../../../bot.js";
 import { banshares } from "../../../db.js";
 import { create_gist } from "../../../gists.js";
+import { escapeMarkdown } from "discord.js";
 
 function compare(a: string, b: string): number {
     if (!a.match(/^\d+$/))
@@ -158,7 +159,7 @@ export const actions: Actions = {
             ],
         });
 
-        let send_data = format(id_list.join(" "), tags.join(" "));
+        let send_data = format(id_list.join(" "), escapeMarkdown(tags.join(" ")));
 
         if (
             send_data.embeds[0].title.length +
