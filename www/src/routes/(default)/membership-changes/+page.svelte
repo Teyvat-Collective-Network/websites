@@ -12,50 +12,61 @@
                 <a href="/admin/membership-changes"><i class="material-icons">edit</i></a>
             {/if}
         </h3>
-        <table>
-            {#each data.entries as entry, index}
-                <tr>
-                    <td><code>{index + 1}</code></td>
-                    <td>
-                        <span class="mention">
-                            <i class="material-icons">schedule</i> &nbsp;
-
-                            {entry.year}-{entry.month.toString().padStart(2, "0")}-{entry.date
-                                .toString()
-                                .padStart(2, "0")}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="mention guild" data-id={entry.guild}>
-                            <i class="material-icons">pending</i> &nbsp; Loading Server...
-                        </span>
-                    </td>
-                    <td><b>{actions[entry.action][0]}</b></td>
-                    <td class="label">
-                        <span class="mini">{actions[entry.action][1]}</span>
-                    </td>
-                    <td class="label-right">
-                        <span class="mention user" data-id={entry.primary}>
-                            <i class="material-icons">pending</i> &nbsp; Loading User...
-                        </span>
-                    </td>
-                    {#if actions[entry.action][2]}
+        <div id="scroll">
+            <table>
+                {#each data.entries as entry, index}
+                    <tr>
+                        <td><code>{index + 1}</code></td>
+                        <td>
+                            <span class="mention">
+                                <i class="material-icons">schedule</i> &nbsp;
+                                {entry.year}-{entry.month.toString().padStart(2, "0")}-{entry.date
+                                    .toString()
+                                    .padStart(2, "0")}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="mention guild" data-id={entry.guild}>
+                                <i class="material-icons">pending</i> &nbsp; Loading Server...
+                            </span>
+                        </td>
+                        <td><b>{actions[entry.action][0]}</b></td>
                         <td class="label">
-                            <span class="mini">{actions[entry.action][2]}</span>
+                            <span class="mini">{actions[entry.action][1]}</span>
                         </td>
                         <td class="label-right">
-                            {#if entry.secondary}
-                                <span class="mention user" data-id={entry.secondary}>
-                                    <i class="material-icons">pending</i> &nbsp; Loading User...
-                                </span>
-                            {:else}
-                                [not specified]
-                            {/if}
+                            <span class="mention user" data-id={entry.primary}>
+                                <i class="material-icons">pending</i> &nbsp; Loading User...
+                            </span>
                         </td>
-                    {/if}
-                </tr>
-            {/each}
-        </table>
+                        {#if actions[entry.action][2]}
+                            <td class="label">
+                                <span class="mini">{actions[entry.action][2]}</span>
+                            </td>
+                            <td class="label-right">
+                                {#if entry.secondary}
+                                    <span class="mention user" data-id={entry.secondary}>
+                                        <i class="material-icons">pending</i> &nbsp; Loading User...
+                                    </span>
+                                {:else}
+                                    [not specified]
+                                {/if}
+                            </td>
+                        {:else}
+                            <td class="label" />
+                            <td class="label-right" />
+                        {/if}
+                        {#if entry.notes}
+                            <td class="label"><span class="mini">notes</span></td>
+                            <td class="label-right">{entry.notes}</td>
+                        {:else}
+                            <td class="label" />
+                            <td class="label-right" />
+                        {/if}
+                    </tr>
+                {/each}
+            </table>
+        </div>
     </div>
 </div>
 
@@ -76,7 +87,7 @@
         opacity: 50%;
     }
 
-    #main {
+    #scroll {
         overflow-x: scroll;
         white-space: nowrap;
     }

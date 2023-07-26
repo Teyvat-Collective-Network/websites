@@ -53,98 +53,109 @@
 <div class="container">
     <div id="main">
         <h3>Editing Membership Changes</h3>
-        <table>
-            {#each data.entries as entry, index}
-                {@const last = index === 0 ? null : data.entries[index - 1]}
-                {@const next = index === data.entries.length - 1 ? null : data.entries[index + 1]}
-
-                <tr>
-                    <td><code>{index + 1}</code></td>
-                    <td>
-                        <input
-                            type="number"
-                            placeholder="Year"
-                            bind:value={entry.year}
-                            style="width: 80px"
-                        />
-                    </td>
-                    <td>
-                        <input
-                            type="number"
-                            placeholder="Month"
-                            bind:value={entry.month}
-                            style="width: 80px"
-                        />
-                    </td>
-                    <td>
-                        <input
-                            type="number"
-                            placeholder="Date"
-                            bind:value={entry.date}
-                            style="width: 80px"
-                        />
-                    </td>
-                    <td><input type="text" placeholder="Server ID" bind:value={entry.guild} /></td>
-                    <td>
-                        <select bind:value={entry.action}>
-                            {#each Object.entries(actions) as [key, value]}
-                                <option value={key}>{value[0]}</option>
-                            {/each}
-                        </select>
-                    </td>
-                    <td>
-                        <input
-                            type="text"
-                            placeholder={actions[entry.action][1]}
-                            bind:value={entry.primary}
-                        />
-                    </td>
-                    <td>
-                        {#if actions[entry.action].length > 2}
+        <div id="scroll">
+            <table>
+                {#each data.entries as entry, index}
+                    {@const last = index === 0 ? null : data.entries[index - 1]}
+                    {@const next =
+                        index === data.entries.length - 1 ? null : data.entries[index + 1]}
+                    <tr>
+                        <td><code>{index + 1}</code></td>
+                        <td>
+                            <input
+                                type="number"
+                                placeholder="Year"
+                                bind:value={entry.year}
+                                style="width: 80px"
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="number"
+                                placeholder="Month"
+                                bind:value={entry.month}
+                                style="width: 80px"
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="number"
+                                placeholder="Date"
+                                bind:value={entry.date}
+                                style="width: 80px"
+                            />
+                        </td>
+                        <td
+                            ><input
+                                type="text"
+                                placeholder="Server ID"
+                                bind:value={entry.guild}
+                            /></td
+                        >
+                        <td>
+                            <select bind:value={entry.action}>
+                                {#each Object.entries(actions) as [key, value]}
+                                    <option value={key}>{value[0]}</option>
+                                {/each}
+                            </select>
+                        </td>
+                        <td>
                             <input
                                 type="text"
-                                placeholder={actions[entry.action][2]}
-                                bind:value={entry.secondary}
+                                placeholder={actions[entry.action][1]}
+                                bind:value={entry.primary}
                             />
-                        {/if}
-                    </td>
-                    <td>
-                        {#if last && (last.year > entry.year || (last.year === entry.year && (last.month > entry.month || (last.month === entry.month && last.date >= entry.date))))}
+                        </td>
+                        <td>
+                            {#if actions[entry.action].length > 2}
+                                <input
+                                    type="text"
+                                    placeholder={actions[entry.action][2]}
+                                    bind:value={entry.secondary}
+                                />
+                            {/if}
+                        </td>
+                        <td>
+                            <input type="text" placeholder="Notes" bind:value={entry.notes} />
+                        </td>
+                        <td>
+                            {#if last && (last.year > entry.year || (last.year === entry.year && (last.month > entry.month || (last.month === entry.month && last.date >= entry.date))))}
+                                <a
+                                    href={"javascript:void(0)"}
+                                    class="row"
+                                    on:click={() =>
+                                        (data.entries = swap(data.entries, index, index - 1))}
+                                >
+                                    <i class="material-icons">expand_less</i>
+                                </a>
+                            {/if}
+                        </td>
+                        <td>
+                            {#if next && (entry.year > next.year || (entry.year === next.year && (entry.month > next.month || (entry.month === next.month && entry.date >= next.date))))}
+                                <a
+                                    href={"javascript:void(0)"}
+                                    class="row"
+                                    on:click={() =>
+                                        (data.entries = swap(data.entries, index, index + 1))}
+                                >
+                                    <i class="material-icons">expand_more</i>
+                                </a>
+                            {/if}
+                        </td>
+                        <td>
                             <a
                                 href={"javascript:void(0)"}
                                 class="row"
-                                on:click={() =>
-                                    (data.entries = swap(data.entries, index, index - 1))}
+                                on:click={() => (data.entries = without(data.entries, index))}
+                                style="color: var(--red-text)"
                             >
-                                <i class="material-icons">expand_less</i>
+                                <i class="material-icons">delete</i>
                             </a>
-                        {/if}
-                    </td>
-                    <td>
-                        {#if next && (entry.year > next.year || (entry.year === next.year && (entry.month > next.month || (entry.month === next.month && entry.date >= next.date))))}
-                            <a
-                                href={"javascript:void(0)"}
-                                class="row"
-                                on:click={() =>
-                                    (data.entries = swap(data.entries, index, index + 1))}
-                            >
-                                <i class="material-icons">expand_more</i>
-                            </a>
-                        {/if}
-                    </td>
-                    <td>
-                        <a
-                            href={"javascript:void(0)"}
-                            class="row"
-                            on:click={() => (data.entries = without(data.entries, index))}
-                            style="color: var(--red-text)"
-                        >
-                            <i class="material-icons">delete</i>
-                        </a>
-                    </td>
-                </tr>
-            {/each}
-        </table>
+                        </td>
+                    </tr>
+                {/each}
+            </table>
+        </div>
         <br />
         <div class="row" style="gap: 10px">
             <button
@@ -168,3 +179,10 @@
         </div>
     </div>
 </div>
+
+<style lang="scss">
+    #scroll {
+        overflow-x: scroll;
+        white-space: nowrap;
+    }
+</style>
