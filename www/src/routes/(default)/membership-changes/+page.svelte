@@ -90,6 +90,11 @@
         }
     }
 
+    .notes {
+        position: relative;
+        top: -4px;
+    }
+
     td {
         padding: 2px 5px;
     }
