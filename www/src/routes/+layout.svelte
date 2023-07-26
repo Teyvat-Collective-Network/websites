@@ -53,17 +53,22 @@
                 const id = element.dataset.id;
 
                 try {
-                    const request = await fetch(`/api/get-tag/${id}`);
-                    if (!request.ok) throw 0;
+                    if (cache[id] === 1) throw 0;
 
-                    const response = await request.text();
+                    if (!cache[id]) {
+                        const request = await fetch(`/api/get-tag/${id}`);
+                        if (!request.ok) throw 0;
 
-                    const inner = response.endsWith("#0")
-                        ? `<b>${response.slice(0, -2)}</b>`
-                        : `<b>${response.slice(0, -5)}</b>${response.slice(-5)}`;
+                        const response = await request.text();
 
-                    element.outerHTML = `<span class="mention" data-id="${id}"><i class="material-icons">alternate_email</i> ${inner}</span>`;
+                        cache[id] = response.endsWith("#0")
+                            ? `<b>${response.slice(0, -2)}</b>`
+                            : `<b>${response.slice(0, -5)}</b>${response.slice(-5)}`;
+                    }
+
+                    element.outerHTML = `<span class="mention" data-id="${id}"><i class="material-icons">alternate_email</i> ${cache[id]}</span>`;
                 } catch {
+                    cache[id] = 1;
                     element.outerHTML = `<span class="mention" data-id="${id}"><i class="material-icons">pin</i> &nbsp; <code class="plain" style="padding: 0">${id}</code></span>`;
                 }
             }
