@@ -45,6 +45,17 @@
                 }
             }
 
+            if (document.querySelector(".user")) {
+                const request = await fetch("/api/get-all-tags");
+                const response = await request.json();
+                response.forEach(
+                    (x: any) =>
+                        (cache[x.id] = x.tag.endsWith("#0")
+                            ? `<b>${x.tag.slice(0, -2)}</b>`
+                            : `<b>${x.tag.slice(0, -5)}</b>${x.tag.slice(-5)}`),
+                );
+            }
+
             for (const element of document.querySelectorAll(".user") as any) {
                 const id = element.dataset.id;
 
