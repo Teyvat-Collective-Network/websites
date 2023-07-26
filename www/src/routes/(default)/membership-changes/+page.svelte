@@ -6,15 +6,13 @@
     data.entries.forEach((entry: any) => {
         if (!entry.notes) return;
 
-        const regex = /\[(\d*)&amp;((\\]|[^\]])+)\]/;
+        const regex = /\[@(\d+)\]/;
         let match;
 
         while ((match = entry.notes.match(regex)))
             entry.notes = entry.notes.replace(
                 regex,
-                `<span class="mention"${
-                    match[1] ? ` data-id="${match[1]}"` : ""
-                }><i class="material-icons">group</i> &nbsp; ${match[2]}</span>`,
+                `<span class="mention user" data-id=${match[1]}><i class="material-icons">pending</i> &nbsp; Loading User...</span>`,
             );
     });
 </script>
