@@ -26,7 +26,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
 
-    import { swap } from "$lib/util";
+    import { swap, without } from "$lib/util";
 
     export let data: any;
 
@@ -128,6 +128,16 @@
                                 <i class="material-icons">expand_more</i>
                             </a>
                         {/if}
+                    </td>
+                    <td>
+                        <a
+                            href={"javascript:void(0)"}
+                            class="row"
+                            on:click={() => (data.entries = without(data.entries, index))}
+                            style="color: var(--red-text)"
+                        >
+                            <i class="material-icons">delete</i>
+                        </a>
                     </td>
                 </tr>
             {/each}
