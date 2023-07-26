@@ -1,9 +1,11 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
     import { PUBLIC_DOMAIN } from "$env/static/public";
     import Callout from "$lib/Callout.svelte";
     import Menu from "$lib/Menu.svelte";
     import Navbar from "$lib/Navbar.svelte";
+    import { onMount } from "svelte";
 
     export let data: any;
 
@@ -31,6 +33,18 @@
             }
         }
     }
+
+    onMount(() => {
+        function replace_links() {
+            for (const element of document.querySelectorAll("#content a") as any) {
+                element.target = "_blank";
+                element.rel = "noreferrer";
+            }
+        }
+
+        replace_links();
+        page.subscribe(() => replace_links());
+    });
 </script>
 
 <svelte:window bind:innerWidth={width} bind:scrollY={scroll} />
@@ -200,7 +214,7 @@
                                       .padStart(2, "0")}`}).
                         </p>
                         <hr />
-                        <div>
+                        <div id="content">
                             {@html data.doc.parsed}
                         </div>
                     {/if}
