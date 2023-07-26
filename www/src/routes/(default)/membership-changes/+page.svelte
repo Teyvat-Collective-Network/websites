@@ -9,11 +9,14 @@
         const regex = /\[@(\d+)\]/;
         let match;
 
-        while ((match = entry.notes.match(regex)))
+        while ((match = entry.notes.match(regex))) {
             entry.notes = entry.notes.replace(
                 regex,
                 `<span class="mention user" data-id=${match[1]}><i class="material-icons">pending</i> &nbsp; Loading User...</span>`,
             );
+
+            entry.has_mention = true;
+        }
     });
 </script>
 
@@ -71,7 +74,9 @@
                         {/if}
                         {#if entry.notes}
                             <td class="label"><span class="mini">notes</span></td>
-                            <td class="label-right notes">{@html entry.notes}</td>
+                            <td class="label-right notes {entry.has_mention ? 'has-mention' : ''}">
+                                {@html entry.notes}
+                            </td>
                         {:else}
                             <td class="label" />
                             <td class="label-right" />
@@ -90,7 +95,7 @@
         }
     }
 
-    .notes {
+    .notes.has-mention {
         position: relative;
         top: -4px;
     }
