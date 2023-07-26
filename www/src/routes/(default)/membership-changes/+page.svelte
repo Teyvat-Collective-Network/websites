@@ -71,7 +71,7 @@
                         {/if}
                         {#if entry.notes}
                             <td class="label"><span class="mini">notes</span></td>
-                            <td class="label-right">{@html entry.notes}</td>
+                            <td class="label-right notes">{@html entry.notes}</td>
                         {:else}
                             <td class="label" />
                             <td class="label-right" />
@@ -85,7 +85,7 @@
 
 <style lang="scss">
     :global {
-        span.mention {
+        :not(.notes) > span.mention {
             top: 2px !important;
         }
     }
