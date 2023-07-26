@@ -98,7 +98,7 @@
                 <h5>Content</h5>
                 <Textarea bind:value={data.doc.content} />
             </div>
-            {#if data.doc.author === data.user.id}
+            {#if data.id === "new" || data.doc.author === data.user.id}
                 <div class="panel">
                     <h3>Access</h3>
                     <p>
