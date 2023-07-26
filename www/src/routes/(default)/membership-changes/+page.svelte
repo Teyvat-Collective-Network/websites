@@ -29,7 +29,7 @@
             {/if}
         </h3>
         <div id="scroll">
-            <table>
+            <table id="membership-table">
                 {#each data.entries as entry, index}
                     <tr>
                         <td><code>{index + 1}</code></td>
@@ -90,7 +90,7 @@
 
 <style lang="scss">
     :global {
-        :not(.notes) > span.mention {
+        #membership-table :not(.notes) > span.mention {
             top: 2px !important;
         }
     }
