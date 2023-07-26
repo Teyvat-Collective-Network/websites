@@ -4,6 +4,8 @@
     export let data: any;
 
     data.entries.forEach((entry: any) => {
+        if (!entry.notes) return;
+
         const regex = /\[(\d*)&amp;((\\]|[^\]])+)\]/;
         let match;
 
