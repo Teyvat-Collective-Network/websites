@@ -9,6 +9,7 @@
         "owner-abdicates-advisor": ["Owner Abdicates Advisor", "Owner", "Advisor"],
         "advisor-leaves": ["Advisor Leaves", "Advisor"],
         "transfer-ownership": ["Transfer Ownership", "Old Owner", "New Owner"],
+        "swap-owner-and-advisor": ["Swap Owner and Advisor", "Old Owner", "New Owner"],
         "add-advisor": ["Add Advisor", "Advisor"],
         "switch-advisor": ["Switch Advisor", "Old Advisor", "New Advisor"],
         elected: ["Elected", "Observer"],
