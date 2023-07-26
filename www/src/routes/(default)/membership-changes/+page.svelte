@@ -31,19 +31,19 @@
                         </span>
                     </td>
                     <td><b>{actions[entry.action][0]}</b></td>
-                    <td>
+                    <td class="label">
                         <span class="mini">{actions[entry.action][1]}</span>
                     </td>
-                    <td>
+                    <td class="label-right">
                         <span class="mention user" data-id={entry.primary}>
                             <i class="material-icons">pending</i> &nbsp; Loading User...
                         </span>
                     </td>
                     {#if actions[entry.action][2]}
-                        <td>
+                        <td class="label">
                             <span class="mini">{actions[entry.action][2]}</span>
                         </td>
-                        <td>
+                        <td class="label-right">
                             {#if entry.secondary}
                                 <span class="mention user" data-id={entry.secondary}>
                                     <i class="material-icons">pending</i> &nbsp; Loading User...
@@ -67,12 +67,32 @@
     }
 
     td {
-        padding-right: 10px;
+        padding: 2px 5px;
     }
 
     span.mini {
         text-transform: uppercase;
         font-size: 75%;
         opacity: 50%;
+    }
+
+    #main {
+        overflow-x: scroll;
+        white-space: nowrap;
+    }
+
+    table,
+    tr,
+    td {
+        border: 1px solid rgb(var(--invert-rgb), 32%);
+        border-collapse: collapse;
+    }
+
+    td.label {
+        border-right: none;
+    }
+
+    td.label-right {
+        border-left: none;
     }
 </style>

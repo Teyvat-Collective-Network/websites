@@ -27,6 +27,7 @@
     import { goto } from "$app/navigation";
 
     import { swap, without } from "$lib/util";
+    import { prevent_default } from "svelte/internal";
 
     export let data: any;
 
@@ -46,6 +47,7 @@
             e.preventDefault();
         }
     }}
+    on:beforeunload={(e) => e.preventDefault()}
 />
 
 <div class="container">
@@ -57,6 +59,7 @@
                 {@const next = index === data.entries.length - 1 ? null : data.entries[index + 1]}
 
                 <tr>
+                    <td><code>{index + 1}</code></td>
                     <td>
                         <input
                             type="number"
