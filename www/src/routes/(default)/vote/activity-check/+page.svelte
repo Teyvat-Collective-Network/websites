@@ -1,25 +1,17 @@
 <script lang="ts">
     import { LoadingSpinner } from "@daedalus-discord/webkit";
-    import { onMount } from "svelte";
 
     export let data: any;
 
     const votes = new Set();
     for (const vote of data.votes) votes.add(`${vote.poll}/${vote.user}`);
 
-    type User = { id: string; tag: string };
-    let users: User[] = [];
-
-    for (const id of data.ids) if (data.map[id]) users.push({ id, tag: data.map[id] });
-
-    let loading = users.length < data.ids.length;
-
-    const key = (user: User) => {
+    const key = (id: string) => {
         let val = 0;
 
         for (const poll of data.polls) {
-            if (poll.required?.includes(user.id)) {
-                if (votes.has(`${poll.id}/${user.id}`)) val = 0.8 * val;
+            if (poll.required?.includes(id)) {
+                if (votes.has(`${poll.id}/${id}`)) val = 0.8 * val;
                 else val = 0.6 * val + 0.4;
             }
         }
@@ -27,40 +19,10 @@
         return val;
     };
 
-    const sort = (x: User, y: User) => {
-        return key(y) - key(x) || x.tag.localeCompare(y.tag);
-    };
-
-    users = users.sort(sort);
-
-    if (loading)
-        onMount(async () => {
-            for (const id of data.ids)
-                if (!data.map[id]) {
-                    users = [
-                        ...users,
-                        { id, tag: await (await fetch(`/api/get-tag/${id}`)).text() },
-                    ].sort(sort);
-                }
-
-            loading = false;
-        });
-
-    function display(tag: string) {
-        if (tag.endsWith("#0")) return tag.slice(0, -2);
-        return tag;
-    }
+    data.ids = data.ids.sort((x: string, y: string) => key(y) - key(x));
 </script>
 
 <div class="container">
-    {#if loading}
-        <div class="row">
-            <LoadingSpinner size={50} text="" />
-            <span>{users.length} / {data.ids.length} Loaded</span>
-        </div>
-        <br />
-    {/if}
-
     <div id="table-wrapper">
         <table>
             <tr>
@@ -70,13 +32,12 @@
                 {/each}
             </tr>
 
-            {#each users as { id, tag }}
+            {#each data.ids as id}
                 <tr>
-                    <td class="row user">
-                        <button on:click={() => navigator.clipboard.writeText(id)}>
-                            <i class="material-icons" title="Copy User ID">content_copy</i>
-                        </button>
-                        {display(tag)}
+                    <td class="row">
+                        <span class="mention user" data-id={id}>
+                            <i class="material-icons">pending</i> Loading User...
+                        </span>
                     </td>
 
                     {#each data.polls as poll}
@@ -115,21 +76,13 @@
         padding: 5px;
     }
 
-    td.user {
-        gap: 10px;
-
-        button {
-            background-color: transparent;
-            padding: 0;
-            transition: linear 0.12s color;
-
-            &:active {
-                color: var(--green-text);
-            }
-        }
-    }
-
     tr:nth-child(even) {
         background-color: rgb(var(--invert-rgb), 10%);
+    }
+
+    :global {
+        span.mention {
+            top: 0px !important;
+        }
     }
 </style>

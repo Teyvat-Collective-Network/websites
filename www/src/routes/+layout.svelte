@@ -28,23 +28,19 @@
 
             const cache: Record<string, any> = {};
 
+            if (document.querySelector(".guild")) {
+                const request = await fetch(`${PUBLIC_TCN_API}/guilds`);
+                const response = await request.json();
+
+                response.forEach((x: any) => (cache[x.id] = x.name));
+            }
+
             for (const element of document.querySelectorAll(".guild") as any) {
                 const id = element.dataset.id;
 
-                try {
-                    if (cache[id] === 1) throw 0;
-
-                    if (!cache[id]) {
-                        const request = await fetch(`${PUBLIC_TCN_API}/guilds/${id}`);
-                        if (!request.ok) throw 0;
-
-                        const response = await request.json();
-                        cache[id] = response.name;
-                    }
-
+                if (cache[id]) {
                     element.outerHTML = `<a href="/server/${id}" target="_blank"><span class="mention"><i class="material-icons">domain</i> &nbsp; ${cache[id]}</span></a>`;
-                } catch {
-                    cache[id] = 1;
+                } else {
                     element.outerHTML = `<span class="mention" data-id="${id}"><i class="material-icons">domain_disabled</i> &nbsp; <s><code class="plain" style="padding: 0">${id}</code></s></span>`;
                 }
             }

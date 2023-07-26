@@ -12,12 +12,9 @@ export const load: ServerLoad = async () => {
 
     return {
         polls: fix(
-            (await db.polls.find().toArray()).filter(
-                (poll) => poll.closed && poll.required,
-            ),
+            (await db.polls.find().toArray()).filter((poll) => poll.closed && poll.required),
         ),
         votes: fix(await db.poll_votes.find().toArray()),
         ids,
-        map: ids.reduce((o, id) => ({ ...o, [id]: hq_bot.users.cache.get(id)?.tag }), {}),
     };
 };
