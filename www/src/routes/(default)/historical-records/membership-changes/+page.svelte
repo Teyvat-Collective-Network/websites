@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { actions } from "../admin/membership-changes/+page.svelte";
+    import { actions } from "../../admin/membership-changes/+page.svelte";
 
     export let data: any;
 

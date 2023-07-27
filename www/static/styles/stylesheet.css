@@ -221,16 +221,25 @@ label {
     display: flex;
 }
 
-.row {
+.inline-row,
+.inline-col {
+    display: inline-flex;
+}
+
+.row,
+.inline-row {
     flex-direction: row;
 }
 
-.col {
+.col,
+.inline-col {
     flex-direction: column;
 }
 
 .row:not(.no-center),
-.col:not(.no-center) {
+.col:not(.no-center),
+.inline-row:not(.no-center),
+.inline-col:not(.no-center) {
     align-items: center;
 }
 

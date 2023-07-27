@@ -26,9 +26,7 @@
 
 <script lang="ts">
     import { goto } from "$app/navigation";
-
     import { swap, without } from "$lib/util";
-    import { prevent_default } from "svelte/internal";
 
     export let data: any;
 
@@ -37,7 +35,7 @@
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data.entries),
-        }).then((res) => (res.ok ? goto("/membership-changes") : alert("an error occurred!")));
+        }).then((res) => (res.ok ? goto("/membership-changes") : alert("An error occurred!")));
     }
 </script>
 

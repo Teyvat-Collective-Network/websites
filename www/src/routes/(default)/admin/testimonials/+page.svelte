@@ -84,7 +84,7 @@
                     method: "post",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data.testimonials),
-                }).then((res) => (res.ok ? goto("/") : alert("an error occurred!")))}
+                }).then((res) => (res.ok ? goto("/") : alert("An error occurred!")))}
         >
             <i class="material-icons">save</i> Save
         </button>

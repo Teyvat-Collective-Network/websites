@@ -100,7 +100,7 @@
                     method: "post",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data.announcements),
-                }).then((res) => (res.ok ? goto("/featured") : alert("an error occurred!")))}
+                }).then((res) => (res.ok ? goto("/featured") : alert("An error occurred!")))}
         >
             <i class="material-icons">save</i> Save
         </button>

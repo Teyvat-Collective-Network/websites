@@ -114,7 +114,7 @@
                 method: "post",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data.events),
-            }).then((res) => (res.ok ? goto("/calendar") : alert("an error occurred!")))}
+            }).then((res) => (res.ok ? goto("/calendar") : alert("An error occurred!")))}
     >
         <i class="material-icons">save</i> Save
     </button>
