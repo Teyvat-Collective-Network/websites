@@ -35,7 +35,9 @@
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data.entries),
-        }).then((res) => (res.ok ? goto("/membership-changes") : alert("An error occurred!")));
+        }).then((res) =>
+            res.ok ? goto("/historical-records/membership-changes") : alert("An error occurred!"),
+        );
     }
 </script>
 

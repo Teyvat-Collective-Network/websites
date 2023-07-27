@@ -127,13 +127,16 @@
                 </a>
                 <a href="/banshare" class="t2 {staff_open ? '' : 'hidden'}">Submit a Banshare</a>
                 <a href="/info/voting" class="t2 {staff_open ? '' : 'hidden'}">Voting Help</a>
-                {#if data.auth}
+                {#if data.observer}
                     <a href="/vote" class="t2 {staff_open ? '' : 'hidden'}">Voting Center</a>
                 {/if}
                 <a href="/docs" class="t2 {staff_open ? '' : 'hidden'}">Documents</a>
                 <a href="/historical-records" class="t2 {staff_open ? '' : 'hidden'}"
                     >Historical Records</a
                 >
+                {#if data.observer}
+                    <a href="/admin/data-manager" class="t2 {staff_open ? '' : 'hidden'}">Data Manager</a>
+                {/if}
             {/if}
             <a
                 href="{PUBLIC_TCN_AUTH}/logout?redirect={encodeURIComponent(PUBLIC_DOMAIN)}"

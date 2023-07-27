@@ -11,21 +11,31 @@
         }
 
         const cache: Record<string, any> = {};
+        const real = new Set<string>();
 
         if (document.querySelector(".guild")) {
-            const request = await fetch(`${PUBLIC_TCN_API}/guilds`);
-            const response = await request.json();
+            let actual = true;
 
-            response.forEach((x: any) => (cache[x.id] = x.name));
+            for (const route of [`${PUBLIC_TCN_API}/guilds`, "/api/guild-names"]) {
+                const request = await fetch(route);
+                const response = await request.json();
+
+                response.forEach((x: any) => (cache[x.id] = x.name));
+
+                if (actual) response.forEach((x: any) => real.add(x.id));
+                actual = false;
+            }
         }
 
         for (const element of document.querySelectorAll(".guild") as any) {
             const id = element.dataset.id;
 
-            if (cache[id]) {
+            if (cache[id] && real.has(id)) {
                 element.outerHTML = `<a href="/server/${id}" target="_blank"><span class="mention"><i class="material-icons">domain</i> &nbsp; ${cache[id]}</span></a>`;
             } else {
-                element.outerHTML = `<span class="mention" data-id="${id}"><i class="material-icons">domain_disabled</i> &nbsp; <s><code class="plain" style="padding: 0">${id}</code></s></span>`;
+                element.outerHTML = `<span class="mention" data-id="${id}"><i class="material-icons">domain_disabled</i> &nbsp; <s>${
+                    cache[id] ? cache[id] : `<code class="plain" style="padding: 0">${id}</code>`
+                }</s></span>`;
             }
         }
 

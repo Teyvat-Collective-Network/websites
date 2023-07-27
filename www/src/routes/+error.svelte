@@ -68,8 +68,10 @@
                     {#if $page.status === 404}
                         <p>
                             If you arrived at this page from a link on this website, please report
-                            it as an error to <span class="mention">@hyperneutrino</span>.
-                            Otherwise, please check the spelling of the URL (including
+                            it as an error to
+                            <span class="mention user" data-id="251082987360223233">
+                                <i class="material-icons">pending</i> &nbsp; the developer
+                            </span>. Otherwise, please check the spelling of the URL (including
                             capitalization) and try again.
                         </p>
                     {/if}
@@ -80,6 +82,11 @@
 </html>
 
 <style lang="scss">
+    .mention:not(.user) {
+        position: relative;
+        top: 0;
+    }
+
     #slot {
         margin-bottom: 2em;
     }

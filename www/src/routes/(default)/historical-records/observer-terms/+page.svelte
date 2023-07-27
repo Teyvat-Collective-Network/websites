@@ -3,6 +3,7 @@
     import { update } from "../../../+layout.svelte";
     import { invalidate } from "$app/navigation";
     import { without } from "$lib/util";
+    import Navigation from "$lib/Navigation.svelte";
 
     export let data: any;
 
@@ -45,110 +46,123 @@
 
 <div class="container">
     <div id="main">
-        <h3>Observer Terms</h3>
-        <div id="scroll">
-            <table id="terms-table">
-                <tr>
-                    <th>Observer</th>
-                    <th>Term Start</th>
-                    <th>Scheduled Term End</th>
-                </tr>
-                {#each copy as entry}
-                    {@const end = new Date(entry.year, entry.month + 6, entry.date)}
+        <Navigation last={["/historical-records", "Historical Records"]}>
+            <h3>Observer Terms</h3>
+            <div id="scroll">
+                <table id="terms-table">
                     <tr>
-                        <td>
-                            <span class="mention user" data-id={entry.user}>
-                                <i class="material-icons">pending</i> &nbsp; Loading User...
-                            </span>
-                        </td>
-                        <td>
-                            <span class="mention">
-                                <i class="material-icons">schedule</i> &nbsp;
-                                {entry.year}-{entry.month}-{entry.date}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="mention">
-                                <i class="material-icons">schedule</i> &nbsp;
-                                {end.getFullYear()}-{end.getMonth() + 1}-{end.getDate()}
-                            </span>
-                        </td>
+                        <th>Observer</th>
+                        <th>Term Start</th>
+                        <th>Scheduled Term End</th>
+                        <th>Predicted Election Start</th>
                     </tr>
-                {/each}
-            </table>
-        </div>
-        {#if data.observer}
-            <br />
-            <div class="panel">
-                <table>
-                    {#each data.entries as entry, index}
+                    {#each copy as entry}
+                        {@const end = new Date(entry.year, entry.month + 6, entry.date)}
+                        {@const elect = new Date(entry.year, entry.month + 6, entry.date - 9)}
+
                         <tr>
                             <td>
-                                <input
-                                    type="number"
-                                    bind:value={entry.year}
-                                    placeholder="Term Start Year"
-                                />
+                                <span class="mention user" data-id={entry.user}>
+                                    <i class="material-icons">pending</i> &nbsp; Loading User...
+                                </span>
                             </td>
                             <td>
-                                <input
-                                    type="number"
-                                    bind:value={entry.month}
-                                    placeholder="Term Start Month"
-                                />
+                                <span class="mention">
+                                    <i class="material-icons">schedule</i> &nbsp;
+                                    {entry.year}-{entry.month}-{entry.date}
+                                </span>
                             </td>
                             <td>
-                                <input
-                                    type="number"
-                                    bind:value={entry.date}
-                                    placeholder="Term Start Date"
-                                />
+                                <span class="mention">
+                                    <i class="material-icons">schedule</i> &nbsp;
+                                    {end.getFullYear()}-{end.getMonth() + 1}-{end.getDate()}
+                                </span>
                             </td>
                             <td>
-                                <input type="text" bind:value={entry.user} placeholder="User" />
-                            </td>
-                            <td>
-                                <input
-                                    type="number"
-                                    bind:value={entry.terms}
-                                    placeholder="Consecutive Terms"
-                                />
-                            </td>
-                            <td>
-                                <a
-                                    href={"javascript:void(0)"}
-                                    class="row"
-                                    on:click={() => (data.entries = without(data.entries, index))}
-                                    style="color: var(--red-text)"
-                                >
-                                    <i class="material-icons">delete</i>
-                                </a>
+                                <span class="mention">
+                                    <i class="material-icons">schedule</i> &nbsp;
+                                    {elect.getFullYear()}-{elect.getMonth() + 1}-{elect.getDate()}
+                                </span>
                             </td>
                         </tr>
                     {/each}
                 </table>
-                <br />
-                <div class="row" style="gap: 1em">
-                    <button
-                        on:click={() =>
-                            (data.entries = [
-                                ...data.entries,
-                                {
-                                    year: new Date().getFullYear(),
-                                    month: new Date().getMonth() + 1,
-                                    date: new Date().getDate(),
-                                    user: "",
-                                },
-                            ])}
-                    >
-                        <i class="material-icons">add</i>
-                    </button>
-                    <button on:click={save}>
-                        <i class="material-icons">save</i>
-                    </button>
-                </div>
             </div>
-        {/if}
+            <br />
+            {#if data.observer}
+                <div class="panel">
+                    <h5>Edit (Observer-Only)</h5>
+                    <table>
+                        {#each data.entries as entry, index}
+                            <tr>
+                                <td>
+                                    <input
+                                        type="number"
+                                        bind:value={entry.year}
+                                        placeholder="Term Start Year"
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        bind:value={entry.month}
+                                        placeholder="Term Start Month"
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        bind:value={entry.date}
+                                        placeholder="Term Start Date"
+                                    />
+                                </td>
+                                <td>
+                                    <input type="text" bind:value={entry.user} placeholder="User" />
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        bind:value={entry.terms}
+                                        placeholder="Consecutive Terms"
+                                    />
+                                </td>
+                                <td>
+                                    <a
+                                        href={"javascript:void(0)"}
+                                        class="row"
+                                        on:click={() =>
+                                            (data.entries = without(data.entries, index))}
+                                        style="color: var(--red-text)"
+                                    >
+                                        <i class="material-icons">delete</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {/each}
+                    </table>
+                    <br />
+                    <div class="row" style="gap: 1em">
+                        <button
+                            on:click={() =>
+                                (data.entries = [
+                                    ...data.entries,
+                                    {
+                                        year: new Date().getFullYear(),
+                                        month: new Date().getMonth() + 1,
+                                        date: new Date().getDate(),
+                                        user: "",
+                                    },
+                                ])}
+                        >
+                            <i class="material-icons">add</i>
+                        </button>
+                        <button on:click={save}>
+                            <i class="material-icons">save</i>
+                        </button>
+                    </div>
+                </div>
+            {/if}
+        </Navigation>
     </div>
 </div>
 
