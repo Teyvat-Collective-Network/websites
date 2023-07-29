@@ -3,14 +3,20 @@ import type { RequestHandler } from "@sveltejs/kit";
 import db from "../../../db.js";
 
 export const GET: RequestHandler = async () => {
-    return new Response(
-        JSON.stringify([
-            ...(await db.user_map.find().toArray()).map((entry: any) => ({
-                id: entry.id,
-                tag: entry.name,
-                fake: true,
-            })),
-            ...hq_bot.users.cache.toJSON().map((x: any) => ({ id: x.id, tag: x.tag })),
-        ]),
-    );
+    const has = new Set<string>();
+    const cache: { id: string; tag: string; fake?: boolean }[] = [];
+
+    for (const user of await db.user_map.find().toArray()) {
+        if (has.has(user.id)) continue;
+        has.add(user.id);
+        cache.push({ id: user.id, tag: user.name, fake: true });
+    }
+
+    for (const user of hq_bot.users.cache.toJSON()) {
+        if (has.has(user.id)) continue;
+        has.add(user.id);
+        cache.push({ id: user.id, tag: user.tag });
+    }
+
+    return new Response(JSON.stringify(cache));
 };
