@@ -53,8 +53,8 @@
             <th>Consecutive Terms</th>
         </tr>
         {#each copy as entry}
-            {@const end = new Date(entry.year, entry.month + 6, entry.date)}
-            {@const elect = new Date(entry.year, entry.month + 6, entry.date - 9)}
+            {@const end = new Date(entry.year, entry.month + 5, entry.date)}
+            {@const elect = new Date(entry.year, entry.month + 5, entry.date - 9)}
 
             <tr>
                 <td>
