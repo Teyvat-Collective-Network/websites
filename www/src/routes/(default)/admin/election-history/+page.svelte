@@ -5,6 +5,7 @@
         accepted: ["Accepted", "#55c", "#33a"],
         declined: ["Declined", "#f8f", "#808"],
         nominated: ["Nominated", "#cc5", "#a70"],
+        unknown: ["?", "#999a9e", "#57595f"],
     } as Record<string, [string, string?, string?]>;
 </script>
 
