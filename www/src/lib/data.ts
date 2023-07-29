@@ -100,18 +100,18 @@ const mhy = (name: string | TemplateStringsArray) =>
 export function get_image(name: string) {
     return (
         {
+            alhaitham: mhy`Alhatham`,
             amber: mhy`Ambor`,
+            baizhu: mhy`Baizhuer`,
             dainsleif:
                 "https://i.ibb.co/svCrpqD/d87702b9c1ba7231d3e898906d56a0b7-removebg-preview.png",
-            noelle: mhy`Noel`,
+            heizou: mhy`Heizo`,
             jean: mhy`Qin`,
+            noelle: mhy`Noel`,
             raiden: mhy`Shougun`,
             thoma: mhy`Tohma`,
             traveler: mhy`PlayerBoy`,
             yanfei: mhy`Feiyan`,
-            alhaitham: mhy`Alhatham`,
-            kaveh: "https://i.imgur.com/cv97twy.png",
-            baizhu: "https://i.imgur.com/37uByIX.png",
             unknown:
                 "https://static.wikia.nocookie.net/gensin-impact/images/7/74/Character_Unknown_Thumb.png",
         }[name] || mhy(name[0].toUpperCase() + name.slice(1))
