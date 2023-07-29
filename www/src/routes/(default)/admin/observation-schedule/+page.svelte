@@ -226,15 +226,7 @@
                 on:click={() =>
                     (data.entries = [
                         ...data.entries,
-                        {
-                            year: new Date().getFullYear(),
-                            month: new Date().getMonth() + 1,
-                            date: new Date().getDate(),
-                            action: "induct",
-                            guild: "",
-                            primary: "",
-                            secondary: "",
-                        },
+                        { guild: "", observer: "", result: "inducted" },
                     ])}
             >
                 Add Entry

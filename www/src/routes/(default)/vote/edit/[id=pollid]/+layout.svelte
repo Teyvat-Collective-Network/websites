@@ -4,7 +4,7 @@
     export let data: any;
 </script>
 
-{#if data.auth}
+{#if data.observer}
     <slot />
 {:else}
     <Redirect />

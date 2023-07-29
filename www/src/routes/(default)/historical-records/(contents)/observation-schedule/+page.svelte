@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { dark_mode } from "$lib/stores";
     import { results } from "../../../admin/observation-schedule/+page.svelte";
 
     export let data: any;
@@ -23,7 +22,7 @@
 
 <h3 class="row" style="gap: 10px">
     Observation Schedule
-    {#if data.auth}
+    {#if data.observer}
         <a href="/admin/observation-schedule"><i class="material-icons">edit</i></a>
     {/if}
 </h3>

@@ -2,7 +2,7 @@
     import Testimonial from "$lib/Testimonial.svelte";
 
     export let data: {
-        auth: boolean;
+        observer: boolean;
         partners: any[];
         testimonials: { image: string; name: string; content: string }[];
     };
@@ -38,7 +38,7 @@
         <br />
         <h4 class="row" style="gap: 10px">
             Testimonials
-            {#if data.auth}
+            {#if data.observer}
                 <a href="/admin/testimonials"><i class="material-icons">edit</i></a>
             {/if}
         </h4>

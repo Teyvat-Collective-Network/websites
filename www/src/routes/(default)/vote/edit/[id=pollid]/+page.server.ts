@@ -19,7 +19,7 @@ export const load: ServerLoad = async ({ params }) => {
 
 export const actions: Actions = {
     default: async ({ params, request, locals }) => {
-        if (!(locals as any).auth) return { error: "You are not authorized." };
+        if (!(locals as any).observer) return { error: "You are not authorized." };
 
         const fail = (error: string) => ({ error, ...data });
 

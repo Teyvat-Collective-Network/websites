@@ -6,7 +6,7 @@
     <div id="main">
         <h1 class="row" style="gap: 20px">
             Featured Content
-            {#if data.auth}
+            {#if data.observer}
                 <a href="/admin/featured"><i class="material-icons">edit</i></a>
             {/if}
         </h1>

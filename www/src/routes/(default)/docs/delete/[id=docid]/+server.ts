@@ -3,7 +3,8 @@ import db from "../../../../../db.js";
 
 export const POST: RequestHandler = async ({ params, locals }) => {
     try {
-        if (!(locals as any).auth) throw "You are not authorized to use the TCN Documents feature.";
+        if (!(locals as any).council)
+            throw "You are not authorized to use the TCN Documents feature.";
 
         const data = await db.docs.findOne({ id: params.id });
         if (!data) throw "This document no longer exists.";

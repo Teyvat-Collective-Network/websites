@@ -22,7 +22,7 @@
 
 <h3 class="row" style="gap: 10px">
     Membership Changes
-    {#if data.auth}
+    {#if data.observer}
         <a href="/admin/membership-changes"><i class="material-icons">edit</i></a>
     {/if}
 </h3>
