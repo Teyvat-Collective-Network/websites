@@ -9,6 +9,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     await db.membership_changes.deleteMany();
 
     const entries = await request.json();
+    entries.sort((x: any, y: any) => x.year - y.year || x.month - y.month || x.date - y.date);
     if (entries.length > 0) await db.membership_changes.insertMany(entries);
 
     return new Response();
