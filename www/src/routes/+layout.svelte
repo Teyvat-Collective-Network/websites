@@ -31,7 +31,7 @@
             const id = element.dataset.id;
 
             if (id === PUBLIC_HQ || id === PUBLIC_HUB) {
-                element.outerHTML = `<a href="/about#organization"><span class="mention"><i class="material-icons">domain</i> &nbsp; ${
+                element.outerHTML = `<a href="/about#organization" target="_blank"><span class="mention"><i class="material-icons">domain</i> &nbsp; ${
                     id === PUBLIC_HQ ? "TCN HQ" : "TCN Hub"
                 }</span></a>`;
             } else if (cache[id] && real.has(id)) {
