@@ -12,6 +12,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         if (!(locals as any).council)
             throw "You are not authorized to use the TCN Documents feature.";
         if (
+            id !== "new" &&
             doc.author !== (locals as any).user.id &&
             !(doc.editable_observers && (locals as any).observer) &&
             !(doc.editable_council && (locals as any).council)

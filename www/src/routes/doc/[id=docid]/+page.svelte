@@ -153,6 +153,19 @@
                                 {/if}
                             </p>
                         </Callout>
+                        <br />
+                        {#if data.doc.allow_logged_in || data.doc.allow_everyone}
+                            <Callout style="info">
+                                <p>This document is configured to be publicly visible.</p>
+                            </Callout>
+                        {:else}
+                            <Callout style="red">
+                                <p>
+                                    This document is not publicly visible. Do not share it with
+                                    people unless permitted by the author.
+                                </p>
+                            </Callout>
+                        {/if}
                         <h3>
                             {data.doc.name}
                             {#if data.doc.author.id === data.user?.id || (data.doc.editable_observers && data.observer) || (data.doc.editable_council && data.council)}&nbsp;<a
