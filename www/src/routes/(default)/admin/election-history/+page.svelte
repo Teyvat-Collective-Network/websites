@@ -69,11 +69,7 @@
                 </h5>
                 <div class="inline-row" style="gap: 10px">
                     Seats:
-                    <input
-                        type="number"
-                        bind:value={data.entries.seats}
-                        placeholder="0 = infinite"
-                    />
+                    <input type="number" bind:value={entry.seats} placeholder="0 = infinite" />
                 </div>
                 <br /><br />
                 <table>
