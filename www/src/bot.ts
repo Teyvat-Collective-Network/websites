@@ -2,16 +2,14 @@ import {
     ALERT,
     BANSHARE_DASHBOARD,
     DDL_TOKEN,
-    HQ,
     LOG,
     NON_URGENT_DELAY,
     REMINDER_CYCLE,
     TOKEN,
     URGENT,
     URGENT_DELAY,
-    VOTE_BOT_TOKEN,
 } from "$env/static/private";
-import { PUBLIC_ALLOWLIST, PUBLIC_DDL_API, PUBLIC_TCN_API } from "$env/static/public";
+import { PUBLIC_ALLOWLIST, PUBLIC_DDL_API, PUBLIC_HQ, PUBLIC_TCN_API } from "$env/static/public";
 import {
     type ButtonInteraction,
     ButtonStyle,
@@ -232,7 +230,7 @@ bot.on("interactionCreate", async (interaction) => {
         if (!["banshare", "banshare-publish"].includes(interaction.commandName)) return;
 
         if (interaction.commandName === "banshare-publish") {
-            if (interaction.guild?.id !== HQ) {
+            if (interaction.guild?.id !== PUBLIC_HQ) {
                 await interaction.reply({
                     content: "This command can only be called by observers in HQ.",
                     ephemeral: true,

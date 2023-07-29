@@ -30,7 +30,11 @@
         for (const element of document.querySelectorAll(".guild") as any) {
             const id = element.dataset.id;
 
-            if (cache[id] && real.has(id)) {
+            if (id === PUBLIC_HQ || id === PUBLIC_HUB) {
+                element.outerHTML = `<a href="/about#organization"><span class="mention"><i class="material-icons">domain</i> &nbsp; ${
+                    id === PUBLIC_HQ ? "TCN HQ" : "TCN Hub"
+                }</span></a>`;
+            } else if (cache[id] && real.has(id)) {
                 element.outerHTML = `<a href="/server/${id}" target="_blank"><span class="mention"><i class="material-icons">domain</i> &nbsp; ${cache[id]}</span></a>`;
             } else {
                 element.outerHTML = `<span class="mention" data-id="${id}"><i class="material-icons">domain_disabled</i> &nbsp; <s>${
@@ -92,7 +96,7 @@
 
 <script lang="ts">
     import { page } from "$app/stores";
-    import { PUBLIC_TCN_API } from "$env/static/public";
+    import { PUBLIC_HQ, PUBLIC_HUB, PUBLIC_TCN_API } from "$env/static/public";
     import { onMount } from "svelte";
 
     onMount(async () => {

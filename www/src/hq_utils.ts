@@ -9,11 +9,10 @@ import {
     ThreadAutoArchiveDuration,
 } from "discord.js";
 import { hq_bot } from "./bot.js";
-import { PUBLIC_TCN_API } from "$env/static/public";
+import { PUBLIC_HQ, PUBLIC_TCN_API } from "$env/static/public";
 import {
     ALERT,
     ELECTION_FORUM,
-    HQ,
     LANDING,
     LOG,
     MONITOR_DELAY,
@@ -190,7 +189,7 @@ async function monitor() {
 }
 
 hq_bot.once("ready", async () => {
-    hq = await hq_bot.guilds.fetch(HQ);
+    hq = await hq_bot.guilds.fetch(PUBLIC_HQ);
 
     sweep_invites();
     monitor();
@@ -415,7 +414,7 @@ hq_bot.on("inviteCreate", async (invite) => {
 });
 
 hq_bot.on("guildMemberAdd", async (member) => {
-    if (member.guild.id === HQ) sweep_invites();
+    if (member.guild.id === PUBLIC_HQ) sweep_invites();
 });
 
 await hq_bot.login(VOTE_BOT_TOKEN);

@@ -1,4 +1,4 @@
-import { PUBLIC_DOMAIN, PUBLIC_TCN_API } from "$env/static/public";
+import { PUBLIC_DOMAIN, PUBLIC_HQ, PUBLIC_TCN_API } from "$env/static/public";
 import {
     ComponentType,
     type MessageCreateOptions,
@@ -12,7 +12,7 @@ import {
 } from "discord.js";
 import db from "../db.js";
 import { hq_bot } from "../bot.js";
-import { HQ, VOTE_CHANNEL, VOTE_LOG } from "$env/static/private";
+import { VOTE_CHANNEL, VOTE_LOG } from "$env/static/private";
 
 fetch(`${PUBLIC_TCN_API}/users`)
     .then((response) => response.json())
@@ -25,9 +25,14 @@ setInterval(async () => {
     const threshold = new Date();
     threshold.setHours(threshold.getHours() + 24);
 
-    for (const poll of await db.polls.find({ close: { $lt: new Date() }, closed: { $ne: true } }).toArray()) {
+    for (const poll of await db.polls
+        .find({ close: { $lt: new Date() }, closed: { $ne: true } })
+        .toArray()) {
         const required = await get_required(poll);
-        await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false, closed: true, required } });
+        await db.polls.updateOne(
+            { _id: poll._id },
+            { $set: { dm: false, closed: true, required } },
+        );
 
         try {
             const channel = await hq_bot.channels.fetch(poll.channel);
@@ -39,7 +44,9 @@ setInterval(async () => {
         }
     }
 
-    for (const poll of await db.polls.find({ dm: true, closed: { $ne: true }, close: { $lt: threshold } }).toArray()) {
+    for (const poll of await db.polls
+        .find({ dm: true, closed: { $ne: true }, close: { $lt: threshold } })
+        .toArray()) {
         await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false } });
 
         const required = await get_required(poll);
@@ -54,12 +61,12 @@ setInterval(async () => {
             if (votes.has(id)) continue;
 
             try {
-                const user = await hq_bot.guilds.cache.get(HQ)!.members.fetch(id);
+                const user = await hq_bot.guilds.cache.get(PUBLIC_HQ)!.members.fetch(id);
                 await user.send({
                     embeds: [
                         {
                             title: "Waiting for your vote",
-                            description: `Hello,\nYou have not yet voted on a TCN poll [here](https://discord.com/channels/${HQ}/${poll.channel}/${poll.message}). Please do so within the next 24 hours.`,
+                            description: `Hello,\nYou have not yet voted on a TCN poll [here](https://discord.com/channels/${PUBLIC_HQ}/${poll.channel}/${poll.message}). Please do so within the next 24 hours.`,
                             color: 0x2b2d31,
                         },
                     ],
@@ -88,7 +95,7 @@ setInterval(async () => {
                         .map((id) => `<@${id}>`)
                         .join(" ")} You have not yet voted on poll #${
                         poll.id
-                    } (https://discord.com/channels/${HQ}/${poll.channel}/${
+                    } (https://discord.com/channels/${PUBLIC_HQ}/${poll.channel}/${
                         poll.message
                     }). Please do so within the next 24 hours. If you enable DMs in this server, you will receive a DM reminder instead of being pinged.`,
                     allowedMentions: { users: failed },
