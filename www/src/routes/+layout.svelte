@@ -44,7 +44,9 @@
             const response = await request.json();
             response.forEach(
                 (x: any) =>
-                    (cache[x.id] = x.tag.endsWith("#0")
+                    (cache[x.id] = x.fake
+                        ? `<s>${x.tag}</s>`
+                        : x.tag.endsWith("#0")
                         ? `<b>${x.tag.slice(0, -2)}</b>`
                         : `<b>${x.tag.slice(0, -5)}</b>${x.tag.slice(-5)}`),
             );
@@ -57,7 +59,7 @@
                 if (cache[id] === 1)
                     element.outerHTML = `<span class="mention" data-id="${id}"><i class="material-icons">pin</i> &nbsp; <code class="plain" style="padding: 0">${id}</code></span>`;
                 else if (cache[id])
-                    element.outerHTML = `<span class="mention" data-id=${id}><i class="material-icons">alternate_email</i> ${cache[id]}</span>`;
+                    element.outerHTML = `<span class="mention" data-id=${id}><i class="material-icons">alternate_email</i> &nbsp; ${cache[id]}</span>`;
             }
         }
 

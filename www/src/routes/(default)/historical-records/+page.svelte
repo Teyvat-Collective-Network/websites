@@ -4,6 +4,7 @@
         <ul>
             <li><a href="/historical-records/membership-changes">Membership Changes</a></li>
             <li><a href="/historical-records/observer-terms">Observer Terms</a></li>
+            <li><a href="/historical-records/observation-schedule">Observation Schedule</a></li>
         </ul>
     </div>
 </div>

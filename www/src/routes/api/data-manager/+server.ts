@@ -11,5 +11,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     await db.guild_map.deleteMany();
     if (data.guild_map.length > 0) await db.guild_map.insertMany(data.guild_map);
 
+    await db.user_map.deleteMany();
+    if (data.user_map.length > 0) await db.user_map.insertMany(data.user_map);
+
     return new Response();
 };
