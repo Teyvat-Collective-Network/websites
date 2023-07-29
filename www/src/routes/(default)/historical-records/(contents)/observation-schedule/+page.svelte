@@ -56,12 +56,16 @@
                     </span>
                 </td>
                 <td>
-                    <span class="mention user" data-id={entry.observer}>
-                        <i class="material-icons">pending</i> &nbsp; Loading User...
-                    </span>
+                    {#if entry.observer}
+                        <span class="mention user" data-id={entry.observer}>
+                            <i class="material-icons">pending</i> &nbsp; Loading User...
+                        </span>
+                    {:else}
+                        <hr />
+                    {/if}
                 </td>
                 <td>
-                    {#if start}
+                    {#if start && entry.start_year != undefined && entry.start_month != undefined && entry.start_date != undefined}
                         <span class="mention">
                             <i class="material-icons">schedule</i> &nbsp;
                             {entry.start_year}-{entry.start_month
@@ -73,7 +77,7 @@
                     {/if}
                 </td>
                 <td>
-                    {#if end}
+                    {#if end && entry.end_year != undefined && entry.end_month != undefined && entry.end_date != undefined}
                         <span class="mention">
                             <i class="material-icons">schedule</i> &nbsp;
                             {entry.end_year}-{entry.end_month
