@@ -18,10 +18,13 @@ const MONDSTADT = "<:mondstadt:1026030859071004743>";
 const LIYUE = "<:liyue:1026030857812705391>";
 const INAZUMA = "<:inazuma:1026030856420204584>";
 const SUMERU = "<:sumeru:1026030854788616302>";
-const SNEZHNAYA = "<:other_region:1026031780039499826>";
+const FONTAINE = "<:other_region:1026031780039499826>"; // TODO: needs new emoji
+const SNEZHNAYA = "<:other_region:1026031780039499826>"; // TODO: needs new emoji
+const KHAENRIAH = "<:other_region:1026031780039499826>"; // TODO: needs new emoji
 const OTHER_REGION = "<:other_region:1026031780039499826>";
 
 export const characters = {
+    aether: [OTHER, SWORD, OTHER_REGION, "Aether"],
     albedo: [GEO, SWORD, MONDSTADT, "Albedo"],
     alhaitham: [DENDRO, SWORD, SUMERU, "Alhaitham"],
     aloy: [CRYO, BOW, OTHER_REGION, "Aloy"],
@@ -35,7 +38,7 @@ export const characters = {
     chongyun: [CRYO, CLAYMORE, LIYUE, "Chongyun"],
     collei: [DENDRO, BOW, SUMERU, "Collei"],
     cyno: [ELECTRO, POLEARM, SUMERU, "Cyno"],
-    dainsleif: [OTHER, UNKNOWN, OTHER_REGION, "Dainsleif"],
+    dainsleif: [OTHER, UNKNOWN, KHAENRIAH, "Dainsleif"], // TODO: needs element, weapon, and new icon
     dehya: [PYRO, CLAYMORE, SUMERU, "Dehya"],
     diluc: [PYRO, CLAYMORE, MONDSTADT, "Diluc"],
     diona: [CRYO, BOW, MONDSTADT, "Diona"],
@@ -43,21 +46,26 @@ export const characters = {
     eula: [CRYO, CLAYMORE, MONDSTADT, "Eula"],
     faruzan: [ANEMO, BOW, SUMERU, "Faruzan"],
     fischl: [ELECTRO, BOW, MONDSTADT, "Fischl"],
+    freminet: [CRYO, UNKNOWN, FONTAINE, "Freminet"], // TODO: needs weapon and new icon
     ganyu: [CRYO, BOW, LIYUE, "Ganyu"],
     gorou: [GEO, BOW, INAZUMA, "Gorou"],
     hutao: [PYRO, POLEARM, LIYUE, "Hu Tao"],
     jean: [ANEMO, SWORD, MONDSTADT, "Jean"],
     kazuha: [ANEMO, SWORD, INAZUMA, "Kaedehara Kazuha"],
     kaeya: [CRYO, SWORD, MONDSTADT, "Kaeya"],
-    kaveh: [DENDRO, CLAYMORE, SUMERU, "Kaveh"],
     ayaka: [CRYO, SWORD, INAZUMA, "Kamisato Ayaka"],
     ayato: [HYDRO, SWORD, INAZUMA, "Kamisato Ayato"],
+    kaveh: [DENDRO, CLAYMORE, SUMERU, "Kaveh"],
     keqing: [ELECTRO, SWORD, LIYUE, "Keqing"],
+    kirara: [DENDRO, SWORD, INAZUMA, "Kirara"],
     klee: [PYRO, CATALYST, MONDSTADT, "Klee"],
     sara: [ELECTRO, BOW, INAZUMA, "Kujou Sara"],
     shinobu: [ELECTRO, SWORD, INAZUMA, "Kuki Shinobu"],
     layla: [CRYO, SWORD, SUMERU, "Layla"],
     lisa: [ELECTRO, CATALYST, MONDSTADT, "Lisa"],
+    lumine: [OTHER, SWORD, OTHER_REGION, "Lumine"],
+    lynette: [ANEMO, UNKNOWN, FONTAINE, "Lynette"], // TODO: needs weapon
+    lyney: [PYRO, UNKNOWN, FONTAINE, "Lyney"], // TODO: needs weapon
     mika: [CRYO, POLEARM, MONDSTADT, "Mika"],
     mona: [HYDRO, CATALYST, MONDSTADT, "Mona"],
     nahida: [DENDRO, CATALYST, SUMERU, "Nahida"],
@@ -78,13 +86,14 @@ export const characters = {
     tighnari: [DENDRO, BOW, SUMERU, "Tighnari"],
     traveler: [OTHER, SWORD, OTHER_REGION, "Traveler"],
     venti: [ANEMO, BOW, MONDSTADT, "Venti"],
+    wanderer: [ANEMO, CATALYST, SUMERU, "Wanderer"],
     xiangling: [PYRO, POLEARM, LIYUE, "Xiangling"],
     xiao: [ANEMO, POLEARM, LIYUE, "Xiao"],
     xingqiu: [HYDRO, SWORD, LIYUE, "Xingqiu"],
     xinyan: [PYRO, CLAYMORE, LIYUE, "Xinyan"],
     yae: [ELECTRO, CATALYST, INAZUMA, "Yae Miko"],
-    yaoyao: [DENDRO, POLEARM, LIYUE, "Yaoyao"],
     yanfei: [PYRO, CATALYST, LIYUE, "Yanfei"],
+    yaoyao: [DENDRO, POLEARM, LIYUE, "Yaoyao"],
     yelan: [HYDRO, BOW, LIYUE, "Yelan"],
     yoimiya: [PYRO, BOW, INAZUMA, "Yoimiya"],
     yunjin: [GEO, POLEARM, LIYUE, "Yun Jin"],
@@ -94,30 +103,5 @@ export const characters = {
 // Taken with permission from
 // https://github.com/Teyvat-Collective-Network/websites/blob/main/www/src/images.js
 
-const mhy = (name: string | TemplateStringsArray) =>
-    `https://upload-os-bbs.mihoyo.com/game_record/genshin/character_icon/UI_AvatarIcon_${name}.png`;
-
-export function get_image(name: string) {
-    return (
-        {
-            alhaitham: mhy`Alhatham`,
-            amber: mhy`Ambor`,
-            baizhu: mhy`Baizhuer`,
-            dainsleif:
-                "https://i.ibb.co/svCrpqD/d87702b9c1ba7231d3e898906d56a0b7-removebg-preview.png",
-            heizou: mhy`Heizo`,
-            jean: mhy`Qin`,
-            noelle: mhy`Noel`,
-            raiden: mhy`Shougun`,
-            thoma: mhy`Tohma`,
-            traveler: mhy`PlayerBoy`,
-            yanfei: mhy`Feiyan`,
-            unknown:
-                "https://static.wikia.nocookie.net/gensin-impact/images/7/74/Character_Unknown_Thumb.png",
-        }[name] || mhy(name[0].toUpperCase() + name.slice(1))
-    );
-}
-
-export const _bar = "https://i.imgur.com/U9Wqlug.png";
-export const bar = { image: { url: _bar } };
+export const bar = { image: { url: "https://i.imgur.com/U9Wqlug.png" } };
 export const space = "<:space:1021233715751424060>";

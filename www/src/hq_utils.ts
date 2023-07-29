@@ -9,7 +9,7 @@ import {
     ThreadAutoArchiveDuration,
 } from "discord.js";
 import { hq_bot } from "./bot.js";
-import { PUBLIC_HQ, PUBLIC_TCN_API } from "$env/static/public";
+import { PUBLIC_DOMAIN, PUBLIC_HQ, PUBLIC_TCN_API } from "$env/static/public";
 import {
     ALERT,
     ELECTION_FORUM,
@@ -19,7 +19,7 @@ import {
     NOMINATING_TAG,
     VOTE_BOT_TOKEN,
 } from "$env/static/private";
-import { bar, characters, get_image } from "./lib/data.js";
+import { bar, characters } from "./lib/data.js";
 import db from "./db.js";
 
 const api = async (route: string) => await (await fetch(`${PUBLIC_TCN_API}${route}`)).json();
@@ -294,7 +294,9 @@ hq_bot.on("interactionCreate", async (interaction) => {
                                         : ""
                                 }`,
                                 color: 0x2b2d31,
-                                thumbnail: { url: get_image(guild.character) },
+                                thumbnail: {
+                                    url: `${PUBLIC_DOMAIN}/images/characters/${guild.character}.png`,
+                                },
                                 ...bar,
                                 footer: { text: guild.id },
                             }))(
