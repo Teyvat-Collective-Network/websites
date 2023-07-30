@@ -15,7 +15,7 @@
         }).then((res) => (res.ok ? alert("Saved!") : alert("An error occurred!")));
     }
 
-    const show = { guild_map: false, user_map: false, genshin_data: true };
+    const show = { guild_map: false, user_map: false, genshin_data: false };
 </script>
 
 <svelte:window
