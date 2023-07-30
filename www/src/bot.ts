@@ -370,7 +370,7 @@ bot.on("interactionCreate", async (interaction) => {
                         crit: "P0 only",
                         med: "P0 and P1",
                         all: "P0, P1, and P2",
-                    } as { [key: string]: string };
+                    } as Record<string, string>;
 
                     await interaction.editReply(
                         `Set the autoban threshold to ${k[non_member_threshold]} (${

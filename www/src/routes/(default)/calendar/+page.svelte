@@ -21,7 +21,7 @@
     import { Modal } from "@daedalus-discord/webkit";
     import { dark_mode } from "$lib/stores";
 
-    const open: { [key: string]: boolean } = {};
+    const open: Record<string, boolean> = {};
     let sx: number = 0;
 
     const base = new Date();

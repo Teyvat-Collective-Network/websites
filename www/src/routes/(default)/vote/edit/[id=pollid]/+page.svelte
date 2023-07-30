@@ -2,9 +2,9 @@
     import { Textarea } from "@daedalus-discord/webkit";
     import Callout from "$lib/Callout.svelte";
     import Redirect from "$lib/Redirect.svelte";
-    import { without } from "$lib/util.js";
     import { onMount } from "svelte";
     import { page } from "$app/stores";
+    import ListButton from "$lib/ListButton.svelte";
 
     export let data: any;
     export let form: any;
@@ -74,13 +74,7 @@
                     <b>Option {index + 1}</b>
                     <input type="text" name="option{index}" bind:value={option} />
                     {#if form.options.length > 2}
-                        <button
-                            type="button"
-                            style="color: var(--red-text); background-color: transparent"
-                            on:click={() => (form.options = without(form.options, index))}
-                        >
-                            <i class="material-icons">delete</i>
-                        </button>
+                        <ListButton bind:array={form.options} {index} del />
                     {:else}
                         <span />
                     {/if}
@@ -110,13 +104,7 @@
                         {/each}
                     </select>
                     {#if form.candidates.length > 2}
-                        <button
-                            type="button"
-                            style="color: var(--red-text); background-color: transparent"
-                            on:click={() => (form.candidates = without(form.candidates, index))}
-                        >
-                            <i class="material-icons">delete</i>
-                        </button>
+                        <ListButton bind:array={form.candidates} {index} del />
                     {:else}
                         <span />
                     {/if}

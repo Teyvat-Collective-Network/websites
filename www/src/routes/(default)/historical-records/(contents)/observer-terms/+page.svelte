@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { update } from "../../../../+layout.svelte";
-    import { without } from "$lib/util";
+    import ListButton from "$lib/ListButton.svelte";
 
     export let data: any;
 
@@ -123,16 +123,7 @@
                             placeholder="Consecutive Terms"
                         />
                     </td>
-                    <td>
-                        <a
-                            href={"javascript:void(0)"}
-                            class="row"
-                            on:click={() => (data.entries = without(data.entries, index))}
-                            style="color: var(--red-text)"
-                        >
-                            <i class="material-icons">delete</i>
-                        </a>
-                    </td>
+                    <td><ListButton bind:array={data.entries} {index} del /></td>
                 </tr>
             {/each}
         </table>

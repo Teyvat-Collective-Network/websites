@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import ListButtons from "$lib/ListButtons.svelte";
     import { Textarea } from "@daedalus-discord/webkit";
-    import { swap, without } from "$lib/util.js";
 
     export let data: { announcements: any[] };
 
@@ -49,31 +49,8 @@
                 <Textarea bind:value={item.body} />
             </div>
             <br />
-            <div class="row">
-                <button
-                    style="background-color: transparent; color: var(--red-text)"
-                    on:click={() => (data.announcements = without(data.announcements, index))}
-                >
-                    <i class="material-icons">delete</i>
-                </button>
-                {#if index !== 0}
-                    <button
-                        style="background-color: transparent; color: var(--blue-text)"
-                        on:click={() =>
-                            (data.announcements = swap(data.announcements, index - 1, index))}
-                    >
-                        <i class="material-icons">expand_less</i>
-                    </button>
-                {/if}
-                {#if index !== data.announcements.length - 1}
-                    <button
-                        style="background-color: transparent; color: var(--blue-text)"
-                        on:click={() =>
-                            (data.announcements = swap(data.announcements, index, index + 1))}
-                    >
-                        <i class="material-icons">expand_more</i>
-                    </button>
-                {/if}
+            <div class="row" style="gap: 10px">
+                <ListButtons bind:array={data.announcements} {index} delete_first />
             </div>
         </div>
     {/each}

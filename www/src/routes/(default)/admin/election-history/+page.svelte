@@ -11,8 +11,7 @@
 
 <script lang="ts">
     import { goto } from "$app/navigation";
-
-    import { swap, without } from "$lib/util";
+    import ListButtons from "$lib/ListButtons.svelte";
 
     export let data: any;
 
@@ -44,29 +43,7 @@
             <div class="panel">
                 <h5 class="row" style="gap: 10px">
                     <code class="plain">Wave {data.entries.length - index}</code>
-                    {#if index > 0}
-                        <a
-                            href={"javascript:void(0)"}
-                            on:click={() => (data.entries = swap(data.entries, index, index - 1))}
-                            ><i class="material-icons">expand_less</i></a
-                        >
-                    {:else}
-                        <i class="material-icons">x</i>
-                    {/if}
-                    {#if index < data.entries.length - 1}
-                        <a
-                            href={"javascript:void(0)"}
-                            on:click={() => (data.entries = swap(data.entries, index, index + 1))}
-                            ><i class="material-icons">expand_more</i></a
-                        >
-                    {:else}
-                        <i class="material-icons">x</i>
-                    {/if}
-                    <a
-                        href={"javascript:void(0)"}
-                        on:click={() => (data.entries = without(data.entries, index))}
-                        style="color: var(--red-text)"><i class="material-icons">delete</i></a
-                    >
+                    <ListButtons bind:array={data.entries} {index} />
                 </h5>
                 <div class="inline-row" style="gap: 10px">
                     Seats:
@@ -102,41 +79,7 @@
                                 </label>
                             </td>
                             <td style="width: 10px" />
-                            <td>
-                                {#if ci > 0}
-                                    <a
-                                        href={"javascript:void(0)"}
-                                        class="row"
-                                        on:click={() =>
-                                            (entry.candidates = swap(entry.candidates, ci, ci - 1))}
-                                    >
-                                        <i class="material-icons">expand_less</i>
-                                    </a>
-                                {/if}
-                            </td>
-                            <td>
-                                {#if ci < entry.candidates.length - 1}
-                                    <a
-                                        href={"javascript:void(0)"}
-                                        class="row"
-                                        on:click={() =>
-                                            (entry.candidates = swap(entry.candidates, ci, ci + 1))}
-                                    >
-                                        <i class="material-icons">expand_more</i>
-                                    </a>
-                                {/if}
-                            </td>
-                            <td>
-                                <a
-                                    href={"javascript:void(0)"}
-                                    class="row"
-                                    on:click={() =>
-                                        (entry.candidates = without(entry.candidates, ci))}
-                                    style="color: var(--red-text)"
-                                >
-                                    <i class="material-icons">delete</i>
-                                </a>
-                            </td>
+                            <ListButtons bind:array={entry.candidates} index={ci} table />
                         </tr>
                     {/each}
 

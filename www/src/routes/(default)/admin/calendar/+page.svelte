@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import ListButton from "$lib/ListButton.svelte";
     import Textarea from "@daedalus-discord/webkit/Textarea.svelte";
-    import { without } from "$lib/util";
 
     export let data: {
         events: {
@@ -31,14 +31,9 @@
 
 <div class="container">
     {#each data.events as track, index}
-        <h3 class="row" style="gap: 10px">
+        <h3 class="row" style="gap: 20px">
             Track #{index + 1}
-            <button
-                style="color: var(--red-text); background-color: transparent"
-                on:click={() => (data.events = without(data.events, index))}
-            >
-                <i class="material-icons">delete</i>
-            </button>
+            <ListButton bind:array={data.events} {index} del />
         </h3>
         {#each track as event, ei}
             <div class="card">
@@ -66,12 +61,7 @@
                     <li>Start: {new Date(event.start).toISOString()}</li>
                     <li>End: {new Date(event.end).toISOString()}</li>
                 </ul>
-                <button
-                    style="color: var(--red-text); background-color: transparent"
-                    on:click={() => (data.events[index] = without(track, ei))}
-                >
-                    <i class="material-icons">delete</i>
-                </button>
+                <ListButton bind:array={data.events[index]} index={ei} del />
             </div>
             <br />
         {/each}
@@ -123,7 +113,7 @@
 <style lang="scss">
     .card {
         background-color: var(--background-2);
-        padding: 10px;
+        padding: 20px;
         border-radius: 5px;
     }
 

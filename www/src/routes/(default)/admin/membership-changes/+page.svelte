@@ -26,7 +26,7 @@
 
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import { swap, without } from "$lib/util";
+    import ListButton from "$lib/ListButton.svelte";
 
     export let data: any;
 
@@ -129,37 +129,16 @@
                         </td>
                         <td>
                             {#if last && (last.year > entry.year || (last.year === entry.year && (last.month > entry.month || (last.month === entry.month && last.date >= entry.date))))}
-                                <a
-                                    href={"javascript:void(0)"}
-                                    class="row"
-                                    on:click={() =>
-                                        (data.entries = swap(data.entries, index, index - 1))}
-                                >
-                                    <i class="material-icons">expand_less</i>
-                                </a>
+                                <ListButton bind:array={data.entries} {index} up />
                             {/if}
                         </td>
                         <td>
                             {#if next && (entry.year > next.year || (entry.year === next.year && (entry.month > next.month || (entry.month === next.month && entry.date >= next.date))))}
-                                <a
-                                    href={"javascript:void(0)"}
-                                    class="row"
-                                    on:click={() =>
-                                        (data.entries = swap(data.entries, index, index + 1))}
-                                >
-                                    <i class="material-icons">expand_more</i>
-                                </a>
+                                <ListButton bind:array={data.entries} {index} down />
                             {/if}
                         </td>
                         <td>
-                            <a
-                                href={"javascript:void(0)"}
-                                class="row"
-                                on:click={() => (data.entries = without(data.entries, index))}
-                                style="color: var(--red-text)"
-                            >
-                                <i class="material-icons">delete</i>
-                            </a>
+                            <ListButton bind:array={data.entries} {index} del />
                         </td>
                     </tr>
                 {/each}

@@ -3,8 +3,10 @@ import db from "../../../../db.js";
 import { fix } from "$lib/util.js";
 
 export const load: ServerLoad = async () => {
-    return {
-        guild_map: fix(await db.guild_map.find().toArray()),
-        user_map: fix(await db.user_map.find().toArray()),
-    };
+    const cache: Record<string, any[]> = {};
+
+    for (const key of ["guild_map", "user_map", "elements", "weapons", "regions", "characters"])
+        cache[key] = fix(await db[key].find().toArray());
+
+    return cache;
 };

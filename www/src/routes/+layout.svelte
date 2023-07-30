@@ -77,7 +77,7 @@
             if (cache[id]) return;
 
             try {
-                const request = await fetch(`/api/get-tag/${id}`);
+                const request = await fetch(`/api/get-tag/${id || "0"}`);
                 if (!request.ok) throw 0;
 
                 const response = await request.text();

@@ -129,6 +129,10 @@ button:disabled {
     border-radius: 5px;
 }
 
+.mono {
+    font-family: "Share Tech Mono", monospace;
+}
+
 pre,
 code {
     background-color: #88888822;

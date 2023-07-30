@@ -18,7 +18,7 @@
 
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import { swap, without } from "$lib/util";
+    import ListButtons from "$lib/ListButtons.svelte";
 
     export let data: any;
 
@@ -182,40 +182,7 @@
                                 style="width: 500px"
                             />
                         </td>
-                        <td>
-                            {#if index > 0}
-                                <a
-                                    href={"javascript:void(0)"}
-                                    class="row"
-                                    on:click={() =>
-                                        (data.entries = swap(data.entries, index, index - 1))}
-                                >
-                                    <i class="material-icons">expand_less</i>
-                                </a>
-                            {/if}
-                        </td>
-                        <td>
-                            {#if index < data.entries.length - 1}
-                                <a
-                                    href={"javascript:void(0)"}
-                                    class="row"
-                                    on:click={() =>
-                                        (data.entries = swap(data.entries, index, index + 1))}
-                                >
-                                    <i class="material-icons">expand_more</i>
-                                </a>
-                            {/if}
-                        </td>
-                        <td>
-                            <a
-                                href={"javascript:void(0)"}
-                                class="row"
-                                on:click={() => (data.entries = without(data.entries, index))}
-                                style="color: var(--red-text)"
-                            >
-                                <i class="material-icons">delete</i>
-                            </a>
-                        </td>
+                        <ListButtons bind:array={data.entries} {index} table delete_last />
                     </tr>
                 {/each}
             </table>

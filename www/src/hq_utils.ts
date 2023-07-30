@@ -19,8 +19,8 @@ import {
     NOMINATING_TAG,
     VOTE_BOT_TOKEN,
 } from "$env/static/private";
-import { bar, characters } from "./lib/data.js";
 import db from "./db.js";
+import { get_characters } from "$lib/data.js";
 
 const api = async (route: string) => await (await fetch(`${PUBLIC_TCN_API}${route}`)).json();
 let hq: Guild;
@@ -274,15 +274,23 @@ hq_bot.on("interactionCreate", async (interaction) => {
             const guilds = await api("/guilds");
             guilds.sort((x: any, y: any) => x.name.localeCompare(y.name));
 
+            const characters = Object.entries(await get_characters()).reduce(
+                (o: Record<string, string>, [id, char]) => ({
+                    ...o,
+                    [id]: `${char.element} ${char.weapon} ${char.region} ${char.name}`,
+                }),
+                {},
+            );
+
             while (guilds.length > 0) {
                 await interaction.channel!.send({
                     embeds: await Promise.all(
                         guilds.splice(0, 10).map(async (guild: any) =>
                             ((owner, advisor) => ({
                                 title: guild.name,
-                                description: `${characters[guild.character].join(
-                                    " ",
-                                )}\n\n**Owner:** ${owner} (${
+                                description: `${
+                                    characters[guild.character]
+                                }\n\n**Owner:** ${owner} (${
                                     owner.discriminator === "0" ? owner.username : owner.tag
                                 })${
                                     advisor
@@ -297,7 +305,7 @@ hq_bot.on("interactionCreate", async (interaction) => {
                                 thumbnail: {
                                     url: `${PUBLIC_DOMAIN}/images/characters/${guild.character}.png`,
                                 },
-                                ...bar,
+                                image: { url: "https://i.imgur.com/U9Wqlug.png" },
                                 footer: { text: guild.id },
                             }))(
                                 await hq_bot.users.fetch(guild.owner),
@@ -307,6 +315,10 @@ hq_bot.on("interactionCreate", async (interaction) => {
                     ),
                 });
             }
+
+            await interaction.channel!.send(
+                "https://embeds.leaf.moe/TCN_partners\n\n**Autosync Guide:** https://teyvatcollective.network/info/partner-list#autosync",
+            );
 
             await interaction.followUp({ content: "Done!", ephemeral: true });
         } else if (interaction.commandName === "election") {
