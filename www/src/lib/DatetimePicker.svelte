@@ -59,47 +59,54 @@
 
         document.getElementById(id)!.focus();
     }
+
+    let width: number;
 </script>
 
-<svelte:window on:click={() => (expand_date = expand_time = false)} />
+<svelte:window bind:innerWidth={width} on:click={() => (expand_date = expand_time = false)} />
 
-<div class="row" style="gap: 10px">
+<div class="row" style="gap: 10px; flex-wrap: wrap">
     {#if show_date}
-        <span style="position: relative" class="inline-row">
-            <a
-                href={"javascript:void(0)"}
-                class="inline-row"
-                on:click={(e) => ((expand_date = true), (expand_time = false), e.stopPropagation())}
-            >
-                <i class="material-icons">event</i>
-            </a>
-            {#if expand_date}
-                <div
-                    class="panel"
-                    on:click={(e) => e.stopPropagation()}
-                    on:keydown={() => {}}
-                    style="position: absolute; background-color: var(--background-3); border: 1px solid var(--text-accent); top: 50px"
+        {#if width >= 1200}
+            <span style="position: relative" class="inline-row">
+                <a
+                    href={"javascript:void(0)"}
+                    class="inline-row"
+                    on:click={(e) => (
+                        (expand_date = true),
+                        (level = "dates"),
+                        (expand_time = false),
+                        e.stopPropagation()
+                    )}
                 >
-                    <h5>Select&nbsp;Date</h5>
-                    <a
-                        href={"javascript:void(0)"}
-                        class="inline-row"
-                        on:click={() => {
-                            const now = new Date();
-                            year = now.getFullYear();
-                            month = now.getMonth();
-                            date = now.getDate();
-                            level = "dates";
-                        }}
-                        style="gap: 10px"
+                    <i class="material-icons">event</i>
+                </a>
+                {#if expand_date}
+                    <div
+                        class="panel"
+                        on:click={(e) => e.stopPropagation()}
+                        on:keydown={() => {}}
+                        style="position: absolute; background-color: var(--background-3); border: 1px solid var(--text-accent); top: 50px"
                     >
-                        <i class="material-icons">today</i> today
-                    </a>
-                    {#if level == "dates"}
-                        {#if year != undefined && month != undefined}
-                            <table>
-                                <tr>
-                                    <td>
+                        <h5>Select&nbsp;Date</h5>
+                        <a
+                            href={"javascript:void(0)"}
+                            class="inline-row"
+                            on:click={() => {
+                                const now = new Date();
+                                year = now.getFullYear();
+                                month = now.getMonth();
+                                date = now.getDate();
+                                level = "dates";
+                            }}
+                            style="gap: 10px"
+                        >
+                            <i class="material-icons">today</i> today
+                        </a>
+                        {#if level == "dates"}
+                            {#if year != undefined && month != undefined}
+                                <div class="grid" style="grid-template-columns: repeat(7, 1fr)">
+                                    <div class="row">
                                         <a
                                             href={"javascript:void(0)"}
                                             class="row"
@@ -107,16 +114,16 @@
                                         >
                                             <i class="material-icons">chevron_left</i>
                                         </a>
-                                    </td>
-                                    <td colspan={5}>
+                                    </div>
+                                    <div style="grid-column: 2 / span 5">
                                         <a
                                             href={"javascript:void(0)"}
                                             on:click={() => (level = "years")}
                                         >
                                             {year}
                                         </a>
-                                    </td>
-                                    <td>
+                                    </div>
+                                    <div class="row">
                                         <a
                                             href={"javascript:void(0)"}
                                             class="row"
@@ -124,10 +131,8 @@
                                         >
                                             <i class="material-icons">chevron_right</i>
                                         </a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
+                                    </div>
+                                    <div class="row">
                                         <a
                                             href={"javascript:void(0)"}
                                             class="row"
@@ -139,16 +144,16 @@
                                         >
                                             <i class="material-icons">chevron_left</i>
                                         </a>
-                                    </td>
-                                    <td colspan={5}>
+                                    </div>
+                                    <div style="grid-column: 2 / span 5">
                                         <a
                                             href={"javascript:void(0)"}
                                             on:click={() => (level = "months")}
                                         >
                                             {months[month]}
                                         </a>
-                                    </td>
-                                    <td>
+                                    </div>
+                                    <div class="row">
                                         <a
                                             href={"javascript:void(0)"}
                                             class="row"
@@ -160,14 +165,12 @@
                                         >
                                             <i class="material-icons">chevron_right</i>
                                         </a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    {#each new Array(offset).fill(0) as _}
-                                        <td />
-                                    {/each}
-                                    {#each new Array(7 - offset).fill(0) as _, i}
-                                        <td style="padding: 0 7px">
+                                    </div>
+                                    {#if offset > 0}
+                                        <div style="grid-column: 1 / span {offset}" />
+                                    {/if}
+                                    {#each new Array(lengths[month]).fill(0) as _, i}
+                                        <div>
                                             <a
                                                 href={"javascript:void(0)"}
                                                 on:click={() => (
@@ -178,38 +181,19 @@
                                                     {i + 1}
                                                 </code>
                                             </a>
-                                        </td>
+                                        </div>
                                     {/each}
-                                </tr>
-                                {#each new Array(5).fill(0) as _, row}
-                                    {#if row * 7 + 7 <= lengths[month]}
-                                        <tr>
-                                            {#each new Array(7).fill(0) as _, i}
-                                                <td style="padding: 0 7px">
-                                                    {#if row * 7 + i + 7 <= lengths[month]}
-                                                        <a
-                                                            href={"javascript:void(0)"}
-                                                            on:click={() => (
-                                                                (date = row * 7 + i + 7),
-                                                                (expand_date = false)
-                                                            )}
-                                                        >
-                                                            <code class="plain" style="padding: 0">
-                                                                {row * 7 + i + 7}
-                                                            </code>
-                                                        </a>
-                                                    {/if}
-                                                </td>
-                                            {/each}
-                                        </tr>
+                                    {#if (lengths[month] + offset) % 7 > 0}
+                                        <div
+                                            style="grid-column: {((lengths[month] + offset) % 7) +
+                                                1} / 8"
+                                        />
                                     {/if}
-                                {/each}
-                            </table>
-                        {/if}
-                    {:else if level == "months"}
-                        <table>
-                            <tr>
-                                <td>
+                                </div>
+                            {/if}
+                        {:else if level == "months"}
+                            <div class="grid" style="grid-template-columns: repeat(1fr, 6)">
+                                <div class="row">
                                     <a
                                         href={"javascript:void(0)"}
                                         class="row"
@@ -217,16 +201,16 @@
                                     >
                                         <i class="material-icons">chevron_left</i>
                                     </a>
-                                </td>
-                                <td>
+                                </div>
+                                <div style="grid-column: 2 / 6">
                                     <a
                                         href={"javascript:void(0)"}
                                         on:click={() => (level = "years")}
                                     >
                                         {year}
                                     </a>
-                                </td>
-                                <td>
+                                </div>
+                                <div class="row" style="grid-column: 6">
                                     <a
                                         href={"javascript:void(0)"}
                                         class="row"
@@ -234,33 +218,25 @@
                                     >
                                         <i class="material-icons">chevron_right</i>
                                     </a>
-                                </td>
-                            </tr>
-                            {#each [0, 1, 2, 3] as row}
-                                <tr>
-                                    {#each [0, 1, 2] as col}
-                                        <td style="padding: 0 10px">
-                                            <a
-                                                href={"javascript:void(0)"}
-                                                on:click={() => (
-                                                    (month = row * 3 + col),
-                                                    (level = "dates"),
-                                                    (date = Math.min(date ?? 1, lengths[month]))
-                                                )}
-                                            >
-                                                <code class="plain" style="padding: 0">
-                                                    {months[row * 3 + col]}
-                                                </code>
-                                            </a>
-                                        </td>
-                                    {/each}
-                                </tr>
-                            {/each}
-                        </table>
-                    {:else if level == "years"}
-                        <table>
-                            <tr>
-                                <td>
+                                </div>
+                                {#each months as m, i}
+                                    <div style="grid-column: auto / span 2; padding: 0 10px">
+                                        <a
+                                            href={"javascript:void(0)"}
+                                            on:click={() => (
+                                                (month = i),
+                                                (level = "dates"),
+                                                (date = Math.min(date ?? 1, lengths[i]))
+                                            )}
+                                        >
+                                            <code class="plain" style="padding: 0">{m}</code>
+                                        </a>
+                                    </div>
+                                {/each}
+                            </div>
+                        {:else if level == "years"}
+                            <div class="grid" style="grid-template-columns: 2fr repeat(3fr, 4) 2fr">
+                                <div class="row" style="grid-area: 1 / 1 / 4 / 2">
                                     <a
                                         href={"javascript:void(0)"}
                                         class="row"
@@ -268,48 +244,24 @@
                                     >
                                         <i class="material-icons">chevron_left</i>
                                     </a>
-                                </td>
-                                <td style="padding: 0; border: none">
-                                    <table style="border: none">
-                                        {#each [0, 1, 2] as row}
-                                            <tr style="border: none">
-                                                {#each [0, 1, 2, 3] as col}
-                                                    {@const this_year =
-                                                        (year ?? 0) -
-                                                        ((year ?? 0) % 10) -
-                                                        1 +
-                                                        row * 4 +
-                                                        col}
+                                </div>
+                                {#each new Array(12).fill(0) as _, o}
+                                    {@const this_year = (year ?? 0) - ((year ?? 0) % 10) + o}
 
-                                                    <td
-                                                        style="{row === 0
-                                                            ? 'border-top: none;'
-                                                            : ''} {row === 2
-                                                            ? 'border-bottom: none;'
-                                                            : ''} {col === 0
-                                                            ? 'border-left: none;'
-                                                            : ''} {col === 3
-                                                            ? 'border-right: none;'
-                                                            : ''}"
-                                                    >
-                                                        <a
-                                                            href={"javascript:void(0)"}
-                                                            on:click={() => (
-                                                                (year = this_year),
-                                                                (level = "months")
-                                                            )}
-                                                        >
-                                                            <code class="plain" style="padding: 0">
-                                                                {this_year}
-                                                            </code>
-                                                        </a>
-                                                    </td>
-                                                {/each}
-                                            </tr>
-                                        {/each}
-                                    </table>
-                                </td>
-                                <td>
+                                    <div>
+                                        <a
+                                            href={"javascript:void(0)"}
+                                            on:click={() => (
+                                                (year = this_year), (level = "months")
+                                            )}
+                                        >
+                                            <code class="plain" style="padding: 0">
+                                                {this_year}
+                                            </code>
+                                        </a>
+                                    </div>
+                                {/each}
+                                <div class="row" style="grid-area: 1 / 6 / 4 / 7">
                                     <a
                                         href={"javascript:void(0)"}
                                         class="row"
@@ -317,13 +269,13 @@
                                     >
                                         <i class="material-icons">chevron_right</i>
                                     </a>
-                                </td>
-                            </tr>
-                        </table>
-                    {/if}
-                </div>
-            {/if}
-        </span>
+                                </div>
+                            </div>
+                        {/if}
+                    </div>
+                {/if}
+            </span>
+        {/if}
         <label>
             Y:
             <input
@@ -358,149 +310,153 @@
         {/if}
     {/if}
     {#if show_time}
-        <span style="position: relative" class="inline-row">
-            <a
-                href={"javascript:void(0)"}
-                class="inline-row"
-                on:click={(e) => (
-                    (expand_time = true),
-                    (hover = hour ?? 0),
-                    (stage = "hour"),
-                    (expand_date = false),
-                    e.stopPropagation()
-                )}
-            >
-                <i class="material-icons">schedule</i>
-            </a>
-            {#if expand_time}
-                <div
-                    class="panel"
-                    on:click={(e) => e.stopPropagation()}
-                    on:keydown={() => {}}
-                    style="position: absolute; background-color: var(--background-3); border: 1px solid var(--text-accent); top: 50px"
+        {#if width >= 1200}
+            <span style="position: relative" class="inline-row">
+                <a
+                    href={"javascript:void(0)"}
+                    class="inline-row"
+                    on:click={(e) => (
+                        (expand_time = true),
+                        (hover = hour ?? 0),
+                        (stage = "hour"),
+                        (expand_date = false),
+                        e.stopPropagation()
+                    )}
                 >
-                    <h5>Select&nbsp;Time</h5>
-                    <a
-                        href={"javascript:void(0)"}
-                        class="inline-row"
-                        on:click={() => {
-                            const now = new Date();
-                            hour = now.getHours();
-                            minute = now.getMinutes();
-                            second = now.getSeconds();
-                            expand_time = false;
-                        }}
-                        style="gap: 10px"
+                    <i class="material-icons">schedule</i>
+                </a>
+                {#if expand_time}
+                    <div
+                        class="panel"
+                        on:click={(e) => e.stopPropagation()}
+                        on:keydown={() => {}}
+                        style="position: absolute; background-color: var(--background-3); border: 1px solid var(--text-accent); top: 50px"
                     >
-                        <i class="material-icons">today</i> now
-                    </a>
-                    {#if stage == "hour"}
-                        <div style="position: relative">
-                            {#each new Array(24).fill(0) as _, h}
-                                <span
-                                    class="row"
-                                    style="position: absolute; cursor: default; width: 40px; height: 40px; z-index: 1; justify-content: center; border-radius: 50%; top: {Math.cos(
-                                        (h / 6 + 1) * Math.PI,
-                                    ) *
-                                        (h >= 12 ? 160 : 120) +
-                                        150}px; left: {Math.sin((h / 6) * Math.PI) *
-                                        (h >= 12 ? 160 : 120) +
-                                        150}px; {hover === h
-                                        ? 'background-color: var(--accent)'
-                                        : ''}"
-                                    on:mouseenter={() => (hover = h)}
-                                >
-                                    <a
-                                        href={"javascript:void(0)"}
-                                        on:click={() => (
-                                            (hour = h), (hover = minute ?? 0), (stage = "minute")
-                                        )}
-                                    >
-                                        <code class="plain" style="padding: 0">
-                                            {h.toString().padStart(2, "0")}
-                                        </code>
-                                    </a>
-                                </span>
-                            {/each}
-                            <hr
-                                style="position: absolute; width: {hover >= 12
-                                    ? 160
-                                    : 120}px; top: 160px; left: 169px; border: 2px solid var(--accent); transform-origin: 0 50%; transform: rotate({((hover -
-                                    3) /
-                                    6) *
-                                    180}deg)"
-                            />
-                            <span
-                                class="row"
-                                style="position: absolute; color: var(--text-secondary); font-size: 200%; top: 140px; left: 100px; justify-content: center; width: 140px; height: 60px"
-                            >
-                                <code class="plain">HOURS</code>
-                            </span>
-                        </div>
-                    {:else}
-                        <div style="position: relative">
-                            {#each new Array(60).fill(0) as _, t}
-                                {#if t % 5 === 0}
+                        <h5>Select&nbsp;Time</h5>
+                        <a
+                            href={"javascript:void(0)"}
+                            class="inline-row"
+                            on:click={() => {
+                                const now = new Date();
+                                hour = now.getHours();
+                                minute = now.getMinutes();
+                                second = now.getSeconds();
+                                expand_time = false;
+                            }}
+                            style="gap: 10px"
+                        >
+                            <i class="material-icons">today</i> now
+                        </a>
+                        {#if stage == "hour"}
+                            <div style="position: relative">
+                                {#each new Array(24).fill(0) as _, h}
                                     <span
                                         class="row"
                                         style="position: absolute; cursor: default; width: 40px; height: 40px; z-index: 1; justify-content: center; border-radius: 50%; top: {Math.cos(
-                                            (t / 30 + 1) * Math.PI,
+                                            (h / 6 + 1) * Math.PI,
                                         ) *
-                                            120 +
-                                            150}px; left: {Math.sin((t / 30) * Math.PI) * 120 +
-                                            150}px"
+                                            (h >= 12 ? 160 : 120) +
+                                            150}px; left: {Math.sin((h / 6) * Math.PI) *
+                                            (h >= 12 ? 160 : 120) +
+                                            150}px; {hover === h
+                                            ? 'background-color: var(--accent)'
+                                            : ''}"
+                                        on:mouseenter={() => (hover = h)}
                                     >
-                                        <code class="plain" style="padding: 0">
-                                            {t.toString().padStart(2, "0")}
-                                        </code>
+                                        <a
+                                            href={"javascript:void(0)"}
+                                            on:click={() => (
+                                                (hour = h),
+                                                (hover = minute ?? 0),
+                                                (stage = "minute")
+                                            )}
+                                        >
+                                            <code class="plain" style="padding: 0">
+                                                {h.toString().padStart(2, "0")}
+                                            </code>
+                                        </a>
                                     </span>
-                                {/if}
+                                {/each}
+                                <hr
+                                    style="position: absolute; width: {hover >= 12
+                                        ? 160
+                                        : 120}px; top: 160px; left: 169px; border: 2px solid var(--accent); transform-origin: 0 50%; transform: rotate({((hover -
+                                        3) /
+                                        6) *
+                                        180}deg)"
+                                />
                                 <span
                                     class="row"
-                                    style="position: absolute; cursor: default; width: 6px; height: 20px; z-index: 1; margin-left: -1px; border-radius: 2px; top: {Math.cos(
-                                        (t / 30 + 1) * Math.PI,
-                                    ) *
-                                        160 +
-                                        160}px; left: {Math.sin((t / 30) * Math.PI) * 160 +
-                                        167}px; transform: rotate({(t / 30) * 180}deg)"
+                                    style="position: absolute; color: var(--text-secondary); font-size: 200%; top: 140px; left: 100px; justify-content: center; width: 140px; height: 60px"
                                 >
-                                    <a
-                                        href={"javascript:void(0)"}
-                                        on:click={() =>
-                                            stage === "minute"
-                                                ? ((minute = t),
-                                                  (hover = second ?? 0),
-                                                  (stage = "second"))
-                                                : ((second = t), (expand_time = false))}
-                                        on:mouseenter={() => (hover = t)}
-                                    >
-                                        <code
-                                            class="plain"
-                                            style="padding: 0; {t % 5 === 0
-                                                ? 'font-size: 120%; margin-left: -1.5px'
-                                                : ''}">|</code
-                                        >
-                                    </a>
+                                    <code class="plain">HOURS</code>
                                 </span>
-                            {/each}
-                            <hr
-                                style="position: absolute; width: 160px; top: 160px; left: 169px; border: 2px solid var(--accent); transform-origin: 0 0; transform: rotate({((hover -
-                                    15) /
-                                    30) *
-                                    180}deg)"
-                            />
-                            <span
-                                class="row"
-                                style="position: absolute; color: var(--text-secondary); font-size: 200%; top: 140px; left: 100px; justify-content: center; width: 140px; height: 60px"
-                            >
-                                <code class="plain">{stage.toUpperCase()}S</code>
-                            </span>
-                        </div>
-                    {/if}
-                    <div style="width: 340px; height: 360px" />
-                </div>
-            {/if}
-        </span>
+                            </div>
+                        {:else}
+                            <div style="position: relative">
+                                {#each new Array(60).fill(0) as _, t}
+                                    {#if t % 5 === 0}
+                                        <span
+                                            class="row"
+                                            style="position: absolute; cursor: default; width: 40px; height: 40px; z-index: 1; justify-content: center; border-radius: 50%; top: {Math.cos(
+                                                (t / 30 + 1) * Math.PI,
+                                            ) *
+                                                120 +
+                                                150}px; left: {Math.sin((t / 30) * Math.PI) * 120 +
+                                                150}px"
+                                        >
+                                            <code class="plain" style="padding: 0">
+                                                {t.toString().padStart(2, "0")}
+                                            </code>
+                                        </span>
+                                    {/if}
+                                    <span
+                                        class="row"
+                                        style="position: absolute; cursor: default; width: 6px; height: 20px; z-index: 1; margin-left: -1px; border-radius: 2px; top: {Math.cos(
+                                            (t / 30 + 1) * Math.PI,
+                                        ) *
+                                            160 +
+                                            160}px; left: {Math.sin((t / 30) * Math.PI) * 160 +
+                                            167}px; transform: rotate({(t / 30) * 180}deg)"
+                                    >
+                                        <a
+                                            href={"javascript:void(0)"}
+                                            on:click={() =>
+                                                stage === "minute"
+                                                    ? ((minute = t),
+                                                      (hover = second ?? 0),
+                                                      (stage = "second"))
+                                                    : ((second = t), (expand_time = false))}
+                                            on:mouseenter={() => (hover = t)}
+                                        >
+                                            <code
+                                                class="plain"
+                                                style="padding: 0; {t % 5 === 0
+                                                    ? 'font-size: 120%; margin-left: -1.5px'
+                                                    : ''}">|</code
+                                            >
+                                        </a>
+                                    </span>
+                                {/each}
+                                <hr
+                                    style="position: absolute; width: 160px; top: 160px; left: 169px; border: 2px solid var(--accent); transform-origin: 0 0; transform: rotate({((hover -
+                                        15) /
+                                        30) *
+                                        180}deg)"
+                                />
+                                <span
+                                    class="row"
+                                    style="position: absolute; color: var(--text-secondary); font-size: 200%; top: 140px; left: 100px; justify-content: center; width: 140px; height: 60px"
+                                >
+                                    <code class="plain">{stage.toUpperCase()}S</code>
+                                </span>
+                            </div>
+                        {/if}
+                        <div style="width: 340px; height: 360px" />
+                    </div>
+                {/if}
+            </span>
+        {/if}
         <label>
             H:
             <input
@@ -573,11 +529,26 @@
         appearance: textfield;
     }
 
-    td {
-        text-align: center;
-    }
-
     a.row {
         justify-content: center;
+    }
+
+    .grid {
+        display: grid;
+
+        &,
+        & > * {
+            border: solid var(--text-secondary);
+        }
+
+        & {
+            border-width: 1px 1px 0 0;
+        }
+
+        & > * {
+            text-align: center;
+            padding: 2px 5px;
+            border-width: 0 0 1px 1px;
+        }
     }
 </style>
