@@ -210,7 +210,7 @@ input[type="radio"] {
 
 input[type="checkbox"]:checked,
 input[type="radio"]:checked {
-    background-color: var(--text-accent);
+    background-color: var(--text-accent) !important;
 }
 
 label {

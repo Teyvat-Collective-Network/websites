@@ -168,7 +168,7 @@
                         {/if}
                         <h3>
                             {data.doc.name}
-                            {#if data.doc.author.id === data.user?.id || (data.doc.editable_observers && data.observer) || (data.doc.editable_council && data.council)}&nbsp;<a
+                            {#if (data.doc.author && data.doc.author.id === data.user?.id) || (data.doc.editable_observers && data.observer) || (data.doc.editable_council && data.council)}&nbsp;<a
                                     href="/docs/edit/{data.doc.id}"
                                     ><i class="material-icons">edit</i></a
                                 >{/if}

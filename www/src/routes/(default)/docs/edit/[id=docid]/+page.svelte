@@ -154,17 +154,21 @@
                 <input
                     type="text"
                     bind:value={data.doc.embed_title}
-                    placeholder={data.doc.anon ? "TCN Document" : data.doc.name}
+                    placeholder={data.doc.allow_everyone ? data.doc.name : "TCN Document"}
                 />
                 <p><b>Embed Body</b></p>
                 <input
                     type="text"
                     bind:value={data.doc.embed_body}
-                    placeholder={data.doc.anon
-                        ? "Sign in to view this document."
-                        : `Author: ${data.user.username}${
-                              data.user.discriminator === "0" ? "" : `#${data.user.discriminator}`
-                          }`}
+                    placeholder={data.doc.allow_everyone
+                        ? data.doc.anon
+                            ? ""
+                            : `Author: ${data.user.username}${
+                                  data.user.discriminator === "0"
+                                      ? ""
+                                      : `#${data.user.discriminator}`
+                              }`
+                        : "Sign in to view this document."}
                 />
                 <p><b>Embed Color</b></p>
                 <input

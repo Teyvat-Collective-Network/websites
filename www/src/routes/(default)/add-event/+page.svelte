@@ -1,10 +1,11 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import DatetimePicker from "$lib/DatetimePicker.svelte";
     import { Modal, Textarea } from "@daedalus-discord/webkit";
     import { marked as parse } from "marked";
     import { hex } from "wcag-contrast";
 
-    let data: any = { start: new Date().getTime(), end: new Date().getTime() + 86400000 };
+    let data: any = { start: new Date(), end: new Date(new Date().getTime() + 86400000) };
     let button: any;
 
     async function submit() {
@@ -16,7 +17,7 @@
         const request = await fetch("/add-event/submit", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
+            body: JSON.stringify({ ...data, start: data.start.getTime(), end: data.end.getTime() }),
         });
 
         if (!request.ok) {
@@ -40,24 +41,10 @@
 <div class="container">
     <h2>Dates</h2>
 
-    <p>
-        You can use <a href="https://www.timestamp-converter.com/" target="_blank" rel="noreferrer"
-            >https://www.timestamp-converter.com/</a
-        >
-        to generate timestamps. <b>Make sure you are using millisecond timestamps.</b>
-    </p>
-
-    <div class="row" style="gap: 10px">
-        <div class="col no-center">
-            <input type="number" bind:value={data.start} placeholder="Start (UTC Timestamp)" />
-            {new Date(data.start || 0).toISOString()}
-        </div>
-        -
-        <div class="col no-center">
-            <input type="number" bind:value={data.end} placeholder="End (UTC Timestamp)" />
-            {new Date(data.end || 0).toISOString()}
-        </div>
-    </div>
+    <h4>Start</h4>
+    <DatetimePicker bind:value={data.start} show_date show_time />
+    <h4>End</h4>
+    <DatetimePicker bind:value={data.end} show_date show_time />
 
     <h2>Display</h2>
 

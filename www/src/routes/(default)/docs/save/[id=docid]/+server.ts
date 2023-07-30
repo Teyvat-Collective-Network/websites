@@ -24,14 +24,16 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         if (doc.embed_color && !doc.embed_color.match(/^[0-9a-f]{6}$/i))
             throw "Embed color must be a 6-digit hex number.";
 
-        doc.embed_title ||= doc.anon ? "TCN Document" : doc.name;
-        doc.embed_body ||= doc.anon
-            ? "Sign in to view this document."
-            : `Author: ${(locals as any).user.username}${
-                  (locals as any).user.discriminator === "0"
-                      ? ""
-                      : `#${(locals as any).user.discriminator}`
-              }`;
+        doc.embed_title ||= doc.allow_everyone ? doc.name : "TCN Document";
+        doc.embed_body ||= doc.allow_everyone
+            ? doc.anon
+                ? ""
+                : `Author: ${(locals as any).user.username}${
+                      (locals as any).user.discriminator === "0"
+                          ? ""
+                          : `#${(locals as any).user.discriminator}`
+                  }`
+            : "Sign in to view this document.";
         doc.embed_color ||= "2b2d31";
 
         if (id === "new") {

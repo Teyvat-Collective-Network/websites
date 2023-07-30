@@ -131,11 +131,14 @@
                     <a href="/vote" class="t2 {staff_open ? '' : 'hidden'}">Voting Center</a>
                 {/if}
                 <a href="/docs" class="t2 {staff_open ? '' : 'hidden'}">Documents</a>
+                <a href="/forms" class="t2 {staff_open ? '' : 'hidden'}">Forms</a>
                 <a href="/historical-records" class="t2 {staff_open ? '' : 'hidden'}"
                     >Historical Records</a
                 >
                 {#if data.observer}
-                    <a href="/admin/data-manager" class="t2 {staff_open ? '' : 'hidden'}">Data Manager</a>
+                    <a href="/admin/data-manager" class="t2 {staff_open ? '' : 'hidden'}"
+                        >Data Manager</a
+                    >
                 {/if}
             {/if}
             <a
