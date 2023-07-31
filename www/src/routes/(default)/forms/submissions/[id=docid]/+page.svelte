@@ -8,7 +8,7 @@
 
     const questions: any[] = data.form.pages.flatMap((page: any) => page.questions);
 
-    let mode: string = "individual";
+    let mode: string = "summary";
     let si: number = 1;
 
     function has_user(x: any) {
