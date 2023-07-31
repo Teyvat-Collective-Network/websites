@@ -167,6 +167,8 @@
         else alert("Submitted!"), goto("/");
     }
 
+    let reload_success = false;
+
     async function reload() {
         const request = await fetch(`/form/${data.form.id}/data`);
         const d = await request.json();
@@ -206,11 +208,23 @@
             }
         }
 
-        data.form.pages = d.form.pages;
+        for (const key of [
+            "allow_council",
+            "allow_everyone",
+            "allow_logged_in",
+            "allowlist",
+            "collect_names",
+            "name",
+            "pages",
+        ])
+            data.form[key] = d.form[key];
 
         page = 0;
 
         setTimeout(update, 500);
+
+        reload_success = true;
+        setTimeout(() => (reload_success = false), 1500);
     }
 </script>
 
@@ -349,8 +363,23 @@
                                     ><i class="material-icons">delete</i></a
                                 >{/if}
                         </h3>
+                        <p>
+                            <b>
+                                {#if data.form.collect_names}
+                                    This form will include your username/ID on submission.
+                                {:else}
+                                    This form is anonymous and will not include your username/ID on
+                                    submission.
+                                {/if}
+                            </b>
+                        </p>
                         <hr />
-                        <p><button on:click={reload}>Reload Data</button></p>
+                        <p class="row" style="gap: 10px">
+                            <button on:click={reload}>Reload Data</button>
+                            {#if reload_success}
+                                <i class="material-icons" style="color: var(--green-text)">check</i>
+                            {/if}
+                        </p>
                         <div class="panel">
                             <h4>{page.name}</h4>
                             {@html page.description}

@@ -28,6 +28,9 @@
                     {#each data.forms ?? [] as { id, name }}
                         <li>
                             <a href="/forms/edit/{id}" style="color: var(--blue-text)">[edit]</a>
+                            <a href="/forms/submissions/{id}" style="color: var(--green-text)">
+                                [view submissions]
+                            </a>
                             <a href="/form/{id}">{name}</a>
                         </li>
                     {/each}

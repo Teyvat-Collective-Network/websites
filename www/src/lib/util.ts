@@ -88,7 +88,7 @@ export function markdown_postprocess(text: string, reader: any) {
     while ((match = text.match(regex)))
         text = text.replace(
             regex,
-            `<span class="mention"><i class="material-icons">schedule</i> &nbsp; ${match[1]}</span>`,
+            `<span class="mention"><i class="material-icons">schedule</i> &nbsp;${match[1]}</span>`,
         );
 
     text = text.replace(

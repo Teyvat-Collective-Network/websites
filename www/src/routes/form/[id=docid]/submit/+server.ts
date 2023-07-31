@@ -2,9 +2,11 @@ import type { RequestHandler } from "@sveltejs/kit";
 import db from "../../../../db.js";
 import { email_regex, url_regex } from "$lib/util.js";
 
-export const POST: RequestHandler = async ({ request, params, locals }) => {
+export const POST: RequestHandler = async ({ request, params, locals, fetch }) => {
     const data = await db.forms.findOne({ id: params.id });
     const reader = (locals as any).user;
+
+    const answers = [];
 
     try {
         if (!data || data.deleted) throw 0;
@@ -30,6 +32,10 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
             for (let qi = 0; qi < dpage.questions.length; qi++) {
                 const dq = dpage.questions[qi];
                 const q = page.questions[qi];
+
+                if (dq.type !== q.type) throw 0;
+
+                let empty = false;
 
                 if (["short", "long"].includes(dq.type))
                     if (q.value)
@@ -64,8 +70,10 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
                             q.value.length > dq.max
                         )
                             throw 0;
+                        else if (dq.type === "short") q.value = q.value.replace(/\r\f|\n/g, " ");
                         else;
                     else if (dq.required) throw 0;
+                    else empty = true;
                 if (dq.type === "number")
                     if (q.value != undefined)
                         if (dq.min != undefined && q.value < dq.min) throw 0;
@@ -73,17 +81,22 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
                         else if (!dq.float && q.value % 1 !== 0) throw 0;
                         else;
                     else if (dq.required) throw 0;
+                    else empty = true;
                 if (dq.type === "mcq")
                     if (dq.max === 1) {
-                        if (!q.value && dq.required) throw 0;
+                        if (!q.value)
+                            if (dq.required) throw 0;
+                            else empty = true;
                     } else {
                         const length = Object.values(q.selected).filter((x) => x).length;
                         if (dq.min != undefined && length < dq.min) throw 0;
                         else if (dq.max != undefined && length > dq.max) throw 0;
-                        else if (length === 0 && dq.required) throw 0;
+                        else if (length === 0)
+                            if (dq.required) throw 0;
+                            else empty = true;
                     }
                 if (dq.type === "date")
-                    if (q.date)
+                    if ((q.date &&= new Date(q.date)))
                         if (dq.show_date && dq.relative_time === "past") {
                             if (!dq.show_time) {
                                 q.date.setHours(0);
@@ -102,13 +115,49 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
                             if (q.date < new Date()) throw 0;
                         } else;
                     else if (dq.required) throw 0;
+                    else empty = true;
+
+                if (!empty)
+                    answers.push({
+                        id: dq.id,
+                        question: dq.question,
+                        answer: ["short", "long", "number"].includes(dq.type)
+                            ? q.value
+                            : dq.type === "mcq"
+                            ? (dq.max === 1
+                                  ? [q.value]
+                                  : Object.entries(q.selected)
+                                        .filter(([, x]) => x)
+                                        .map(([x]) => x)
+                              ).map((x) => ({ index: x, text: dq.options[x] }))
+                            : dq.type === "date"
+                            ? q.date
+                            : null,
+                        ...(dq.type === "date"
+                            ? { show_date: dq.show_date, show_time: dq.show_time }
+                            : {}),
+                        ...(dq.type === "short" && dq.short_format === "user"
+                            ? { user: true }
+                            : {}),
+                    });
+                else answers.push({ id: dq.id, question: dq.question });
             }
         }
-    } catch {
-        return new Response(
-            "Client-side may be out of date. Use the reload button to reload data without losing responses that can be retained.",
-            { status: 400 },
-        );
+    } catch (error) {
+        if (error === 0)
+            return new Response(
+                "Client-side may be out of date. Use the reload button to reload data without losing responses that can be retained.",
+                { status: 400 },
+            );
+
+        console.error(error);
+        return new Response("An unexpected error occurred.", { status: 500 });
     }
+
+    const submission: any = { id: data.id, answers };
+    if (data.collect_names) submission.user = reader.id;
+
+    await db.form_submissions.insertOne(submission);
+
     return new Response();
 };

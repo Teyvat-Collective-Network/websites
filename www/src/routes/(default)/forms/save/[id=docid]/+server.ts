@@ -8,15 +8,18 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     const form = (await request.json()).form;
     let id = params.id;
 
+    const data = id !== "new" ? await db.forms.findOne({ id }) : null;
+
     try {
         if (!(locals as any).council) throw "You are not authorized to use the TCN Forms feature.";
-        if (
-            id !== "new" &&
-            form.author !== (locals as any).user.id &&
-            !(form.editable_observers && (locals as any).observer) &&
-            !(form.editable_council && (locals as any).council)
-        )
-            throw "You are not authorized to edit this form.";
+        if (id !== "new")
+            if (!data || data.deleted) throw "This form no longer exists.";
+            else if (
+                data.author !== (locals as any).user.id &&
+                !(data.editable_observers && (locals as any).observer) &&
+                !(data.editable_council && (locals as any).council)
+            )
+                throw "You are not authorized to edit this form.";
         if (!form.name) throw "No name provided.";
         if (form.name.length > 100) throw "Name cannot exceed 100 characters.";
         if (form.collect_names && form.allow_everyone)
@@ -104,9 +107,15 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                 if (!(await db.forms.findOne({ id }))) break;
             }
         } else {
-            const data = await db.forms.findOne({ id });
-            if (!data) throw "This form no longer exists.";
-            if (data.author !== (locals as any).user.id) throw "You may only edit your own forms.";
+            const ids = new Set<number>();
+            form.pages.forEach((p: any) => p.questions.forEach((q: any) => ids.add(q.id)));
+
+            for (const page of data!.pages)
+                for (const question of page.questions)
+                    if (!ids.has(question.id)) {
+                        form.deleted_questions ??= {};
+                        form.deleted_questions[question.id] = question.question;
+                    }
         }
 
         try {

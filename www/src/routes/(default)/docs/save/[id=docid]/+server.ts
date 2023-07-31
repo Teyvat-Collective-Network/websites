@@ -8,16 +8,19 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     const doc = (await request.json()).doc;
     let id = params.id;
 
+    const data = id !== "new" ? await db.docs.findOne({ id }) : null;
+
     try {
         if (!(locals as any).council)
             throw "You are not authorized to use the TCN Documents feature.";
-        if (
-            id !== "new" &&
-            doc.author !== (locals as any).user.id &&
-            !(doc.editable_observers && (locals as any).observer) &&
-            !(doc.editable_council && (locals as any).council)
-        )
-            throw "You are not authorized to edit this document.";
+        if (id !== "new")
+            if (!data || data.deleted) throw "This document no longer exists.";
+            else if (
+                data.author !== (locals as any).user.id &&
+                !(data.editable_observers && (locals as any).observer) &&
+                !(data.editable_council && (locals as any).council)
+            )
+                throw "You are not authorized to edit this document.";
         if (!(locals as any).observer) doc.official = false;
         if (!doc.name) throw "No name provided.";
         if (doc.name.length > 100) throw "Name cannot exceed 100 characters.";
@@ -47,11 +50,6 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                     .join("");
                 if (!(await db.docs.findOne({ id }))) break;
             }
-        } else {
-            const data = await db.docs.findOne({ id });
-            if (!data) throw "This document no longer exists.";
-            if (data.author !== (locals as any).user.id)
-                throw "You may only edit your own documents.";
         }
 
         try {

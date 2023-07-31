@@ -3,11 +3,16 @@
 
     export async function update() {
         for (const element of document.querySelectorAll("span.time") as any) {
-            const timestamp = parseInt(element.dataset.timestamp);
-            element.innerHTML = new Date(timestamp * 1000 - offset * 60000)
-                .toISOString()
-                .replace("T", "&nbsp;&nbsp;")
-                .slice(0, -5);
+            try {
+                const timestamp = parseInt(element.dataset.timestamp);
+                const isostring = new Date(timestamp * 1000 - offset * 60000).toISOString();
+
+                element.innerHTML = (
+                    element.classList.contains("short")
+                        ? isostring.split("T")[1]
+                        : isostring.replace("T", "&nbsp;&nbsp;")
+                ).slice(0, -5);
+            } catch {}
         }
 
         const cache: Record<string, any> = {};
