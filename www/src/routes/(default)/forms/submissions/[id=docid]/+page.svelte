@@ -103,7 +103,6 @@
                         <h4>{question.question}</h4>
                         <div class="scroll">
                             {#each data.submissions as submission, index}
-                                <pre>{JSON.stringify({ question, submission }, undefined, 4)}</pre>
                                 {@const answer = find(question, submission)}
 
                                 {#if answer && "answer" in answer}
