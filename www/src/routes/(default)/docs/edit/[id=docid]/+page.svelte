@@ -102,8 +102,8 @@
                 <div class="panel">
                     <h3>Access</h3>
                     <p>
-                        Control view access here. Only you can edit/delete this document. Observers
-                        will always have view access.
+                        Control view access here. Only you can edit permissions. Only you and
+                        observers can delete this document. Observers will always have view access.
                     </p>
                     <label>
                         <input type="checkbox" bind:checked={data.doc.allow_council} />

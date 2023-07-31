@@ -159,5 +159,27 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
 
     await db.form_submissions.insertOne(submission);
 
+    if (data.post_to_webhook && data.webhook)
+        try {
+            await fetch(data.webhook, {
+                method: "post",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    embeds: [
+                        {
+                            color: parseInt(data.embed_color, 16),
+                            description: `\`\`\`json\n${JSON.stringify(
+                                submission,
+                                undefined,
+                                4,
+                            )}\n\`\`\``,
+                        },
+                    ],
+                }),
+            });
+        } catch (error) {
+            console.error(error);
+        }
+
     return new Response();
 };

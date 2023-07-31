@@ -20,10 +20,31 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                 !(data.editable_council && (locals as any).council)
             )
                 throw "You are not authorized to edit this form.";
+        if (id !== "new" && data.author !== (locals as any).user.id) {
+            delete form.allow_council;
+            delete form.allow_logged_in;
+            delete form.editable_observers;
+            delete form.editable_council;
+            delete form.allow_everyone;
+            delete form.allowlist;
+            delete form.post_to_webhook;
+            delete form.only_post_link;
+            delete form.webhook;
+            delete form.is_forum;
+            delete form.naming_scheme;
+            delete form.forum_post_name;
+        }
         if (!form.name) throw "No name provided.";
         if (form.name.length > 100) throw "Name cannot exceed 100 characters.";
         if (form.collect_names && form.allow_everyone)
             throw "You cannot collect names while the form is available to everyone including logged-out users.";
+        if (
+            !form.collect_names &&
+            form.post_to_webhook &&
+            form.is_forum &&
+            form.naming_scheme === 0
+        )
+            throw "You cannot use the 'Use Submitter Name' forum post naming scheme when you are not collecting names.";
         if (form.pages.length === 0) throw "At least one page is required.";
         for (let index = 0; index < form.pages.length; index++) {
             const page = form.pages[index];

@@ -1,4 +1,4 @@
-import { ButtonStyle, ComponentType } from "discord.js";
+import { ButtonStyle, ComponentType, type EmbedData } from "discord.js";
 
 export function components(published: boolean, severity?: string): any[] {
     if (published)
@@ -10,7 +10,7 @@ export function components(published: boolean, severity?: string): any[] {
                         type: ComponentType.Button,
                         style: ButtonStyle.Danger,
                         customId: "rescind",
-                        label: "Rescind"
+                        label: "Rescind",
                     },
                     ...(severity === "p2"
                         ? [
@@ -18,8 +18,8 @@ export function components(published: boolean, severity?: string): any[] {
                                   type: ComponentType.Button,
                                   style: ButtonStyle.Primary,
                                   customId: "escalate:p1",
-                                  label: "SEV: P1"
-                              }
+                                  label: "SEV: P1",
+                              },
                           ]
                         : []),
                     ...(severity === "p2" || severity === "p1"
@@ -28,12 +28,12 @@ export function components(published: boolean, severity?: string): any[] {
                                   type: ComponentType.Button,
                                   style: ButtonStyle.Danger,
                                   customId: "escalate:p0",
-                                  label: "SEV: P0"
-                              }
+                                  label: "SEV: P0",
+                              },
                           ]
-                        : [])
-                ]
-            }
+                        : []),
+                ],
+            },
         ];
 
     return [
@@ -45,30 +45,30 @@ export function components(published: boolean, severity?: string): any[] {
                     style: ButtonStyle.Secondary,
                     customId: "sev:dm",
                     label: "TYPE: DM SCAM",
-                    disabled: severity === "dm"
+                    disabled: severity === "dm",
                 },
                 {
                     type: ComponentType.Button,
                     style: ButtonStyle.Secondary,
                     customId: "sev:p2",
                     label: "SEV: P2",
-                    disabled: severity === "p2"
+                    disabled: severity === "p2",
                 },
                 {
                     type: ComponentType.Button,
                     style: ButtonStyle.Primary,
                     customId: "sev:p1",
                     label: "SEV: P1",
-                    disabled: severity === "p1"
+                    disabled: severity === "p1",
                 },
                 {
                     type: ComponentType.Button,
                     style: ButtonStyle.Danger,
                     customId: "sev:p0",
                     label: "SEV: P0",
-                    disabled: severity === "p0"
-                }
-            ]
+                    disabled: severity === "p0",
+                },
+            ],
         },
         {
             type: ComponentType.ActionRow,
@@ -77,15 +77,15 @@ export function components(published: boolean, severity?: string): any[] {
                     type: ComponentType.Button,
                     style: ButtonStyle.Success,
                     customId: "publish",
-                    label: "PUBLISH"
+                    label: "PUBLISH",
                 },
                 {
                     type: ComponentType.Button,
                     style: ButtonStyle.Danger,
                     customId: "reject",
-                    label: "REJECT"
-                }
-            ]
-        }
+                    label: "REJECT",
+                },
+            ],
+        },
     ];
 }

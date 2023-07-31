@@ -49,6 +49,8 @@
             }
         }
     }
+
+    let webhook_input_show = false;
 </script>
 
 <svelte:window
@@ -351,9 +353,85 @@
             </div>
             {#if data.id === "new" || data.form.author === data.user.id}
                 <div class="panel">
+                    <h3>Actions</h3>
+                    <p>Control form actions here. Only you can view and edit this section.</p>
+                    <p>
+                        <label>
+                            <input type="checkbox" bind:checked={data.form.post_to_webhook} />
+                            Post Submission to Webhook
+                        </label>
+                    </p>
+                    {#if data.form.post_to_webhook}
+                        <p>
+                            <label>
+                                <input type="checkbox" bind:checked={data.form.only_post_link} />
+                                Only Post Link (don't include any answers)
+                            </label>
+                        </p>
+                        <p>
+                            <label>
+                                Webhook&nbsp;URL
+                                {#if webhook_input_show}
+                                    <input type="text" bind:value={data.form.webhook} />
+                                {:else}
+                                    <input type="password" bind:value={data.form.webhook} />
+                                {/if}
+                                <a
+                                    href={"javascript:void(0)"}
+                                    class="row"
+                                    on:click={() => (webhook_input_show = !webhook_input_show)}
+                                >
+                                    <i class="material-icons">
+                                        visibility{#if webhook_input_show}_off{/if}
+                                    </i>
+                                </a>
+                            </label>
+                        </p>
+                        <p>
+                            <label>
+                                <input type="checkbox" bind:checked={data.form.is_forum} />
+                                This Webhook is in a Forum Channel
+                            </label>
+                        </p>
+                        {#if data.form.is_forum}
+                            <p>
+                                <label>
+                                    Forum Post Naming Scheme
+                                    <select bind:value={data.form.naming_scheme}>
+                                        <option value={-1}>Static Name</option>
+                                        {#if data.form.collect_names}
+                                            <option value={0}>Use Submitter Name</option>
+                                        {/if}
+                                        {#each data.form.pages as page}
+                                            {#each page.questions as question}
+                                                <option value={question.id}>
+                                                    Use Answer For: {question.question}
+                                                </option>
+                                            {/each}
+                                        {/each}
+                                    </select>
+                                </label>
+                            </p>
+                            {#if data.form.naming_scheme === -1}
+                                <p>
+                                    <label>
+                                        New&nbsp;Forum&nbsp;Post&nbsp;Name
+                                        <input
+                                            type="text"
+                                            bind:value={data.form.forum_post_name}
+                                            maxlength={80}
+                                        />
+                                    </label>
+                                </p>
+                            {/if}
+                        {/if}
+                    {/if}
+                </div>
+                <div class="panel">
                     <h3>Access</h3>
                     <p>
-                        Control access here. Only you can edit/delete this form. Observers will
+                        Control access here. Only you can edit permissions. Only editors can view
+                        submissions. Only you and observers can delete this form. Observers will
                         always have view access but cannot submit unless explicitly allowed.
                     </p>
                     <label>

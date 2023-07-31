@@ -21,6 +21,14 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                 !(data.editable_council && (locals as any).council)
             )
                 throw "You are not authorized to edit this document.";
+        if (id !== "new" && data.author !== (locals as any).user.id) {
+            delete doc.allow_council;
+            delete doc.allow_logged_in;
+            delete doc.editable_observers;
+            delete doc.editable_council;
+            delete doc.allow_everyone;
+            delete doc.allowlist;
+        }
         if (!(locals as any).observer) doc.official = false;
         if (!doc.name) throw "No name provided.";
         if (doc.name.length > 100) throw "Name cannot exceed 100 characters.";
