@@ -104,3 +104,14 @@ export function markdown_postprocess(text: string, reader: any) {
 
     return text;
 }
+
+export function timestamp(
+    time: Date | number,
+    format: "D" | "d" | "F" | "f" | "R" | "T" | "t" = "f",
+) {
+    return `<t:${Math.floor((typeof time === "number" ? time : time.getTime()) / 1000)}:${format}>`;
+}
+
+export function timeinfo(time: Date | number) {
+    return `${timestamp(time, "f")} (${timestamp(time, "R")})`;
+}

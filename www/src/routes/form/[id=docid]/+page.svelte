@@ -119,9 +119,13 @@
                 else {
                     const length = Object.values(q.selected).filter((x) => x).length;
                     if (q.min != undefined && length < q.min)
-                        q.failed = q.low_error || `Select at least ${q.min} options.`;
+                        q.failed =
+                            q.low_error ||
+                            `Select at least ${q.min} option${q.min === 1 ? "" : "s"}.`;
                     else if (q.max != undefined && length > q.max)
-                        q.failed = q.high_error || `Select at most ${q.max} options.`;
+                        q.failed =
+                            q.high_error ||
+                            `Select at most ${q.max} option${q.max === 1 ? "" : "s"}.`;
                     else q.failed = length === 0 && q.required && "This question is required.";
                 }
             if (q.type === "date")
@@ -157,14 +161,20 @@
         return good;
     }
 
+    let wait = false;
+
     async function submit() {
+        wait = true;
+
         const request = await fetch(`/form/${data.form.id}/submit`, {
             method: "post",
             body: JSON.stringify(data.form),
         });
 
-        if (!request.ok) alert(await request.text());
-        else alert("Submitted!"), goto("/");
+        if (!request.ok) {
+            alert(await request.text());
+            wait = false;
+        } else alert("Submitted!"), goto("/");
     }
 
     let reload_success = false;
@@ -497,6 +507,7 @@
                                 {:else}
                                     <button
                                         on:click={async () => (await check_required()) && submit()}
+                                        disabled={wait}
                                     >
                                         Submit!
                                     </button>

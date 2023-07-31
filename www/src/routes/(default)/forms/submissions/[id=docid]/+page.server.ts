@@ -2,7 +2,7 @@ import type { ServerLoad } from "@sveltejs/kit";
 import db from "../../../../../db.js";
 import { fix } from "$lib/util.js";
 
-export const load: ServerLoad = async ({ locals, params }) => {
+export const load: ServerLoad = async ({ locals, params, url }) => {
     if (!(locals as any).user) return {};
 
     const form = await db.forms.findOne({ id: params.id });
@@ -20,5 +20,6 @@ export const load: ServerLoad = async ({ locals, params }) => {
         form: fix(form),
         submissions: fix(await db.form_submissions.find({ id: params.id }).toArray()),
         id: params.id,
+        sid: url.searchParams.get("sub"),
     };
 };

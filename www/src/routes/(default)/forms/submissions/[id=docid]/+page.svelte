@@ -7,9 +7,10 @@
     export let data: any;
 
     const questions: any[] = data.form.pages.flatMap((page: any) => page.questions);
+    const ids: number[] = data.submissions.map((x: any) => x.sid);
 
-    let mode: string = "summary";
-    let si: number = 1;
+    let mode: string = data.sid ? "individual" : "summary";
+    let si: number = parseInt(data.sid ?? 1);
 
     function has_user(x: any) {
         return !!x.user;
@@ -131,19 +132,17 @@
                     <a
                         href={"javascript:void(0)"}
                         class="row"
-                        on:click={() => (si = Math.max(si - 1, 1))}
+                        on:click={() => (si = ids[ids.indexOf(si) - 1] ?? si)}
                         style={si === 1 ? "color: transparent; cursor: default" : ""}
                     >
                         <i class="material-icons">chevron_left</i>
                     </a>
-                    <input type="number" bind:value={si} min={1} max={data.submissions.length} />
+                    <input type="number" bind:value={si} min={1} max={ids.at(-1)} />
                     <a
                         href={"javascript:void(0)"}
                         class="row"
-                        on:click={() => (si = Math.min(si + 1, data.submissions.length))}
-                        style={si === data.submissions.length
-                            ? "color: transparent; cursor: default"
-                            : ""}
+                        on:click={() => (si = ids[ids.indexOf(si) + 1] ?? si)}
+                        style={si === ids.at(-1) ? "color: transparent; cursor: default" : ""}
                     >
                         <i class="material-icons">chevron_right</i>
                     </a>
@@ -151,8 +150,8 @@
 
                 <p />
 
-                {#each data.submissions as submission, index}
-                    <div style={si - 1 === index ? "" : "display: none"}>
+                {#each data.submissions as submission}
+                    <div style={si === submission.sid ? "" : "display: none"}>
                         {#if submission.user}
                             <div class="panel">
                                 <h4>User</h4>
