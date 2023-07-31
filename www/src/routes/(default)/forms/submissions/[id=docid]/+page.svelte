@@ -163,7 +163,7 @@
                         {/if}
                         {#each submission.answers as answer}
                             {@const real = questions.find((q) => q.id === answer.id)?.question}
-                            {@const del = data.form.deleted_questions[answer.id]}
+                            {@const del = data.form.deleted_questions?.[answer.id]}
 
                             <div class="panel">
                                 <h4>{answer.question}</h4>
