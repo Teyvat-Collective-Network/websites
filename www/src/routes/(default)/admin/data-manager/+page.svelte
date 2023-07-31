@@ -1,4 +1,5 @@
 <script lang="ts">
+    import ConfirmLeave from "$lib/ConfirmLeave.svelte";
     import ListButton from "$lib/ListButton.svelte";
     import ToggleHeader from "$lib/ToggleHeader.svelte";
 
@@ -25,8 +26,9 @@
             e.preventDefault();
         }
     }}
-    on:beforeunload={(e) => e.preventDefault()}
 />
+
+<ConfirmLeave />
 
 <div class="container">
     <div id="main">

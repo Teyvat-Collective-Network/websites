@@ -132,7 +132,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
     await db.forms.findOneAndUpdate(
         { id },
-        { $set: { ...form, author: (locals as any).user.id, time: new Date() } },
+        { $set: { ...form, author: (locals as any).user.id } },
         { upsert: true },
     );
 

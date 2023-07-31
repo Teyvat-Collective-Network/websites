@@ -18,6 +18,7 @@
 
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import ConfirmLeave from "$lib/ConfirmLeave.svelte";
     import ListButtons from "$lib/ListButtons.svelte";
 
     export let data: any;
@@ -59,8 +60,9 @@
             e.preventDefault();
         }
     }}
-    on:beforeunload={(e) => e.preventDefault()}
 />
+
+<ConfirmLeave />
 
 <div class="container">
     <div id="main">

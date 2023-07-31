@@ -15,6 +15,7 @@
         name: "",
         collect_names: false,
         pages: [],
+        next_id: 1,
     };
 
     async function save() {
@@ -322,6 +323,7 @@
                                     (page.questions = [
                                         ...page.questions,
                                         {
+                                            id: data.form.next_id++,
                                             question: "",
                                             description: "",
                                             type: "short",
@@ -351,8 +353,8 @@
                 <div class="panel">
                     <h3>Access</h3>
                     <p>
-                        Control view access here. Only you can edit/delete this form. Observers will
-                        always have view access.
+                        Control access here. Only you can edit/delete this form. Observers will
+                        always have view access but cannot submit unless explicitly allowed.
                     </p>
                     <label>
                         <input type="checkbox" bind:checked={data.form.allow_council} />

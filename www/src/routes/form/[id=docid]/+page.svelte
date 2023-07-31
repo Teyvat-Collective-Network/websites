@@ -9,6 +9,8 @@
     import { email_regex, url_regex } from "$lib/util";
     import { Textarea } from "@daedalus-discord/webkit";
     import { onMount } from "svelte";
+    import { update } from "../../+layout.svelte";
+    import ConfirmLeave from "$lib/ConfirmLeave.svelte";
 
     export let data: any;
 
@@ -124,7 +126,7 @@
                 }
             if (q.type === "date")
                 if (q.date)
-                    if (q.relative_time === "past") {
+                    if (q.show_date && q.relative_time === "past") {
                         if (!q.show_time) {
                             q.date.setHours(0);
                             q.date.setMinutes(0);
@@ -134,7 +136,7 @@
                         q.failed =
                             q.date > new Date() &&
                             (q.time_error || "The selected time must be in the past.");
-                    } else if (q.relative_time === "future") {
+                    } else if (q.show_date && q.relative_time === "future") {
                         if (!q.show_time) {
                             q.date.setHours(23);
                             q.date.setMinutes(59);
@@ -154,9 +156,67 @@
 
         return good;
     }
+
+    async function submit() {
+        const request = await fetch(`/form/${data.form.id}/submit`, {
+            method: "post",
+            body: JSON.stringify(data.form),
+        });
+
+        if (!request.ok) alert(await request.text());
+        else alert("Submitted!"), goto("/");
+    }
+
+    async function reload() {
+        const request = await fetch(`/form/${data.form.id}/data`);
+        const d = await request.json();
+
+        if (d.missing) {
+            alert("The form was deleted and no longer exists.");
+            goto("/");
+        }
+
+        if (d.unauthorized) {
+            alert("You have lost access to this form.");
+            goto("/");
+        }
+
+        if (data.access && !d.access) alert("You have lost access to submitting to this form.");
+        data.access = d.access;
+
+        const questions = data.form.pages.reduce(
+            (x: any, y: any) => y.questions.reduce((o: any, i: any) => ({ ...o, [i.id]: i }), x),
+            {},
+        );
+
+        for (const page of d.form.pages) {
+            for (const q of page.questions) {
+                const c = questions[q.id];
+                if (!c) continue;
+
+                q.value = c.value;
+                q.date = c.date;
+
+                if (c.selected)
+                    q.options.forEach((o: any, i: number) => {
+                        if (c.selected[c.options.indexOf(o)]) q.selected[i] = true;
+                    });
+
+                console.log(c);
+            }
+        }
+
+        data.form.pages = d.form.pages;
+
+        page = 0;
+
+        setTimeout(update, 500);
+    }
 </script>
 
 <svelte:window bind:innerWidth={width} bind:scrollY={scroll} />
+
+<ConfirmLeave />
 
 <a
     id="top"
@@ -247,6 +307,15 @@
                             </Callout>
                             <br />
                         {/if}
+                        {#if !data.access}
+                            <Callout style="red">
+                                <p>
+                                    You are not allowed to submit to this form, but you are able to
+                                    see it because you are an observer.
+                                </p>
+                            </Callout>
+                            <br />
+                        {/if}
                         <Callout style="info">
                             <p>
                                 This form is user-generated content and is not endorsed by the
@@ -281,6 +350,7 @@
                                 >{/if}
                         </h3>
                         <hr />
+                        <p><button on:click={reload}>Reload Data</button></p>
                         <div class="panel">
                             <h4>{page.name}</h4>
                             {@html page.description}
@@ -391,16 +461,13 @@
                                 {#if page_index !== data.form.pages.length - 1}
                                     <button
                                         on:click={async () =>
-                                            (await check_required()) ? page_index++ : null}
+                                            (await check_required()) && page_index++}
                                     >
                                         Next Page
                                     </button>
                                 {:else}
                                     <button
-                                        on:click={async () =>
-                                            (await check_required())
-                                                ? alert("NotImplemented")
-                                                : null}
+                                        on:click={async () => (await check_required()) && submit()}
                                     >
                                         Submit!
                                     </button>
