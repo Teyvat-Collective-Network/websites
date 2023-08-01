@@ -236,8 +236,10 @@
     }
 
     const questions: any = {};
-    for (const question of data.form.pages.flatMap((page: any) => page.questions))
-        questions[question.id] = question;
+
+    if (data.form.pages)
+        for (const question of data.form.pages.flatMap((page: any) => page.questions))
+            questions[question.id] = question;
 
     function show_page(page: any) {
         if (!page?.condition?.source) return true;
