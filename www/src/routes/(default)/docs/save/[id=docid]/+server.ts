@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     try {
         if (!(locals as any).council)
             throw "You are not authorized to use the TCN Documents feature.";
-        if (id !== "new")
+        if (id !== "new") {
             if (!data || data.deleted) throw "This document no longer exists.";
             else if (
                 data.author !== (locals as any).user.id &&
@@ -21,13 +21,15 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                 !(data.editable_council && (locals as any).council)
             )
                 throw "You are not authorized to edit this document.";
-        if (id !== "new" && data.author !== (locals as any).user.id) {
-            delete doc.allow_council;
-            delete doc.allow_logged_in;
-            delete doc.editable_observers;
-            delete doc.editable_council;
-            delete doc.allow_everyone;
-            delete doc.allowlist;
+
+            if (data.author !== (locals as any).user.id) {
+                delete doc.allow_council;
+                delete doc.allow_logged_in;
+                delete doc.editable_observers;
+                delete doc.editable_council;
+                delete doc.allow_everyone;
+                delete doc.allowlist;
+            }
         }
         if (!(locals as any).observer) doc.official = false;
         if (!doc.name) throw "No name provided.";

@@ -16,9 +16,11 @@
 </script>
 
 <script lang="ts">
-    export let value: Date | undefined;
+    export let value: Date | string | undefined;
     export let show_date: boolean = false;
     export let show_time: boolean = false;
+
+    if (typeof value === "string") value = new Date(value);
 
     let year: number | undefined = value?.getFullYear();
     let month: number | undefined = value?.getMonth();
@@ -44,10 +46,8 @@
         year == undefined || month == undefined ? 0 : (new Date(year, month, 1).getDay() + 6) % 7;
 
     $: value =
-        !show_date ||
-        (year != undefined && month != undefined && date != undefined) ||
-        !show_time ||
-        (hour != undefined && minute != undefined && second != undefined)
+        (!show_date || (year != undefined && month != undefined && date != undefined)) &&
+        (!show_time || (hour != undefined && minute != undefined && second != undefined))
             ? new Date(year ?? 1970, month ?? 0, date ?? 1, hour ?? 0, minute ?? 0, second ?? 0)
             : undefined;
 

@@ -6,9 +6,13 @@
     function update() {
         for (const element of document.querySelectorAll("a:not(.confirm-leave-class)") as any) {
             if (element.href === "javascript:void(0)") continue;
-            element.onclick = () =>
-                confirm("Are you sure you want to leave this page? Unsaved changes may be lost.") &&
-                goto(element.href);
+            element.onclick = (e: any) =>
+                e.ctrlKey ||
+                e.shiftKey ||
+                (confirm(
+                    "Are you sure you want to leave this page? Unsaved changes may be lost.",
+                ) &&
+                    goto(element.href));
             element.classList.add("confirm-leave-class");
         }
     }

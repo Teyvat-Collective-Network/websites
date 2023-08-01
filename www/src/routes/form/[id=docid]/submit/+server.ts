@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit";
 import db, { autoinc } from "../../../../db.js";
-import { email_regex, timeinfo, url_regex } from "$lib/util.js";
+import { email_regex, timeinfo, timestamp, url_regex } from "$lib/util.js";
 import { hq_bot } from "../../../../bot.js";
 import { PUBLIC_DOMAIN } from "$env/static/public";
 import type { User } from "discord.js";
@@ -9,6 +9,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
     const data = await db.forms.findOne({ id: params.id });
     const reader = (locals as any).user;
 
+    const dquestions: any = {};
     const answers = [];
 
     try {
@@ -26,11 +27,112 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
 
         if (data.pages.length !== form.pages.length) throw 0;
 
+        for (const question of data.pages.flatMap((page: any) => page.questions))
+            dquestions[question.id] = question;
+
         for (let page_index = 0; page_index < data.pages.length; page_index++) {
             const dpage = data.pages[page_index];
             const page = form.pages[page_index];
 
             if (dpage.questions.length !== page.questions.length) throw 0;
+
+            if (dpage.condition?.source === -1) {
+                if (data.observer) {
+                    if (!dpage.condition.council_observer) continue;
+                } else if (data.owner) {
+                    if (!dpage.condition.council_owner) continue;
+                } else if (data.advisor) {
+                    if (!dpage.condition.council_advisor) continue;
+                } else if (!dpage.condition.council_other) continue;
+            } else if (dpage.condition?.source) {
+                const pc = dpage.condition!;
+                const dq = dquestions[pc.source];
+
+                if (dq) {
+                    const ans = answers.find((answer: any) => answer.id === dq.id)!;
+
+                    if (dq.type === "number") {
+                        if (!("answer" in ans)) {
+                            if (!pc.number_default) continue;
+                        } else {
+                            const a = ans.answer;
+                            const b = pc.number_value;
+
+                            switch (pc.number_op) {
+                                case "gt":
+                                    if (a > b) break;
+                                    else continue;
+                                case "ge":
+                                    if (a >= b) break;
+                                    else continue;
+                                case "eq":
+                                    if (a === b) break;
+                                    else continue;
+                                case "le":
+                                    if (a <= b) break;
+                                    else continue;
+                                case "lt":
+                                    if (a < b) break;
+                                    else continue;
+                                case "ne":
+                                    if (a !== b) break;
+                                    else continue;
+                            }
+                        }
+                    } else if (dq.type === "mcq") {
+                        const selected = new Set<string>(
+                            "answer" in ans ? ans.answer.map((x: any) => x.text) : [],
+                        );
+
+                        const keys = Object.entries(pc.options).filter(([, y]) => y);
+                        const f = keys[pc.mcq_anyall === "any" ? "some" : "every"].bind(keys);
+
+                        if (!f(([x]) => selected.has(x) === (pc.mcq_mode === "yes"))) continue;
+                    } else if (dq.type === "date") {
+                        if (!("answer" in ans)) {
+                            if (!pc.date_default) continue;
+                        } else {
+                            const a = ans.answer;
+                            const b = new Date(pc.first_date);
+                            const c = new Date(pc.second_date);
+
+                            if (!dq.show_date)
+                                for (const d of [a, b, c]) {
+                                    d.setYear(1970);
+                                    d.setMonth(0);
+                                    d.setDate(1);
+                                }
+                            if (!dq.show_time)
+                                for (const d of [a, b, c]) {
+                                    d.setHours(0);
+                                    d.setMinutes(0);
+                                    d.setSeconds(0);
+                                }
+
+                            switch (pc.date_op) {
+                                case "le":
+                                    if (a <= b) break;
+                                    else continue;
+                                case "lt":
+                                    if (a < b) break;
+                                    else continue;
+                                case "ge":
+                                    if (a >= b) break;
+                                    else continue;
+                                case "gt":
+                                    if (a > b) break;
+                                    else continue;
+                                case "bw":
+                                    if (b <= a && a <= c) break;
+                                    else continue;
+                                case "nb":
+                                    if (a < b || c < a) break;
+                                    else continue;
+                            }
+                        }
+                    }
+                }
+            }
 
             for (let qi = 0; qi < dpage.questions.length; qi++) {
                 const dq = dpage.questions[qi];
@@ -225,7 +327,13 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                         : question.type === "mcq"
                         ? answer.answer.map((x: any) => `- ${x.text}`).join("\n")
                         : question.type === "date"
-                        ? timeinfo(new Date(answer.answer))
+                        ? question.show_date
+                            ? question.show_time
+                                ? timeinfo(answer.answer)
+                                : timestamp(answer.answer, "D")
+                            : question.show_time
+                            ? timestamp(answer.answer, "T")
+                            : "<no date specified>"
                         : "";
 
                 if (question.type === "short" && question.short_format === "user") {
@@ -279,7 +387,6 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                 );
 
             let first = true;
-            let thread_id: string = "";
 
             for (const embed of embeds) {
                 const request: any = { embeds: [embed] };

@@ -213,8 +213,6 @@
                     q.options.forEach((o: any, i: number) => {
                         if (c.selected[c.options.indexOf(o)]) q.selected[i] = true;
                     });
-
-                console.log(c);
             }
         }
 
@@ -229,12 +227,105 @@
         ])
             data.form[key] = d.form[key];
 
-        page = 0;
+        page_index = 0;
 
         setTimeout(update, 500);
 
         reload_success = true;
         setTimeout(() => (reload_success = false), 1500);
+    }
+
+    const questions: any = {};
+    for (const question of data.form.pages.flatMap((page: any) => page.questions))
+        questions[question.id] = question;
+
+    function show_page(page: any) {
+        if (!page?.condition?.source) return true;
+
+        const pc = page.condition;
+
+        if (pc.source === -1) {
+            if (data.observer) return !!pc.council_observer;
+            if (data.owner) return !!pc.council_owner;
+            if (data.advisor) return !!pc.council_advisor;
+            return !!pc.council_other;
+        }
+
+        const question = questions[pc.source];
+        if (!question) return true;
+
+        if (question.type === "number") {
+            const a = question.value;
+
+            if (a == undefined) return pc.number_default;
+
+            const b = pc.number_value;
+
+            switch (pc.number_op) {
+                case "gt":
+                    return a > b;
+                case "ge":
+                    return a >= b;
+                case "eq":
+                    return a === b;
+                case "le":
+                    return a <= b;
+                case "lt":
+                    return a < b;
+                case "ne":
+                    return a !== b;
+            }
+        } else if (question.type === "mcq") {
+            const selected = new Set<string>();
+
+            if (question.max === 1) {
+                if (question.value != undefined) selected.add(question.value);
+            } else
+                for (const [k, v] of Object.entries(question.selected))
+                    if (v) selected.add(question.options[k]);
+
+            const keys = Object.entries(pc.options).filter(([, y]) => y);
+            const f = keys[pc.mcq_anyall === "any" ? "some" : "every"].bind(keys);
+
+            return f(([x]) => selected.has(x) === (pc.mcq_mode === "yes"));
+        } else if (question.type === "date") {
+            const a = question.date;
+
+            if (a == undefined) return pc.date_default;
+
+            const b = new Date(pc.first_date);
+            const c = new Date(pc.second_date);
+
+            if (!question.show_date)
+                for (const d of [a, b, c]) {
+                    d?.setYear(1970);
+                    d?.setMonth(0);
+                    d?.setDate(1);
+                }
+            if (!question.show_time)
+                for (const d of [a, b, c]) {
+                    d?.setHours(0);
+                    d?.setMinutes(0);
+                    d?.setSeconds(0);
+                }
+
+            switch (pc.date_op) {
+                case "le":
+                    return a <= b;
+                case "lt":
+                    return a < b;
+                case "ge":
+                    return a >= b;
+                case "gt":
+                    return a > b;
+                case "bw":
+                    return b <= a && a <= c;
+                case "nb":
+                    return a < b || c < a;
+            }
+        }
+
+        return true;
     }
 </script>
 
@@ -385,15 +476,25 @@
                         </p>
                         <hr />
                         <p class="row" style="gap: 10px">
-                            <button on:click={reload}>Reload Data</button>
+                            <button on:click={reload}>Reload Data / Back To Start</button>
                             {#if reload_success}
                                 <i class="material-icons" style="color: var(--green-text)">check</i>
                             {/if}
                         </p>
                         <div class="panel">
-                            <h4>{page.name}</h4>
-                            {@html page.description}
-                            {#each page.questions as q, qi}
+                            <h4>{page?.name ?? "Submit"}</h4>
+                            {#if page}
+                                <span class="markdown">
+                                    {@html page.description}
+                                </span>
+                            {:else}
+                                <p>
+                                    You have completed this form. You can go back to edit your
+                                    answers or click the submit button to submit your responses. You
+                                    will not be able to edit or view your responses afterwards.
+                                </p>
+                            {/if}
+                            {#each page?.questions ?? [] as q, qi}
                                 <div
                                     class="panel"
                                     style="background-color: var(--background-1); outline: {q.failed
@@ -408,7 +509,9 @@
                                             </span>
                                         {/if}
                                     </h5>
-                                    {@html q.description}
+                                    <span class="markdown">
+                                        {@html q.description}
+                                    </span>
                                     {#if q.type === "short"}
                                         <input
                                             type="text"
@@ -494,21 +597,24 @@
                             {/each}
                             <p class="row">
                                 {#if page_index !== 0}
-                                    <button on:click={() => page_index--}>Back</button>
+                                    <button
+                                        on:click={() => {
+                                            while (!show_page(data.form.pages[--page_index]));
+                                        }}>Back</button
+                                    >
                                 {/if}
                                 <span style="flex-grow: 1" />
-                                {#if page_index !== data.form.pages.length - 1}
+                                {#if page_index < data.form.pages.length}
                                     <button
-                                        on:click={async () =>
-                                            (await check_required()) && page_index++}
+                                        on:click={async () => {
+                                            if (!(await check_required())) return;
+                                            while (!show_page(data.form.pages[++page_index]));
+                                        }}
                                     >
-                                        Next Page
+                                        Next
                                     </button>
                                 {:else}
-                                    <button
-                                        on:click={async () => (await check_required()) && submit()}
-                                        disabled={wait}
-                                    >
+                                    <button on:click={() => submit()} disabled={wait}>
                                         Submit!
                                     </button>
                                 {/if}
@@ -523,27 +629,29 @@
 
 <style lang="scss">
     :global {
-        blockquote {
-            margin-left: 0px;
-            padding-left: 25px;
-            border-left: 2px solid var(--text-secondary);
-        }
+        .markdown {
+            blockquote {
+                margin-left: 0px;
+                padding-left: 25px;
+                border-left: 2px solid var(--text-secondary);
+            }
 
-        table {
-            width: 100%;
-        }
+            table {
+                width: 100%;
+            }
 
-        table,
-        tr,
-        th,
-        td {
-            border: 1px solid rgb(var(--invert-rgb), 32%);
-            border-collapse: collapse;
-        }
+            table,
+            tr,
+            th,
+            td {
+                border: 1px solid rgb(var(--invert-rgb), 32%);
+                border-collapse: collapse;
+            }
 
-        td,
-        th {
-            padding: 5px;
+            td,
+            th {
+                padding: 5px;
+            }
         }
     }
 </style>

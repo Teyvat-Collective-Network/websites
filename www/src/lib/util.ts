@@ -106,12 +106,14 @@ export function markdown_postprocess(text: string, reader: any) {
 }
 
 export function timestamp(
-    time: Date | number,
+    time: Date | number | string,
     format: "D" | "d" | "F" | "f" | "R" | "T" | "t" = "f",
 ) {
-    return `<t:${Math.floor((typeof time === "number" ? time : time.getTime()) / 1000)}:${format}>`;
+    return `<t:${Math.floor(
+        (typeof time === "number" ? time : new Date(time).getTime()) / 1000,
+    )}:${format}>`;
 }
 
-export function timeinfo(time: Date | number) {
+export function timeinfo(time: Date | number | string) {
     return `${timestamp(time, "f")} (${timestamp(time, "R")})`;
 }

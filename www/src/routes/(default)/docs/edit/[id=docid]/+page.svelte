@@ -2,6 +2,7 @@
     import { goto } from "$app/navigation";
     import { PUBLIC_DOMAIN, PUBLIC_TCN_AUTH } from "$env/static/public";
     import Callout from "$lib/Callout.svelte";
+    import ConfirmLeave from "$lib/ConfirmLeave.svelte";
     import Redirect from "$lib/Redirect.svelte";
     import { Textarea } from "@daedalus-discord/webkit";
 
@@ -59,6 +60,8 @@
         }
     }}
 />
+
+<ConfirmLeave />
 
 <div class="container">
     <div id="main">

@@ -12,7 +12,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
     try {
         if (!(locals as any).council) throw "You are not authorized to use the TCN Forms feature.";
-        if (id !== "new")
+        if (id !== "new") {
             if (!data || data.deleted) throw "This form no longer exists.";
             else if (
                 data.author !== (locals as any).user.id &&
@@ -20,19 +20,21 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                 !(data.editable_council && (locals as any).council)
             )
                 throw "You are not authorized to edit this form.";
-        if (id !== "new" && data.author !== (locals as any).user.id) {
-            delete form.allow_council;
-            delete form.allow_logged_in;
-            delete form.editable_observers;
-            delete form.editable_council;
-            delete form.allow_everyone;
-            delete form.allowlist;
-            delete form.post_to_webhook;
-            delete form.only_post_link;
-            delete form.webhook;
-            delete form.is_forum;
-            delete form.naming_scheme;
-            delete form.forum_post_name;
+
+            if (data.author !== (locals as any).user.id) {
+                delete form.allow_council;
+                delete form.allow_logged_in;
+                delete form.editable_observers;
+                delete form.editable_council;
+                delete form.allow_everyone;
+                delete form.allowlist;
+                delete form.post_to_webhook;
+                delete form.only_post_link;
+                delete form.webhook;
+                delete form.is_forum;
+                delete form.naming_scheme;
+                delete form.forum_post_name;
+            }
         }
         if (!form.name) throw "No name provided.";
         if (form.name.length > 100) throw "Name cannot exceed 100 characters.";
@@ -46,6 +48,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         )
             throw "You cannot use the 'Use Submitter Name' forum post naming scheme when you are not collecting names.";
         if (form.pages.length === 0) throw "At least one page is required.";
+        const questions: any = {};
         for (let index = 0; index < form.pages.length; index++) {
             const page = form.pages[index];
             if (!page.name) throw `No name provided for page ${index + 1}.`;
@@ -54,8 +57,42 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             if (page.description.length > 2048)
                 throw `Description cannot exceed 2048 characters for page ${index + 1}.`;
 
+            if (page.condition.source > 0) {
+                const condition = questions[page.condition.source];
+                if (!condition)
+                    throw `Condition question for page ${
+                        index + 1
+                    } is missing (note: pages may only be conditional based on questions in earlier pages).`;
+                if (!["number", "mcq", "date"].includes(condition.type))
+                    throw `Condition question for page ${
+                        index + 1
+                    } must be a number, multiple-choice, or date question.`;
+                if (condition.type === "number")
+                    if (!["gt", "ge", "eq", "le", "lt", "ne"].includes(page.condition.number_op))
+                        throw `Invalid comparator for condition for page ${index + 1}.`;
+                    else if (page.condition.number_value == undefined)
+                        throw `Missing comparator value for condition for page ${index + 1}.`;
+                    else;
+                else if (condition.type === "mcq")
+                    if (!["any", "all"].includes(page.condition.mcq_anyall))
+                        throw `Invalid any/all for condition for page ${index + 1}.`;
+                    else if (!["yes", "no"].includes(page.condition.mcq_mode))
+                        throw `Invalid yes/no mode for condition for page ${index + 1}.`;
+                    else;
+                else if (condition.type === "date")
+                    if (!["le", "lt", "ge", "gt", "bw", "nb"].includes(page.condition.date_op))
+                        throw `Invalid comparator for condition for page ${index + 1}.`;
+                    else if (
+                        !page.condition.first_date ||
+                        (["bw", "nb"].includes(page.condition.date_op) &&
+                            !page.condition.second_date)
+                    )
+                        throw `Missing date for condition for page ${index + 1}.`;
+            }
+
             for (let qi = 0; qi < page.questions.length; qi++) {
                 const question = page.questions[qi];
+                questions[question.id] = question;
                 if (!question.question)
                     throw `No question provided for page ${index + 1} question ${qi + 1}.`;
                 if (question.question.length > 256)
