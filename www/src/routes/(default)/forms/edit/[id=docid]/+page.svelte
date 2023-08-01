@@ -87,11 +87,7 @@
             <br />
             <a href="/" class="button">Home</a>
         {:else if data.missing}
-            <Callout style="red">
-                <p>There is no form with ID <code>{data.id}</code>, or it has been deleted.</p>
-            </Callout>
-            <br />
-            <a href="/forms" class="button">Forms Home</a>
+            {goto(`/form/${data.id}`)}
         {:else if data.unauthorized}
             <Callout style="red">
                 <p>You are not authorized to edit this form.</p>
@@ -476,11 +472,13 @@
                                         </tr>
                                     {/if}
                                 </table>
-                                <hr />
-                                <label>
-                                    <input type="checkbox" bind:checked={question.hide} />
-                                    Don't send this answer to the webhook
-                                </label>
+                                {#if data.form.post_to_webhook}
+                                    <hr />
+                                    <label>
+                                        <input type="checkbox" bind:checked={question.hide} />
+                                        Don't send this answer to the webhook
+                                    </label>
+                                {/if}
                             </div>
                         {/each}
                         <div class="panel">
@@ -629,7 +627,7 @@
                     </label>
                     <h5>Allowlist</h5>
                     <p>
-                        Input a space, comma, or newline separated list of user IDs to grant view
+                        Input a space or comma separated list of user IDs to grant view and submit
                         access.
                     </p>
                     <input type="text" bind:value={data.form.allowlist} />

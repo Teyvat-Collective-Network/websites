@@ -124,6 +124,8 @@
                                 deleted.
                             </p>
                         </Callout>
+                        <br />
+                        <a href="/docs">Docs Home</a>
                     {:else if data.unauthorized}
                         <Callout style="red">
                             <p>You are not authorized to view this document.</p>

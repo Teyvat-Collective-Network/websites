@@ -52,7 +52,6 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         const questions: any = {};
         for (let index = 0; index < form.pages.length; index++) {
             const page = form.pages[index];
-            if (!page.name) throw `No name provided for page ${index + 1}.`;
             if (page.name.length > 100)
                 throw `Name cannot exceed 100 characters for page ${index + 1}.`;
             if (page.description.length > 2048)

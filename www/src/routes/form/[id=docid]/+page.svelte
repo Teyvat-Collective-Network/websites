@@ -412,6 +412,8 @@
                                 deleted.
                             </p>
                         </Callout>
+                        <br />
+                        <a href="/forms">Forms Home</a>
                     {:else if data.unauthorized}
                         <Callout style="red">
                             <p>You are not authorized to view this form.</p>

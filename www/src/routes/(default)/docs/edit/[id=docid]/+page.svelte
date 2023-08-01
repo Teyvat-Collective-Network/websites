@@ -76,11 +76,7 @@
             <br />
             <a href="/" class="button">Home</a>
         {:else if data.missing}
-            <Callout style="red">
-                <p>There is no document with ID <code>{data.id}</code>, or it has been deleted.</p>
-            </Callout>
-            <br />
-            <a href="/docs" class="button">Docs Home</a>
+            {goto(`/doc/${data.id}`)}
         {:else if data.unauthorized}
             <Callout style="red">
                 <p>You are not authorized to edit this document.</p>
@@ -129,10 +125,7 @@
                         Make Public
                     </label>
                     <h5>Allowlist</h5>
-                    <p>
-                        Input a space, comma, or newline separated list of user IDs to grant view
-                        access.
-                    </p>
+                    <p>Input a space or comma separated list of user IDs to grant view access.</p>
                     <input type="text" bind:value={data.doc.allowlist} />
                 </div>
             {/if}
