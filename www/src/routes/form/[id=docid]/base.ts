@@ -31,6 +31,7 @@ export async function load_data({ params, locals }: any) {
     const access =
         form.allow_everyone ||
         reader?.id === form.author ||
+        ((locals as any).observer && form.allow_observers) ||
         ((locals as any).council && form.allow_council) ||
         (reader && (form.allow_logged_in || form.allowlist.match(new RegExp(`\b${reader.id}\b`))));
 

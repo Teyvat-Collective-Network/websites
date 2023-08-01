@@ -11,6 +11,7 @@
     import { onMount } from "svelte";
     import { update } from "../../+layout.svelte";
     import ConfirmLeave from "$lib/ConfirmLeave.svelte";
+    import LoggedInAs from "$lib/LoggedInAs.svelte";
 
     export let data: any;
 
@@ -217,6 +218,7 @@
         }
 
         for (const key of [
+            "allow_observers",
             "allow_council",
             "allow_everyone",
             "allow_logged_in",
@@ -469,7 +471,10 @@
                         <p>
                             <b>
                                 {#if data.form.collect_names}
-                                    This form will include your username/ID on submission.
+                                    <LoggedInAs
+                                        user={data.user}
+                                        redirect="{PUBLIC_DOMAIN}/form/{data.form.id}"
+                                    />
                                 {:else}
                                     This form is anonymous and will not include your username/ID on
                                     submission.

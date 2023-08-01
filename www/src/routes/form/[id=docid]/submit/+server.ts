@@ -17,6 +17,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
         if (
             !data.allow_everyone &&
             reader?.id !== data.author &&
+            (!(locals as any).observer || !data.allow_observers) &&
             (!(locals as any).council || !data.allow_council) &&
             (!reader ||
                 (!data.allow_logged_in && !data.allowlist.match(new RegExp(`\b${reader.id}\b`))))

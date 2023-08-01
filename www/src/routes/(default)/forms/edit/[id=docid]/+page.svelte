@@ -10,6 +10,7 @@
     export let data: any;
 
     data.form ??= {
+        allow_observers: false,
         allow_council: false,
         allow_logged_in: false,
         allow_everyone: false,
@@ -602,6 +603,10 @@
                         submissions. Only you and observers can delete this form. Observers will
                         always have view access but cannot submit unless explicitly allowed.
                     </p>
+                    <label>
+                        <input type="checkbox" bind:checked={data.form.allow_observers} />
+                        Allow Observers
+                    </label>
                     <label>
                         <input type="checkbox" bind:checked={data.form.allow_council} />
                         Allow TCN Council

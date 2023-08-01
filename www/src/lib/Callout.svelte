@@ -8,11 +8,13 @@
 </script>
 
 <script lang="ts">
-    export let style: keyof typeof styles;
+    export let style: keyof typeof styles | null = null;
+    export let color: string | null = null;
+    export let icon: string | null = null;
 </script>
 
-<div style="background-color: {styles[style].color}">
-    <i class="material-icons">{styles[style].icon}</i>
+<div style="background-color: {color ?? styles[style ?? 'info'].color}">
+    <i class="material-icons">{icon ?? styles[style ?? "info"].icon}</i>
     <span><slot /></span>
 </div>
 

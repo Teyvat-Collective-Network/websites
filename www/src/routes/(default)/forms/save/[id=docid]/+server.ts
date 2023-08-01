@@ -22,6 +22,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                 throw "You are not authorized to edit this form.";
 
             if (data.author !== (locals as any).user.id) {
+                delete form.allow_observers;
                 delete form.allow_council;
                 delete form.allow_logged_in;
                 delete form.editable_observers;
