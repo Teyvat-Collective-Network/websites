@@ -557,7 +557,7 @@
                                                             name="input-page-{page_index}-question-{qi}"
                                                             value={option}
                                                             bind:group={q.value}
-                                                            style="background-color: var(--background-3)"
+                                                            style="--background: var(--background-3)"
                                                         />
                                                         {option}
                                                     </label>
