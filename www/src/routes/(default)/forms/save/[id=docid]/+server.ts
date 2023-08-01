@@ -3,6 +3,7 @@ import db from "../../../../../db.js";
 import DOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
 import { marked } from "marked";
+import { url_regex, webhook_regex } from "$lib/util.js";
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {
     const form = (await request.json()).form;
@@ -146,6 +147,22 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                     }.`;
             }
         }
+
+        if (form.post_to_webhook) {
+            if (!form.webhook) throw "Missing webhook URL.";
+            if (!form.webhook.match(url_regex)) throw "Invalid webhook URL.";
+            if (form.webhook.match(/^https:\/\/(.+?\.)?discord\.com/)) {
+                if (!form.webhook.match(webhook_regex))
+                    throw "Webhook URL is a Discord URL but not a valid webhook.";
+
+                const req = await fetch(form.webhook);
+
+                if (req.status === 404)
+                    throw "Webhook does not exist (format is valid, but could not be found).";
+                if (req.status === 401) throw "Webhook URL token is invalid (unauthorized).";
+            }
+        }
+
         if (form.embed_color && !form.embed_color.match(/^[0-9a-f]{6}$/i))
             throw "Embed color must be a 6-digit hex number.";
 

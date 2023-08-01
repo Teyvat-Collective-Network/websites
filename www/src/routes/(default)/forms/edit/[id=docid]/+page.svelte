@@ -6,6 +6,7 @@
     import DatetimePicker from "$lib/DatetimePicker.svelte";
     import ListButtons from "$lib/ListButtons.svelte";
     import Redirect from "$lib/Redirect.svelte";
+    import { url_regex, webhook_regex } from "$lib/util";
 
     export let data: any;
 
@@ -531,12 +532,6 @@
                     {#if data.form.post_to_webhook}
                         <p>
                             <label>
-                                <input type="checkbox" bind:checked={data.form.only_post_link} />
-                                Only Post Link (don't include any answers)
-                            </label>
-                        </p>
-                        <p>
-                            <label>
                                 Webhook&nbsp;URL
                                 {#if webhook_input_show}
                                     <input type="text" bind:value={data.form.webhook} />
@@ -554,42 +549,78 @@
                                 </a>
                             </label>
                         </p>
-                        <p>
-                            <label>
-                                <input type="checkbox" bind:checked={data.form.is_forum} />
-                                This Webhook is in a Forum Channel
-                            </label>
-                        </p>
-                        {#if data.form.is_forum}
-                            <p>
-                                <label>
-                                    Forum Post Naming Scheme
-                                    <select bind:value={data.form.naming_scheme}>
-                                        <option value={-1}>Static Name</option>
-                                        {#if data.form.collect_names}
-                                            <option value={0}>Use Submitter Name</option>
-                                        {/if}
-                                        {#each data.form.pages as page}
-                                            {#each page.questions as question}
-                                                <option value={question.id}>
-                                                    Use Answer For: {question.question}
-                                                </option>
-                                            {/each}
-                                        {/each}
-                                    </select>
-                                </label>
-                            </p>
-                            {#if data.form.naming_scheme === -1}
+                        {#if data.form.webhook?.match(/^https:\/\/(.+?\.)?discord\.com/)}
+                            {#if data.form.webhook.match(webhook_regex)}
                                 <p>
                                     <label>
-                                        New&nbsp;Forum&nbsp;Post&nbsp;Name
                                         <input
-                                            type="text"
-                                            bind:value={data.form.forum_post_name}
-                                            maxlength={80}
+                                            type="checkbox"
+                                            bind:checked={data.form.only_post_link}
                                         />
+                                        Only Post Link (don't include any answers)
                                     </label>
                                 </p>
+                                <p>
+                                    <label>
+                                        <input type="checkbox" bind:checked={data.form.is_forum} />
+                                        This Webhook is in a Forum Channel
+                                    </label>
+                                </p>
+                                {#if data.form.is_forum}
+                                    <p>
+                                        <label>
+                                            Forum Post Naming Scheme
+                                            <select bind:value={data.form.naming_scheme}>
+                                                <option value={-1}>Static Name</option>
+                                                {#if data.form.collect_names}
+                                                    <option value={0}>Use Submitter Name</option>
+                                                {/if}
+                                                {#each data.form.pages as page}
+                                                    {#each page.questions as question}
+                                                        <option value={question.id}>
+                                                            Use Answer For: {question.question}
+                                                        </option>
+                                                    {/each}
+                                                {/each}
+                                            </select>
+                                        </label>
+                                    </p>
+                                    {#if data.form.naming_scheme === -1}
+                                        <p>
+                                            <label>
+                                                New&nbsp;Forum&nbsp;Post&nbsp;Name
+                                                <input
+                                                    type="text"
+                                                    bind:value={data.form.forum_post_name}
+                                                    maxlength={80}
+                                                />
+                                            </label>
+                                        </p>
+                                    {/if}
+                                {/if}
+                            {:else}
+                                <Callout style="red">
+                                    <p>This appears to be a Discord URL but not a valid webhook.</p>
+                                </Callout>
+                            {/if}
+                        {:else if data.form.webhook}
+                            {#if data.form.webhook.match(url_regex)}
+                                <Callout style="info">
+                                    <p>
+                                        This is not a Discord webhook URL.
+                                        <b>
+                                            Make sure you are sending the submission data to the
+                                            right place.
+                                        </b>
+                                        The webhook will be sent raw submission data instead of Discord
+                                        message data.
+                                        <a href="/info/documentation/forms">[documentation]</a>
+                                    </p>
+                                </Callout>
+                            {:else}
+                                <Callout style="red">
+                                    <p>Invalid URL.</p>
+                                </Callout>
                             {/if}
                         {/if}
                     {/if}

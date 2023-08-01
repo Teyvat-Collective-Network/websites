@@ -113,6 +113,9 @@
         <a href="/info/miscellaneous" class="t2 {info_open ? '' : 'hidden'}">Miscellaneous</a>
         <a href="/info/exit-procedure" class="t3 {info_open ? '' : 'hidden'}">Exit Procedure</a>
         <a href="/info/glossary" class="t3 {info_open ? '' : 'hidden'}">Glossary</a>
+        <a href="/info/documentation" class="t2 {info_open ? '' : 'hidden'}"
+            >Website Documentation</a
+        >
         {#if user}
             {#if api_user?.guilds?.length > 0}
                 <a
