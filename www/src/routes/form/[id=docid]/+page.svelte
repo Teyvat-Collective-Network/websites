@@ -51,7 +51,7 @@
 
     let page_index = 0;
     let page: any;
-    $: page = data.form.pages[page_index];
+    $: page = data.form.pages?.[page_index];
 
     async function check_required() {
         let good = true;
