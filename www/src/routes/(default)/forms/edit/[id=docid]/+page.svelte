@@ -105,8 +105,8 @@
                     type="text"
                     bind:value={data.form.name}
                     required
-                    maxlength={100}
                     placeholder="Max Length: 100"
+                    maxlength={100}
                 />
                 <p>
                     <label>
@@ -121,12 +121,18 @@
                             <ListButtons bind:array={data.form.pages} {index} />
                         </h4>
                         <h5>Name</h5>
-                        <input type="text" bind:value={page.name} placeholder="Max Length: 100" />
+                        <input
+                            type="text"
+                            bind:value={page.name}
+                            placeholder="Max Length: 100"
+                            maxlength={100}
+                        />
                         <h5>Description</h5>
                         <input
                             type="text"
                             bind:value={page.description}
                             placeholder="Max Length: 2048"
+                            maxlength={2048}
                         />
                         <p />
                         <div class="panel">
@@ -285,12 +291,14 @@
                                     type="text"
                                     bind:value={question.question}
                                     placeholder="Max Length: 256"
+                                    maxlength={256}
                                 />
                                 <p><b>Description</b></p>
                                 <input
                                     type="text"
                                     bind:value={question.description}
                                     placeholder="Max Length: 1024"
+                                    maxlength={1024}
                                 />
                                 <p class="row" style="gap: 20px">
                                     <select bind:value={question.type}>
