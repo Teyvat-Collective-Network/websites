@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit";
 import db, { autoinc } from "../../../../db.js";
-import { email_regex, timeinfo, timestamp, url_regex } from "$lib/util.js";
+import { email_regex, timeinfo, timestamp, url_regex, webhook_regex } from "$lib/util.js";
 import { hq_bot } from "../../../../bot.js";
 import { PUBLIC_DOMAIN } from "$env/static/public";
 import type { User } from "discord.js";
@@ -273,158 +273,172 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
 
     await db.form_submissions.insertOne(submission);
 
-    if (data.post_to_webhook && data.webhook)
-        try {
-            const questions: Record<number, any> = {};
+    if (data.post_to_webhook && data.webhook) {
+        const questions: Record<number, any> = {};
 
-            for (const page of data.pages)
-                for (const question of page.questions) questions[question.id] = question;
+        for (const page of data.pages)
+            for (const question of page.questions) questions[question.id] = question;
 
-            const fields: { name: string; value: string }[] = [
-                {
-                    name: "Links",
-                    value: `- [View Form](${PUBLIC_DOMAIN}/form/${data.id})\n- [View Full Submission](${PUBLIC_DOMAIN}/forms/submissions/${data.id}?sub=${sid})`,
-                },
-            ];
-
-            const template: any = { color: parseInt(data.embed_color, 16) };
-            let length = 16;
-
-            if (submission.user) {
-                if (author) {
-                    const tag = author.tag.endsWith("#0") ? `@${author.username}` : author.tag;
-
-                    template.author = {
-                        url: `https://discord.com/users/${author.id}`,
-                        icon_url: author.displayAvatarURL({ size: 64 }),
-                        name: tag,
-                    };
-
-                    length += tag.length;
-
-                    template.footer = { text: `User ID: ${author.id}` };
-                    length += author.id.length + 12;
-                } else {
-                    template.author = { text: submission.user };
-                    length += submission.user.length;
-                }
-            }
-
-            template.footer ??= { text: "" };
-
-            for (const answer of data.only_post_link ? [] : submission.answers) {
-                if (!("answer" in answer)) continue;
-
-                const question = questions[answer.id];
-                if (!question || question.hide) continue;
-
-                let display: string =
-                    question.type === "short"
-                        ? answer.answer
-                        : question.type === "long"
-                        ? answer.answer
-                        : question.type === "number"
-                        ? `\`${answer.answer}\``
-                        : question.type === "mcq"
-                        ? answer.answer.map((x: any) => `- ${x.text}`).join("\n")
-                        : question.type === "date"
-                        ? question.show_date
-                            ? question.show_time
-                                ? timeinfo(answer.answer)
-                                : timestamp(answer.answer, "D")
-                            : question.show_time
-                            ? timestamp(answer.answer, "T")
-                            : "<no date specified>"
-                        : "";
-
-                if (question.type === "short" && question.short_format === "user") {
-                    try {
-                        const user = await hq_bot.users.fetch(display);
-                        display = `${user} (${
-                            user.tag.endsWith("#0") ? `@${user.username}` : user.tag
-                        } \`${user.id}\`)`;
-                    } catch {
-                        display = `Missing User: \`${display}\``;
-                    }
-                }
-
-                let name = question.question;
-
-                while (display.length > 0) {
-                    fields.push({ name, value: display.substring(0, 1024) });
-                    name = "_ _";
-                    display = display.substring(1024);
-                }
-            }
-
-            const embeds = [];
-
-            while (fields.length > 0) {
-                const embed = JSON.parse(JSON.stringify(template));
-                embed.fields = [];
-                let thislength = length;
-
-                if (embeds.length === 0) {
-                    embed.title = data.name;
-                    thislength += data.name.length;
-                }
-
-                while (embed.fields.length < 25 && fields.length > 0) {
-                    thislength += fields[0].name.length + fields[0].value.length;
-                    if (thislength > 6000) break;
-
-                    embed.fields.push(fields.shift());
-                }
-
-                embeds.push(embed);
-            }
-
-            if (!data.only_post_link && embeds.length > 1)
-                embeds.forEach(
-                    (embed, index) =>
-                        (embed.footer.text += `${embed.footer.text ? " | " : ""}Embed ${
-                            index + 1
-                        } / ${embeds.length}`),
-                );
-
-            let first = true;
-
-            for (const embed of embeds) {
-                const request: any = { embeds: [embed] };
-
-                if (data.is_forum)
-                    if (first) {
-                        if (data.naming_scheme === -1) request.thread_name = data.forum_post_name;
-                        else if (data.naming_scheme === 0)
-                            request.thread_name = author
-                                ? author.tag.replace(/#0$/, "")
-                                : "Missing User";
-                        else
-                            request.thread_name = submission.answers.find(
-                                (x: any) => x.id === data.naming_scheme,
-                            ).answer;
-                    }
-
-                const req = await fetch(
-                    `${data.webhook}${data.is_forum && first ? "?wait=true" : ""}`,
+        if (data.webhook.match(webhook_regex))
+            try {
+                const fields: { name: string; value: string }[] = [
                     {
-                        method: "post",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(request),
+                        name: "Links",
+                        value: `- [View Form](${PUBLIC_DOMAIN}/form/${data.id})\n- [View Full Submission](${PUBLIC_DOMAIN}/forms/submissions/${data.id}?sub=${sid})`,
                     },
-                );
+                ];
 
-                if (data.is_forum && first) {
-                    const res = await req.json();
-                    if (!req.ok) throw JSON.stringify(res);
-                    data.webhook += `?thread_id=${res.channel_id}`;
+                const template: any = { color: parseInt(data.embed_color, 16) };
+                let length = 16;
+
+                if (submission.user) {
+                    if (author) {
+                        const tag = author.tag.endsWith("#0") ? `@${author.username}` : author.tag;
+
+                        template.author = {
+                            url: `https://discord.com/users/${author.id}`,
+                            icon_url: author.displayAvatarURL({ size: 64 }),
+                            name: tag,
+                        };
+
+                        length += tag.length;
+
+                        template.footer = { text: `User ID: ${author.id}` };
+                        length += author.id.length + 12;
+                    } else {
+                        template.author = { text: submission.user };
+                        length += submission.user.length;
+                    }
                 }
 
-                first = false;
+                template.footer ??= { text: "" };
+
+                for (const answer of data.only_post_link ? [] : submission.answers) {
+                    if (!("answer" in answer)) continue;
+
+                    const question = questions[answer.id];
+                    if (!question || question.hide) continue;
+
+                    let display: string =
+                        question.type === "short"
+                            ? answer.answer
+                            : question.type === "long"
+                            ? answer.answer
+                            : question.type === "number"
+                            ? `\`${answer.answer}\``
+                            : question.type === "mcq"
+                            ? answer.answer.map((x: any) => `- ${x.text}`).join("\n")
+                            : question.type === "date"
+                            ? question.show_date
+                                ? question.show_time
+                                    ? timeinfo(answer.answer)
+                                    : timestamp(answer.answer, "D")
+                                : question.show_time
+                                ? timestamp(answer.answer, "T")
+                                : "<no date specified>"
+                            : "";
+
+                    if (question.type === "short" && question.short_format === "user") {
+                        try {
+                            const user = await hq_bot.users.fetch(display);
+                            display = `${user} (${
+                                user.tag.endsWith("#0") ? `@${user.username}` : user.tag
+                            } \`${user.id}\`)`;
+                        } catch {
+                            display = `Missing User: \`${display}\``;
+                        }
+                    }
+
+                    let name = question.question;
+
+                    while (display.length > 0) {
+                        fields.push({ name, value: display.substring(0, 1024) });
+                        name = "_ _";
+                        display = display.substring(1024);
+                    }
+                }
+
+                const embeds = [];
+
+                while (fields.length > 0) {
+                    const embed = JSON.parse(JSON.stringify(template));
+                    embed.fields = [];
+                    let thislength = length;
+
+                    if (embeds.length === 0) {
+                        embed.title = data.name;
+                        thislength += data.name.length;
+                    }
+
+                    while (embed.fields.length < 25 && fields.length > 0) {
+                        thislength += fields[0].name.length + fields[0].value.length;
+                        if (thislength > 6000) break;
+
+                        embed.fields.push(fields.shift());
+                    }
+
+                    embeds.push(embed);
+                }
+
+                if (!data.only_post_link && embeds.length > 1)
+                    embeds.forEach(
+                        (embed, index) =>
+                            (embed.footer.text += `${embed.footer.text ? " | " : ""}Embed ${
+                                index + 1
+                            } / ${embeds.length}`),
+                    );
+
+                let first = true;
+
+                for (const embed of embeds) {
+                    const request: any = { embeds: [embed] };
+
+                    if (data.is_forum)
+                        if (first) {
+                            if (data.naming_scheme === -1)
+                                request.thread_name = data.forum_post_name;
+                            else if (data.naming_scheme === 0)
+                                request.thread_name = author
+                                    ? author.tag.replace(/#0$/, "")
+                                    : "Missing User";
+                            else
+                                request.thread_name = submission.answers.find(
+                                    (x: any) => x.id === data.naming_scheme,
+                                ).answer;
+                        }
+
+                    const req = await fetch(
+                        `${data.webhook}${data.is_forum && first ? "?wait=true" : ""}`,
+                        {
+                            method: "post",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(request),
+                        },
+                    );
+
+                    if (data.is_forum && first) {
+                        const res = await req.json();
+                        if (!req.ok) throw JSON.stringify(res);
+                        data.webhook += `?thread_id=${res.channel_id}`;
+                    }
+
+                    first = false;
+                }
+            } catch (error) {
+                console.error(error);
             }
-        } catch (error) {
-            console.error(error);
-        }
+        else
+            try {
+                submission.answers = answers.filter((x) => !questions[x.id].hide);
+                delete submission._id;
+
+                await fetch(data.webhook, {
+                    method: "post",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(submission),
+                });
+            } catch {}
+    }
 
     return new Response();
 };
