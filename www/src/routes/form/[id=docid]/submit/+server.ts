@@ -360,7 +360,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
             const embeds = [];
 
             while (fields.length > 0) {
-                const embed = structuredClone(template);
+                const embed = JSON.parse(JSON.stringify(template));
                 embed.fields = [];
                 let thislength = length;
 
