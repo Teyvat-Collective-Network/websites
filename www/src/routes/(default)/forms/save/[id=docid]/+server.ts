@@ -150,7 +150,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
         if (form.post_to_webhook) {
             if (!form.webhook) throw "Missing webhook URL.";
-            // if (!form.webhook.match(url_regex)) throw "Invalid webhook URL.";
+            if (!form.webhook.match(url_regex)) throw "Invalid webhook URL.";
             if (form.webhook.match(/^https:\/\/(.+?\.)?discord\.com/)) {
                 if (!form.webhook.match(webhook_regex))
                     throw "Webhook URL is a Discord URL but not a valid webhook.";
