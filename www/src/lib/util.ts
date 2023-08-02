@@ -58,15 +58,11 @@ export function markdown_postprocess(text: string, reader: any) {
             }><i class="material-icons">group</i> &nbsp; ${match[2]}</span>`,
         );
 
-    regex = /\[(\d+\/\d+(\/\d+)?)?([tavfsc]?)#((\\]|[^\]])+)\]/;
+    regex = /\[([tavfsc]?)#((\\]|[^\]])+)\]/;
     while ((match = text.match(regex)))
         text = text.replace(
             regex,
-            `${
-                match[1]
-                    ? `<a href="https://discord.com/channels/${match[1]}" target="_blank" rel="noreferrer">`
-                    : ""
-            }<span class="mention"><i class="material-icons">${
+            `<span class="mention"><i class="material-icons">${
                 {
                     t: "tag",
                     a: "campaign",
@@ -74,8 +70,8 @@ export function markdown_postprocess(text: string, reader: any) {
                     f: "forum",
                     s: "podcasts",
                     c: "folder",
-                }[match[3] || "t"]
-            }</i>&nbsp;${match[4]}</span>${match[1] ? "</a>" : ""}`,
+                }[match[1] || "t"]
+            }</i>&nbsp;${match[2]}</span>`,
         );
 
     regex = /\[:(\d+)\]/;

@@ -1,3 +1,7 @@
+<script lang="ts" context="module">
+    declare const hljs: any;
+</script>
+
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
@@ -44,6 +48,8 @@
 
         replace_links();
         page.subscribe(() => replace_links());
+
+        hljs.highlightAll();
     });
 </script>
 
@@ -238,6 +244,17 @@
         </div>
     </body>
 </html>
+
+<svelte:head>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"
+    ></script>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css"
+    />
+</svelte:head>
 
 <style lang="scss">
     :global {

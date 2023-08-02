@@ -61,7 +61,7 @@
             }
 
             @for $index from 1 to 47 {
-                #main > :nth-child(#{$index}) {
+                #main > :not(.do-not-move):nth-child(#{$index}) {
                     animation: fade-from-left 500ms calc(25ms * $index) backwards;
                 }
             }

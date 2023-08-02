@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&family=Share+Tech+Mono&display=swap");
+@import url("/styles/hljs.css");
 
 :root {
     font-family: "Rubik", sans-serif;
@@ -72,7 +73,8 @@ h6 {
     line-height: 100%;
 }
 
-b {
+b,
+strong {
     font-weight: 600;
 }
 
@@ -135,7 +137,7 @@ button:disabled {
 
 pre,
 code {
-    background-color: #88888822;
+    background-color: #303136;
     border-radius: 5px;
     font-family: "Share Tech Mono", monospace;
     font-size: 90%;
@@ -151,6 +153,10 @@ code {
 
 code.plain {
     background-color: unset;
+}
+
+pre > code {
+    all: unset;
 }
 
 input,
@@ -327,4 +333,12 @@ a#top {
     background-color: var(--text-accent);
     color: rgb(var(--pure-rgb));
     transition: opacity 200ms;
+}
+
+.right-align {
+    text-align: right;
+}
+
+.left-align {
+    text-align: left;
 }

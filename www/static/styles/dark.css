@@ -1,5 +1,6 @@
 :root {
     --background-1: #212225;
+    --background-1-5: #28292d;
     --background-2: #303136;
     --background-3: #37393f;
     --background-X: #141619;
@@ -31,6 +32,11 @@
 
     --pure-rgb: 10, 10, 10;
     --invert-rgb: 240, 240, 240;
+
+    --hljs-blue: #2196f3;
+    --hljs-cyan: #00bcd4;
+    --hljs-teal: #009688;
+    --hljs-green: #66bb6a;
 }
 
 .light {
