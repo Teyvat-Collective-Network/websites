@@ -38,23 +38,26 @@
         }
     }
 
-    onMount(() => {
-        function replace_links() {
-            for (const element of document.querySelectorAll(".desc a") as any) {
-                element.target = "_blank";
-                element.rel = "noreferrer";
-            }
+    function replace_links() {
+        for (const element of document.querySelectorAll(".desc a") as any) {
+            element.target = "_blank";
+            element.rel = "noreferrer";
         }
+    }
 
+    onMount(() => {
         replace_links();
+
         page_store.subscribe(() => replace_links());
     });
 
     let page_index = 0;
     let page: any;
     $: page = data.form.pages?.[page_index];
+    $: if (page_index != undefined) setTimeout(update, 500);
+    update();
 
-    async function check_required() {
+    async function validate() {
         let good = true;
 
         for (let index = 0; index < page.questions.length; index++) {
@@ -169,7 +172,7 @@
 
         const request = await fetch(`/form/${data.form.id}/submit`, {
             method: "post",
-            body: JSON.stringify(data.form),
+            body: JSON.stringify({ ...data.form, answers }),
         });
 
         if (!request.ok) {
@@ -226,12 +229,18 @@
             "collect_names",
             "name",
             "pages",
+            "external",
+            "external_url",
         ])
             data.form[key] = d.form[key];
 
         page_index = 0;
 
-        setTimeout(update, 500);
+        if (data.form.external) {
+            page_stack = [];
+            pull();
+            ext_fault = d.ext_fault ?? "";
+        }
 
         reload_success = true;
         setTimeout(() => (reload_success = false), 1500);
@@ -331,6 +340,104 @@
 
         return true;
     }
+
+    let ext_fault: string = data.form.ext_fault ?? "";
+    const answers: any = {};
+    let page_stack: number[] = [];
+    let pulling = false;
+
+    async function pull() {
+        pulling = true;
+
+        while (page_index < data.form.pages.length) {
+            if (!data.form.pages[page_index].use_condition) break;
+
+            try {
+                const request = await fetch(`${data.form.external_url}/condition/${page_index}`, {
+                    method: "post",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user: data.user, answers }),
+                });
+
+                if (!request.ok) throw 0;
+
+                const response = await request.json();
+                if (response) break;
+
+                page_index++;
+            } catch {
+                ext_fault = `External page condition failed for index ${page_index}. This is an issue with the form creator's external form API; please inform them of this issue.`;
+                break;
+            }
+        }
+
+        pulling = false;
+    }
+
+    function update_checkbox(q: any, index: number) {
+        answers[q.id] = q.selected[index]
+            ? [...(answers[q.id] ?? []), index].sort()
+            : (answers[q.id] ?? []).filter((x: number) => x !== index);
+    }
+
+    function pop_stack() {
+        const value = page_stack.at(-1)!;
+        page_stack = page_stack.slice(0, -1);
+        return value;
+    }
+
+    async function next() {
+        let pass = true;
+
+        for (let qi = 0; qi < page.questions.length; qi++) {
+            const q = page.questions[qi];
+            q.failed = "";
+
+            const fail = (message: string = "This question is required.") => (
+                (q.failed = message), (pass = false)
+            );
+
+            if (q.required) {
+                if (q.type === "short" || q.type === "long" || q.type === "date") {
+                    if (!answers[q.id]) fail();
+                } else if (q.type === "number") {
+                    if (answers[q.id] == undefined) fail();
+                } else if (q.type === "mcq")
+                    if (q.max === 1) {
+                        if (answers[q.id] == undefined) fail();
+                    } else if (!answers[q.id]?.length) fail();
+            }
+
+            if (!q.use_validation || q.failed) {
+                page.questions[qi] = q;
+                continue;
+            }
+
+            try {
+                const request = await fetch(`${data.form.external_url}/validation/${q.id}`, {
+                    method: "post",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user: data.user, answer: answers[q.id] }),
+                });
+
+                if (!request.ok) throw 0;
+
+                const response = await request.json();
+                if (response) fail(`${response}`);
+
+                page.questions[qi] = q;
+            } catch {
+                ext_fault = `External question validation failed for question with ID ${q.id}. This is an issue with the form creator's external form API; please inform them of this issue.`;
+                return;
+            }
+        }
+
+        if (!pass) return;
+
+        page_stack = [...page_stack, page_index];
+        page_index++;
+        pull();
+    }
 </script>
 
 <svelte:window bind:innerWidth={width} bind:scrollY={scroll} />
@@ -390,7 +497,7 @@
             }
 
             @for $index from 1 to 47 {
-                #main > :nth-child(#{$index}) {
+                #main > :not(.do-not-move):nth-child(#{$index}) {
                     animation: fade-from-left 500ms calc(25ms * $index) backwards;
                 }
             }
@@ -445,18 +552,6 @@
                             </p>
                         </Callout>
                         <br />
-                        {#if data.form.allow_logged_in || data.form.allow_everyone}
-                            <Callout style="info">
-                                <p>This form is configured to be publicly visible.</p>
-                            </Callout>
-                        {:else}
-                            <Callout style="red">
-                                <p>
-                                    This form is not publicly visible. Do not share it with people
-                                    unless permitted by the author.
-                                </p>
-                            </Callout>
-                        {/if}
                         <h3>
                             {data.form.name}
                             {#if data.form.author === data.user?.id || (data.form.editable_observers && data.observer) || (data.form.editable_council && data.council)}&nbsp;<a
@@ -487,148 +582,295 @@
                         <p class="row" style="gap: 10px">
                             <button on:click={reload}>Reload Data / Back To Start</button>
                             {#if reload_success}
-                                <i class="material-icons" style="color: var(--green-text)">check</i>
+                                <i class="material-icons" style="color: var(--green-text)">
+                                    check
+                                </i>
                             {/if}
                         </p>
-                        <div class="panel">
-                            <h4>{page?.name ?? "Submit"}</h4>
-                            {#if page}
-                                <span class="markdown">
-                                    {@html page.description}
-                                </span>
+                        {#if data.form.external}
+                            {#if ext_fault}
+                                <Callout style="red">
+                                    <p>{ext_fault}</p>
+                                </Callout>
+                            {:else if pulling}
+                                <div class="do-not-move">
+                                    <Callout style="info">
+                                        <p>Loading next page...</p>
+                                    </Callout>
+                                </div>
                             {:else}
-                                <p>
-                                    You have completed this form. You can go back to edit your
-                                    answers or click the submit button to submit your responses. You
-                                    will not be able to edit or view your responses afterwards.
-                                </p>
-                            {/if}
-                            {#each page?.questions ?? [] as q, qi}
-                                <div
-                                    class="panel"
-                                    style="background-color: var(--background-1); outline: {q.failed
-                                        ? '2px solid var(--red-text)'
-                                        : ''}"
-                                >
-                                    <h5>
-                                        {q.question}
-                                        {#if q.required}
-                                            <span style="color: var(--text-secondary)">
-                                                [required]
+                                <div class="panel">
+                                    <h4>{page?.name ?? "Submit"}</h4>
+                                    {#if page}
+                                        <span class="markdown">{@html page.description}</span>
+                                    {:else}
+                                        <p>
+                                            You have completed this form. You can go back to edit
+                                            your answers or click the submit button to submit your
+                                            responses. You will not be able to edit or view your
+                                            responses afterwards.
+                                        </p>
+                                    {/if}
+                                    {#each page?.questions ?? [] as q}
+                                        <div
+                                            class="panel"
+                                            style="background-color: var(--background-1); outline: {q.failed
+                                                ? '2px solid var(--red-text)'
+                                                : ''}"
+                                        >
+                                            <h5>
+                                                {q.question}
+                                                {#if q.required}
+                                                    <span style="color: var(--text-secondary)">
+                                                        [required]
+                                                    </span>
+                                                {/if}
+                                            </h5>
+                                            <span class="markdown">
+                                                {@html q.description}
                                             </span>
-                                        {/if}
-                                    </h5>
-                                    <span class="markdown">
-                                        {@html q.description}
-                                    </span>
-                                    {#if q.type === "short"}
-                                        <input
-                                            type="text"
-                                            bind:value={q.value}
-                                            minlength={q.short_format === "none" ? q.min : null}
-                                            maxlength={q.short_format === "none" ? q.max : null}
-                                        />
-                                    {:else if q.type === "long"}
-                                        <Textarea
-                                            bind:value={q.value}
-                                            minlength={q.min}
-                                            maxlength={q.max}
-                                        />
-                                    {:else if q.type === "number"}
-                                        <input
-                                            type="number"
-                                            bind:value={q.value}
-                                            min={q.min}
-                                            max={q.max}
-                                        />
-                                    {:else if q.type === "mcq"}
-                                        {#if q.dropdown}
-                                            <select bind:value={q.value}>
-                                                <option disabled selected hidden />
-                                                {#each q.options as option}
-                                                    <option>{option}</option>
-                                                {/each}
-                                            </select>
-                                        {:else}
-                                            {#each q.options as option, index}
-                                                {@const disabled =
-                                                    !q.selected[index] &&
-                                                    q.max != undefined &&
-                                                    Object.values(q.selected).filter((x) => x)
-                                                        .length >= q.max}
-
-                                                {#if q.max === 1}
-                                                    <label>
-                                                        <input
-                                                            type="radio"
-                                                            name="input-page-{page_index}-question-{qi}"
-                                                            value={option}
-                                                            bind:group={q.value}
-                                                            style="--background: var(--background-3)"
-                                                        />
-                                                        {option}
-                                                    </label>
+                                            {#if q.type === "short"}
+                                                <input type="text" bind:value={answers[q.id]} />
+                                            {:else if q.type === "long"}
+                                                <Textarea bind:value={answers[q.id]} />
+                                            {:else if q.type === "number"}
+                                                <input type="number" bind:value={answers[q.id]} />
+                                            {:else if q.type === "mcq"}
+                                                {#if q.dropdown}
+                                                    <select bind:value={answers[q.id]}>
+                                                        <option disabled selected hidden />
+                                                        {#each q.options as option}
+                                                            <option>{option}</option>
+                                                        {/each}
+                                                    </select>
                                                 {:else}
-                                                    <div>
-                                                        <span
-                                                            style="position: relative; display: inline-block"
-                                                        >
-                                                            {#if disabled}
-                                                                <hr
-                                                                    style="position: absolute; left: -10px; right: -10px; top: 20%; z-index: 1; border: 1px solid var(--text-secondary)"
-                                                                />
-                                                            {/if}
-                                                            <label style="position: relative">
+                                                    {#each q.options as option, index}
+                                                        {#if q.max === 1}
+                                                            <label>
                                                                 <input
-                                                                    type="checkbox"
-                                                                    bind:checked={q.selected[index]}
-                                                                    style="background-color: var(--background-3)"
-                                                                    {disabled}
+                                                                    type="radio"
+                                                                    name="input-page-{page_index}-question-{q.id}"
+                                                                    value={option}
+                                                                    bind:group={answers[q.id]}
+                                                                    style="--background: var(--background-3)"
                                                                 />
                                                                 {option}
                                                             </label>
-                                                        </span>
-                                                    </div>
+                                                        {:else}
+                                                            {@const disabled =
+                                                                Array.isArray(answers[q.id]) &&
+                                                                !answers[q.id].includes(index) &&
+                                                                q.max != undefined &&
+                                                                answers[q.id].length >= q.max}
+
+                                                            <div>
+                                                                <span
+                                                                    style="position: relative; display: inline-block"
+                                                                >
+                                                                    {#if disabled}
+                                                                        <hr
+                                                                            style="position: absolute; left: -10px; right: -10px; top: 20%; z-index: 1; border: 1px solid var(--text-secondary)"
+                                                                        />
+                                                                    {/if}
+                                                                    <label
+                                                                        style="position: relative"
+                                                                    >
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            bind:checked={q
+                                                                                .selected[index]}
+                                                                            style="background-color: var(--background-3)"
+                                                                            {disabled}
+                                                                            on:change={() =>
+                                                                                update_checkbox(
+                                                                                    q,
+                                                                                    index,
+                                                                                )}
+                                                                        />
+                                                                        {option}
+                                                                    </label>
+                                                                </span>
+                                                            </div>
+                                                        {/if}
+                                                    {/each}
                                                 {/if}
-                                            {/each}
+                                            {:else if q.type === "date"}
+                                                <DatetimePicker
+                                                    bind:value={answers[q.id]}
+                                                    show_date={q.show_date}
+                                                    show_time={q.show_time}
+                                                />
+                                            {/if}
+                                            {#if q.failed}
+                                                <p style="color: var(--red-text)">
+                                                    {q.failed}
+                                                </p>
+                                            {/if}
+                                        </div>
+                                    {/each}
+                                    <p class="row">
+                                        <button
+                                            on:click={() => (page_index = pop_stack())}
+                                            style={page_stack.length === 0 ? "display: none" : ""}
+                                        >
+                                            Back
+                                        </button>
+                                        <span style="flex-grow: 1" />
+                                        {#if page_index < data.form.pages.length}
+                                            <button on:click={() => next()}>Next</button>
+                                        {:else}
+                                            <button on:click={() => submit()} disabled={wait}>
+                                                Submit!
+                                            </button>
                                         {/if}
-                                    {:else if q.type === "date"}
-                                        <DatetimePicker
-                                            bind:value={q.date}
-                                            show_date={q.show_date}
-                                            show_time={q.show_time}
-                                        />
-                                    {/if}
-                                    {#if q.failed}
-                                        <p style="color: var(--red-text)">{q.failed}</p>
-                                    {/if}
+                                    </p>
                                 </div>
-                            {/each}
-                            <p class="row">
-                                {#if page_index !== 0}
-                                    <button
-                                        on:click={() => {
-                                            while (!show_page(data.form.pages[--page_index]));
-                                        }}>Back</button
-                                    >
-                                {/if}
-                                <span style="flex-grow: 1" />
-                                {#if page_index < data.form.pages.length}
-                                    <button
-                                        on:click={async () => {
-                                            if (!(await check_required())) return;
-                                            while (!show_page(data.form.pages[++page_index]));
-                                        }}
-                                    >
-                                        Next
-                                    </button>
+                            {/if}
+                        {:else}
+                            <div class="panel">
+                                <h4>{page?.name ?? "Submit"}</h4>
+                                {#if page}
+                                    <span class="markdown">{@html page.description}</span>
                                 {:else}
-                                    <button on:click={() => submit()} disabled={wait}>
-                                        Submit!
-                                    </button>
+                                    <p>
+                                        You have completed this form. You can go back to edit your
+                                        answers or click the submit button to submit your responses.
+                                        You will not be able to edit or view your responses
+                                        afterwards.
+                                    </p>
                                 {/if}
-                            </p>
-                        </div>
+                                {#each page?.questions ?? [] as q, qi}
+                                    <div
+                                        class="panel"
+                                        style="background-color: var(--background-1); outline: {q.failed
+                                            ? '2px solid var(--red-text)'
+                                            : ''}"
+                                    >
+                                        <h5>
+                                            {q.question}
+                                            {#if q.required}
+                                                <span style="color: var(--text-secondary)">
+                                                    [required]
+                                                </span>
+                                            {/if}
+                                        </h5>
+                                        <span class="markdown">
+                                            {@html q.description}
+                                        </span>
+                                        {#if q.type === "short"}
+                                            <input
+                                                type="text"
+                                                bind:value={q.value}
+                                                minlength={q.short_format === "none" ? q.min : null}
+                                                maxlength={q.short_format === "none" ? q.max : null}
+                                            />
+                                        {:else if q.type === "long"}
+                                            <Textarea
+                                                bind:value={q.value}
+                                                minlength={q.min}
+                                                maxlength={q.max}
+                                            />
+                                        {:else if q.type === "number"}
+                                            <input
+                                                type="number"
+                                                bind:value={q.value}
+                                                min={q.min}
+                                                max={q.max}
+                                            />
+                                        {:else if q.type === "mcq"}
+                                            {#if q.dropdown}
+                                                <select bind:value={q.value}>
+                                                    <option disabled selected hidden />
+                                                    {#each q.options as option}
+                                                        <option>{option}</option>
+                                                    {/each}
+                                                </select>
+                                            {:else}
+                                                {#each q.options as option, index}
+                                                    {#if q.max === 1}
+                                                        <label>
+                                                            <input
+                                                                type="radio"
+                                                                name="input-page-{page_index}-question-{qi}"
+                                                                value={option}
+                                                                bind:group={q.value}
+                                                                style="--background: var(--background-3)"
+                                                            />
+                                                            {option}
+                                                        </label>
+                                                    {:else}
+                                                        {@const disabled =
+                                                            !q.selected[index] &&
+                                                            q.max != undefined &&
+                                                            Object.values(q.selected).filter(
+                                                                (x) => x,
+                                                            ).length >= q.max}
+
+                                                        <div>
+                                                            <span
+                                                                style="position: relative; display: inline-block"
+                                                            >
+                                                                {#if disabled}
+                                                                    <hr
+                                                                        style="position: absolute; left: -10px; right: -10px; top: 20%; z-index: 1; border: 1px solid var(--text-secondary)"
+                                                                    />
+                                                                {/if}
+                                                                <label style="position: relative">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        bind:checked={q.selected[
+                                                                            index
+                                                                        ]}
+                                                                        style="background-color: var(--background-3)"
+                                                                        {disabled}
+                                                                    />
+                                                                    {option}
+                                                                </label>
+                                                            </span>
+                                                        </div>
+                                                    {/if}
+                                                {/each}
+                                            {/if}
+                                        {:else if q.type === "date"}
+                                            <DatetimePicker
+                                                bind:value={q.date}
+                                                show_date={q.show_date}
+                                                show_time={q.show_time}
+                                            />
+                                        {/if}
+                                        {#if q.failed}
+                                            <p style="color: var(--red-text)">{q.failed}</p>
+                                        {/if}
+                                    </div>
+                                {/each}
+                                <p class="row">
+                                    {#if page_index !== 0}
+                                        <button
+                                            on:click={() => {
+                                                while (!show_page(data.form.pages[--page_index]));
+                                            }}
+                                        >
+                                            Back
+                                        </button>
+                                    {/if}
+                                    <span style="flex-grow: 1" />
+                                    {#if page_index < data.form.pages.length}
+                                        <button
+                                            on:click={async () => {
+                                                if (!(await validate())) return;
+                                                while (!show_page(data.form.pages[++page_index]));
+                                            }}
+                                        >
+                                            Next
+                                        </button>
+                                    {:else}
+                                        <button on:click={() => submit()} disabled={wait}>
+                                            Submit!
+                                        </button>
+                                    {/if}
+                                </p>
+                            </div>
+                        {/if}
                     {/if}
                 </div>
             </div>

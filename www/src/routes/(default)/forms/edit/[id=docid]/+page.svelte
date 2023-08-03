@@ -112,6 +112,42 @@
                         Collect Names (only works if the form is not visible to logged-out users)
                     </label>
                 </p>
+                <p>
+                    <label>
+                        <input type="checkbox" bind:checked={data.form.external} />
+                        <span>
+                            Use External Validation/Conditions (<a
+                                href="/info/documentation/forms"
+                                target="_blank">docs</a
+                            >)
+                        </span>
+                    </label>
+                </p>
+                {#if data.form.external}
+                    <p>
+                        <label>
+                            External&nbsp;URL
+                            <input type="text" bind:value={data.form.external_url} />
+                        </label>
+                    </p>
+                    {#if data.form.external_url && !data.form.external_url.match(url_regex)}
+                        <Callout style="red">
+                            <p>Invalid URL.</p>
+                        </Callout>
+                        <br />
+                    {:else}
+                        <Callout style="warn">
+                            <p>
+                                Access to this URL is done from the client-side and the user
+                                receives the entire form when they load the page, so do not hide
+                                sensitive content behind validation. The answers will be validated
+                                again on the server-side before the submission is confirmed, so you
+                                are guaranteed to receive valid submissions.
+                            </p>
+                        </Callout>
+                        <br />
+                    {/if}
+                {/if}
                 {#each data.form.pages as page, index}
                     <div class="panel" style="background-color: var(--background-1)">
                         <h4 class="row" style="gap: 10px">
@@ -134,147 +170,164 @@
                         />
                         <p />
                         <div class="panel">
-                            <p>
-                                <label>
-                                    Show Conditionally Based On
-                                    <select bind:value={page.condition.source}>
-                                        <option value={0}>No Condition</option>
-                                        <option value={-1}>TCN Council Status</option>
-                                        {#each data.form.pages as page}
-                                            {#each page.questions as question}
-                                                {#if ["number", "mcq", "date"].includes(question.type)}
-                                                    <option value={question.id}>
-                                                        {question.question.length > 80
-                                                            ? `${question.question.substring(
-                                                                  0,
-                                                                  77,
-                                                              )}...`
-                                                            : question.question}
-                                                    </option>
-                                                {/if}
-                                            {/each}
-                                        {/each}
-                                    </select>
-                                </label>
-                            </p>
-                            {#if page.condition.source}
-                                <hr />
-                            {/if}
-                            {#if page.condition.source === -1}
-                                <p class="row" style="gap: 20px; flex-wrap: wrap">
-                                    {#each ["observer", "owner", "advisor", ""] as key}
-                                        <label>
-                                            <input
-                                                type="checkbox"
-                                                bind:checked={page.condition[
-                                                    `council_${key || "other"}`
-                                                ]}
-                                            />
-                                            if {key || "non-member"}
-                                        </label>
-                                    {/each}
-                                </p>
-                            {:else if page.condition.source > 0}
-                                {@const question = find_question(page.condition.source)}
-                                {#if question?.type === "number"}
-                                    <p class="row" style="gap: 10px; flex-wrap: wrap">
-                                        show if value is
-                                        <select bind:value={page.condition.number_op}>
-                                            <option selected disabled hidden />
-                                            <option value="gt">greater than</option>
-                                            <option value="ge">greater than or equal to</option>
-                                            <option value="eq">equal to</option>
-                                            <option value="le">less than or equal to</option>
-                                            <option value="lt">less than</option>
-                                            <option value="ne">not equal to</option>
-                                        </select>
-                                        <input
-                                            type="number"
-                                            bind:value={page.condition.number_value}
-                                            style="width: 150px"
-                                        />
-                                        {#if !question.required}
-                                            <label>
-                                                <input
-                                                    type="checkbox"
-                                                    bind:checked={page.condition.number_default}
-                                                />
-                                                or no value is specified
-                                            </label>
-                                        {/if}
-                                    </p>
-                                {:else if question?.type === "mcq"}
-                                    <p class="row" style="gap: 10px; flex-wrap: wrap">
-                                        show if
-                                        <select bind:value={page.condition.mcq_anyall}>
-                                            <option>any</option>
-                                            <option>all</option>
-                                        </select>
-                                        of the below are
-                                        <select bind:value={page.condition.mcq_mode}>
-                                            <option value="yes">selected</option>
-                                            <option value="no">not selected</option>
-                                        </select>
-                                    </p>
-                                    <p>
-                                        {#each question.options as option}
-                                            <label>
-                                                <input
-                                                    type="checkbox"
-                                                    bind:checked={page.condition.options[option]}
-                                                />
-                                                {option}
-                                            </label>
-                                        {/each}
-                                    </p>
-                                {:else if question?.type === "date"}
-                                    <p class="row" style="gap: 20px 10px; flex-wrap: wrap">
-                                        show if value is
-                                        <select bind:value={page.condition.date_op}>
-                                            <option selected disabled hidden />
-                                            <option value="le">before or on</option>
-                                            <option value="lt">before</option>
-                                            <option value="ge">after or on</option>
-                                            <option value="gt">after</option>
-                                            <option value="bw">between (includes ends)</option>
-                                            <option value="nb">not between (excludes ends)</option>
-                                        </select>
-                                        <span
-                                            style="padding: 10px; border-radius: 5px; background-color: var(--background-1)"
-                                        >
-                                            <DatetimePicker
-                                                bind:value={page.condition.first_date}
-                                                show_date={question.show_date}
-                                                show_time={question.show_time}
-                                            />
+                            {#if data.form.external}
+                                <p>
+                                    <label>
+                                        <input type="checkbox" bind:checked={page.use_condition} />
+                                        <span>
+                                            Show Conditionally (<a href="/info/documentation/forms"
+                                                >docs</a
+                                            >)
                                         </span>
-                                        {#if ["bw", "nb"].includes(page.condition.date_op)}
-                                            and
+                                    </label>
+                                </p>
+                            {:else}
+                                <p>
+                                    <label>
+                                        Show Conditionally Based On
+                                        <select bind:value={page.condition.source}>
+                                            <option value={0}>No Condition</option>
+                                            <option value={-1}>TCN Council Status</option>
+                                            {#each data.form.pages as page}
+                                                {#each page.questions as question}
+                                                    {#if ["number", "mcq", "date"].includes(question.type)}
+                                                        <option value={question.id}>
+                                                            {question.question.length > 80
+                                                                ? `${question.question.substring(
+                                                                      0,
+                                                                      77,
+                                                                  )}...`
+                                                                : question.question}
+                                                        </option>
+                                                    {/if}
+                                                {/each}
+                                            {/each}
+                                        </select>
+                                    </label>
+                                </p>
+                                {#if page.condition.source}
+                                    <hr />
+                                {/if}
+                                {#if page.condition.source === -1}
+                                    <p class="row" style="gap: 20px; flex-wrap: wrap">
+                                        {#each ["observer", "owner", "advisor", ""] as key}
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    bind:checked={page.condition[
+                                                        `council_${key || "other"}`
+                                                    ]}
+                                                />
+                                                if {key || "non-member"}
+                                            </label>
+                                        {/each}
+                                    </p>
+                                {:else if page.condition.source > 0}
+                                    {@const question = find_question(page.condition.source)}
+                                    {#if question?.type === "number"}
+                                        <p class="row" style="gap: 10px; flex-wrap: wrap">
+                                            show if value is
+                                            <select bind:value={page.condition.number_op}>
+                                                <option selected disabled hidden />
+                                                <option value="gt">greater than</option>
+                                                <option value="ge">greater than or equal to</option>
+                                                <option value="eq">equal to</option>
+                                                <option value="le">less than or equal to</option>
+                                                <option value="lt">less than</option>
+                                                <option value="ne">not equal to</option>
+                                            </select>
+                                            <input
+                                                type="number"
+                                                bind:value={page.condition.number_value}
+                                                style="width: 150px"
+                                            />
+                                            {#if !question.required}
+                                                <label>
+                                                    <input
+                                                        type="checkbox"
+                                                        bind:checked={page.condition.number_default}
+                                                    />
+                                                    or no value is specified
+                                                </label>
+                                            {/if}
+                                        </p>
+                                    {:else if question?.type === "mcq"}
+                                        <p class="row" style="gap: 10px; flex-wrap: wrap">
+                                            show if
+                                            <select bind:value={page.condition.mcq_anyall}>
+                                                <option>any</option>
+                                                <option>all</option>
+                                            </select>
+                                            of the below are
+                                            <select bind:value={page.condition.mcq_mode}>
+                                                <option value="yes">selected</option>
+                                                <option value="no">not selected</option>
+                                            </select>
+                                        </p>
+                                        <p>
+                                            {#each question.options as option}
+                                                <label>
+                                                    <input
+                                                        type="checkbox"
+                                                        bind:checked={page.condition.options[
+                                                            option
+                                                        ]}
+                                                    />
+                                                    {option}
+                                                </label>
+                                            {/each}
+                                        </p>
+                                    {:else if question?.type === "date"}
+                                        <p class="row" style="gap: 20px 10px; flex-wrap: wrap">
+                                            show if value is
+                                            <select bind:value={page.condition.date_op}>
+                                                <option selected disabled hidden />
+                                                <option value="le">before or on</option>
+                                                <option value="lt">before</option>
+                                                <option value="ge">after or on</option>
+                                                <option value="gt">after</option>
+                                                <option value="bw">between (includes ends)</option>
+                                                <option value="nb"
+                                                    >not between (excludes ends)</option
+                                                >
+                                            </select>
                                             <span
                                                 style="padding: 10px; border-radius: 5px; background-color: var(--background-1)"
                                             >
                                                 <DatetimePicker
-                                                    bind:value={page.condition.second_date}
+                                                    bind:value={page.condition.first_date}
                                                     show_date={question.show_date}
                                                     show_time={question.show_time}
                                                 />
                                             </span>
-                                        {/if}
-                                        {#if !question.required}
-                                            <label>
-                                                <input
-                                                    type="checkbox"
-                                                    bind:checked={page.condition.number_default}
-                                                />
-                                                or no value is specified
-                                            </label>
-                                        {/if}
-                                    </p>
-                                {:else}
-                                    <Callout style="red">
-                                        <p>Condition is invalid; please fix or remove it.</p>
-                                    </Callout>
-                                    <br />
+                                            {#if ["bw", "nb"].includes(page.condition.date_op)}
+                                                and
+                                                <span
+                                                    style="padding: 10px; border-radius: 5px; background-color: var(--background-1)"
+                                                >
+                                                    <DatetimePicker
+                                                        bind:value={page.condition.second_date}
+                                                        show_date={question.show_date}
+                                                        show_time={question.show_time}
+                                                    />
+                                                </span>
+                                            {/if}
+                                            {#if !question.required}
+                                                <label>
+                                                    <input
+                                                        type="checkbox"
+                                                        bind:checked={page.condition.number_default}
+                                                    />
+                                                    or no value is specified
+                                                </label>
+                                            {/if}
+                                        </p>
+                                    {:else}
+                                        <Callout style="red">
+                                            <p>Condition is invalid; please fix or remove it.</p>
+                                        </Callout>
+                                        <br />
+                                    {/if}
                                 {/if}
                             {/if}
                         </div>
@@ -310,169 +363,194 @@
                                         <input type="checkbox" bind:checked={question.required} />
                                         Required
                                     </label>
+                                    {#if data.form.external}
+                                        <label>
+                                            <input
+                                                type="checkbox"
+                                                bind:checked={question.use_validation}
+                                            />
+                                            <span>
+                                                Use Validation (<a href="/info/documentation/docs"
+                                                    >docs</a
+                                                >)
+                                            </span>
+                                        </label>
+                                    {/if}
                                 </p>
-                                {#if question.type == "short"}
-                                    <p>
-                                        <label>
-                                            Input&nbsp;Validation
-                                            <select bind:value={question.short_format}>
-                                                <option value="none">No Validation</option>
-                                                <option value="email">Require Email Address</option>
-                                                <option value="url">Require URL</option>
-                                                <option value="user">Require User ID</option>
-                                            </select>
-                                        </label>
-                                    </p>
-                                    {#if question.short_format !== "none"}
+                                {#if !data.form.external}
+                                    {#if question.type == "short"}
+                                        <p>
+                                            <label>
+                                                Input&nbsp;Validation
+                                                <select bind:value={question.short_format}>
+                                                    <option value="none">No Validation</option>
+                                                    <option value="email"
+                                                        >Require Email Address</option
+                                                    >
+                                                    <option value="url">Require URL</option>
+                                                    <option value="user">Require User ID</option>
+                                                </select>
+                                            </label>
+                                        </p>
+                                        {#if question.short_format !== "none"}
+                                            <p>
+                                                <label>
+                                                    Custom&nbsp;Error&nbsp;Text
+                                                    <input
+                                                        type="text"
+                                                        bind:value={question.text_format_error}
+                                                    />
+                                                </label>
+                                            </p>
+                                        {/if}
+                                    {/if}
+                                    {#if question.type === "number"}
+                                        <p>
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    bind:checked={question.float}
+                                                />
+                                                Allow Non-Integer Input
+                                            </label>
+                                        </p>
                                         <p>
                                             <label>
                                                 Custom&nbsp;Error&nbsp;Text
                                                 <input
                                                     type="text"
-                                                    bind:value={question.text_format_error}
+                                                    bind:value={question.integer_error}
                                                 />
                                             </label>
                                         </p>
                                     {/if}
-                                {/if}
-                                {#if question.type === "number"}
-                                    <p>
-                                        <label>
-                                            <input type="checkbox" bind:checked={question.float} />
-                                            Allow Non-Integer Input
-                                        </label>
-                                    </p>
-                                    <p>
-                                        <label>
-                                            Custom&nbsp;Error&nbsp;Text
-                                            <input
-                                                type="text"
-                                                bind:value={question.integer_error}
-                                            />
-                                        </label>
-                                    </p>
-                                {/if}
-                                {#if question.type === "mcq"}
-                                    <p><b>Options</b></p>
+                                    {#if question.type === "mcq"}
+                                        <p><b>Options</b></p>
+                                        <table>
+                                            {#each question.options as option, oi}
+                                                <tr>
+                                                    <td>Option {oi + 1}</td>
+                                                    <td
+                                                        ><input
+                                                            type="text"
+                                                            bind:value={option}
+                                                        /></td
+                                                    >
+                                                    <ListButtons
+                                                        bind:array={question.options}
+                                                        index={oi}
+                                                        table
+                                                    />
+                                                </tr>
+                                            {/each}
+                                        </table>
+                                        <p>
+                                            <button
+                                                on:click={() =>
+                                                    (question.options = [...question.options, ""])}
+                                            >
+                                                Add Option
+                                            </button>
+                                        </p>
+                                        <p>
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    bind:checked={question.dropdown}
+                                                />
+                                                Show As Dropdown (only works if min and max choices are
+                                                both 1)
+                                            </label>
+                                        </p>
+                                    {/if}
+                                    {#if question.type === "date"}
+                                        <p>
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    bind:checked={question.show_date}
+                                                />
+                                                Show Date
+                                            </label>
+                                        </p>
+                                        <p>
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    bind:checked={question.show_time}
+                                                />
+                                                Show Time
+                                            </label>
+                                        </p>
+                                        {#if question.show_date}
+                                            <p>
+                                                <select bind:value={question.relative_time}>
+                                                    <option value="all">Allow any time</option>
+                                                    <option value="past"
+                                                        >Require time to be in past</option
+                                                    >
+                                                    <option value="future"
+                                                        >Require time to be in future</option
+                                                    >
+                                                </select>
+                                            </p>
+                                            <p>
+                                                <label>
+                                                    Custom&nbsp;Error&nbsp;Text
+                                                    <input
+                                                        type="text"
+                                                        bind:value={question.time_error}
+                                                    />
+                                                </label>
+                                            </p>
+                                        {/if}
+                                    {/if}
                                     <table>
-                                        {#each question.options as option, oi}
+                                        {#if (question.type === "short" && question.short_format === "none") || ["long", "number", "mcq"].includes(question.type)}
                                             <tr>
-                                                <td>Option {oi + 1}</td>
-                                                <td><input type="text" bind:value={option} /></td>
-                                                <ListButtons
-                                                    bind:array={question.options}
-                                                    index={oi}
-                                                    table
-                                                />
+                                                <td>
+                                                    <input
+                                                        type="number"
+                                                        bind:value={question.min}
+                                                        min={0}
+                                                        max={question.max ?? Infinity}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    &le; {question.type === "number"
+                                                        ? "Value"
+                                                        : question.type === "mcq"
+                                                        ? "Choices"
+                                                        : "Length"} &le;
+                                                </td>
+                                                <td>
+                                                    <input
+                                                        type="number"
+                                                        bind:value={question.max}
+                                                        min={question.min ?? 0}
+                                                    />
+                                                </td>
                                             </tr>
-                                        {/each}
+                                            <tr>
+                                                <td>
+                                                    <input
+                                                        type="text"
+                                                        bind:value={question.low_error}
+                                                        placeholder="Custom Error Text"
+                                                    />
+                                                </td>
+                                                <td />
+                                                <td>
+                                                    <input
+                                                        type="text"
+                                                        bind:value={question.high_error}
+                                                        placeholder="Custom Error Text"
+                                                    />
+                                                </td>
+                                            </tr>
+                                        {/if}
                                     </table>
-                                    <p>
-                                        <button
-                                            on:click={() =>
-                                                (question.options = [...question.options, ""])}
-                                        >
-                                            Add Option
-                                        </button>
-                                    </p>
-                                    <p>
-                                        <label>
-                                            <input
-                                                type="checkbox"
-                                                bind:checked={question.dropdown}
-                                            />
-                                            Show As Dropdown (only works if min and max choices are both
-                                            1)
-                                        </label>
-                                    </p>
                                 {/if}
-                                {#if question.type === "date"}
-                                    <p>
-                                        <label>
-                                            <input
-                                                type="checkbox"
-                                                bind:checked={question.show_date}
-                                            />
-                                            Show Date
-                                        </label>
-                                    </p>
-                                    <p>
-                                        <label>
-                                            <input
-                                                type="checkbox"
-                                                bind:checked={question.show_time}
-                                            />
-                                            Show Time
-                                        </label>
-                                    </p>
-                                    {#if question.show_date}
-                                        <p>
-                                            <select bind:value={question.relative_time}>
-                                                <option value="all">Allow any time</option>
-                                                <option value="past"
-                                                    >Require time to be in past</option
-                                                >
-                                                <option value="future"
-                                                    >Require time to be in future</option
-                                                >
-                                            </select>
-                                        </p>
-                                        <p>
-                                            <label>
-                                                Custom&nbsp;Error&nbsp;Text
-                                                <input
-                                                    type="text"
-                                                    bind:value={question.time_error}
-                                                />
-                                            </label>
-                                        </p>
-                                    {/if}
-                                {/if}
-                                <table>
-                                    {#if (question.type === "short" && question.short_format === "none") || ["long", "number", "mcq"].includes(question.type)}
-                                        <tr>
-                                            <td>
-                                                <input
-                                                    type="number"
-                                                    bind:value={question.min}
-                                                    min={0}
-                                                    max={question.max ?? Infinity}
-                                                />
-                                            </td>
-                                            <td>
-                                                &le; {question.type === "number"
-                                                    ? "Value"
-                                                    : question.type === "mcq"
-                                                    ? "Choices"
-                                                    : "Length"} &le;
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="number"
-                                                    bind:value={question.max}
-                                                    min={question.min ?? 0}
-                                                />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    bind:value={question.low_error}
-                                                    placeholder="Custom Error Text"
-                                                />
-                                            </td>
-                                            <td />
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    bind:value={question.high_error}
-                                                    placeholder="Custom Error Text"
-                                                />
-                                            </td>
-                                        </tr>
-                                    {/if}
-                                </table>
                                 {#if data.form.post_to_webhook}
                                     <hr />
                                     <label>
@@ -617,6 +695,11 @@
                                         <a href="/info/documentation/forms">[documentation]</a>
                                     </p>
                                 </Callout>
+                                <br />
+                                <label>
+                                    Secret (see documentation for information)
+                                    <input type="password" bind:value={data.form.secret} />
+                                </label>
                             {:else}
                                 <Callout style="red">
                                     <p>Invalid URL.</p>
@@ -632,6 +715,26 @@
                         submissions. Only you and observers can delete this form. Observers will
                         always have view access but cannot submit unless explicitly allowed.
                     </p>
+                    {#if data.form.external}
+                        <Callout style="info">
+                            <p>
+                                You can also control access via the external form API; check
+                                <a href="/info/documentation/forms" target="_blank">the docs</a> for
+                                more information. Access controls you set here will apply first, so if
+                                you want to entirely control it externally, set it to allow logged in
+                                users.
+                            </p>
+                            <p>
+                                If you make this form public, you will not be able to control access
+                                externally.
+                            </p>
+                        </Callout>
+                        <br />
+                        <label>
+                            <input type="checkbox" bind:checked={data.form.external_access} />
+                            Use External Access
+                        </label>
+                    {/if}
                     <label>
                         <input type="checkbox" bind:checked={data.form.allow_observers} />
                         Allow Observers

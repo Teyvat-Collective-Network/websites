@@ -2,6 +2,12 @@
     const offset = new Date().getTimezoneOffset();
 
     export async function update() {
+        try {
+            document;
+        } catch {
+            return;
+        }
+
         for (const element of document.querySelectorAll("span.time") as any) {
             try {
                 const timestamp = parseInt(element.dataset.timestamp);

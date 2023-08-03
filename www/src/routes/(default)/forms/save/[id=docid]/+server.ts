@@ -49,6 +49,13 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             form.naming_scheme === 0
         )
             throw "You cannot use the 'Use Submitter Name' forum post naming scheme when you are not collecting names.";
+
+        if (form.external) {
+            if (!form.external_url) throw "Missing external form URL.";
+            if (!form.external_url.match(url_regex)) throw "Invalid external form URL.";
+            if (form.external_url.endsWith("/")) form.external_url = form.external_url.slice(0, -1);
+        }
+
         if (form.pages.length === 0) throw "At least one page is required.";
         const questions: any = {};
         for (let index = 0; index < form.pages.length; index++) {
@@ -58,38 +65,41 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             if (page.description.length > 2048)
                 throw `Description cannot exceed 2048 characters for page ${index + 1}.`;
 
-            if (page.condition.source > 0) {
-                const condition = questions[page.condition.source];
-                if (!condition)
-                    throw `Condition question for page ${
-                        index + 1
-                    } is missing (note: pages may only be conditional based on questions in earlier pages).`;
-                if (!["number", "mcq", "date"].includes(condition.type))
-                    throw `Condition question for page ${
-                        index + 1
-                    } must be a number, multiple-choice, or date question.`;
-                if (condition.type === "number")
-                    if (!["gt", "ge", "eq", "le", "lt", "ne"].includes(page.condition.number_op))
-                        throw `Invalid comparator for condition for page ${index + 1}.`;
-                    else if (page.condition.number_value == undefined)
-                        throw `Missing comparator value for condition for page ${index + 1}.`;
-                    else;
-                else if (condition.type === "mcq")
-                    if (!["any", "all"].includes(page.condition.mcq_anyall))
-                        throw `Invalid any/all for condition for page ${index + 1}.`;
-                    else if (!["yes", "no"].includes(page.condition.mcq_mode))
-                        throw `Invalid yes/no mode for condition for page ${index + 1}.`;
-                    else;
-                else if (condition.type === "date")
-                    if (!["le", "lt", "ge", "gt", "bw", "nb"].includes(page.condition.date_op))
-                        throw `Invalid comparator for condition for page ${index + 1}.`;
-                    else if (
-                        !page.condition.first_date ||
-                        (["bw", "nb"].includes(page.condition.date_op) &&
-                            !page.condition.second_date)
-                    )
-                        throw `Missing date for condition for page ${index + 1}.`;
-            }
+            if (!form.external)
+                if (page.condition.source > 0) {
+                    const condition = questions[page.condition.source];
+                    if (!condition)
+                        throw `Condition question for page ${
+                            index + 1
+                        } is missing (note: pages may only be conditional based on questions in earlier pages).`;
+                    if (!["number", "mcq", "date"].includes(condition.type))
+                        throw `Condition question for page ${
+                            index + 1
+                        } must be a number, multiple-choice, or date question.`;
+                    if (condition.type === "number")
+                        if (
+                            !["gt", "ge", "eq", "le", "lt", "ne"].includes(page.condition.number_op)
+                        )
+                            throw `Invalid comparator for condition for page ${index + 1}.`;
+                        else if (page.condition.number_value == undefined)
+                            throw `Missing comparator value for condition for page ${index + 1}.`;
+                        else;
+                    else if (condition.type === "mcq")
+                        if (!["any", "all"].includes(page.condition.mcq_anyall))
+                            throw `Invalid any/all for condition for page ${index + 1}.`;
+                        else if (!["yes", "no"].includes(page.condition.mcq_mode))
+                            throw `Invalid yes/no mode for condition for page ${index + 1}.`;
+                        else;
+                    else if (condition.type === "date")
+                        if (!["le", "lt", "ge", "gt", "bw", "nb"].includes(page.condition.date_op))
+                            throw `Invalid comparator for condition for page ${index + 1}.`;
+                        else if (
+                            !page.condition.first_date ||
+                            (["bw", "nb"].includes(page.condition.date_op) &&
+                                !page.condition.second_date)
+                        )
+                            throw `Missing date for condition for page ${index + 1}.`;
+                }
 
             for (let qi = 0; qi < page.questions.length; qi++) {
                 const question = page.questions[qi];
@@ -119,13 +129,18 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                         throw `All options must be non-empty for page ${
                             index + 1
                         } multiple choice question ${qi + 1}.`;
-                    if (question.dropdown && (question.min !== 1 || question.max !== 1))
+                    if (
+                        !form.external &&
+                        question.dropdown &&
+                        (question.min !== 1 || question.max !== 1)
+                    )
                         throw `Dropdown display is only allowed if min = max = 1 for page ${
                             index + 1
                         } multiple choice question ${qi + 1}.`;
                     if (
-                        (question.min != undefined && question.options.length < question.min) ||
-                        (question.min != undefined && question.options.length < question.max)
+                        !form.external &&
+                        ((question.min != undefined && question.options.length < question.min) ||
+                            (question.min != undefined && question.options.length < question.max))
                     )
                         throw `Minimum and maximum required options must be at most the number of options for page ${
                             index + 1
@@ -137,6 +152,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                             index + 1
                         } date question ${qi + 1}.`;
                 if (
+                    !form.external &&
                     ["short", "long", "number", "mcq"].includes(question.type) &&
                     question.min != undefined &&
                     question.max != undefined &&

@@ -28,12 +28,29 @@ export async function load_data({ params, locals }: any) {
 
     const reader = (locals as any).user;
 
-    const access =
+    let access =
         form.allow_everyone ||
         reader?.id === form.author ||
         ((locals as any).observer && form.allow_observers) ||
         ((locals as any).council && form.allow_council) ||
         (reader && (form.allow_logged_in || form.allowlist.match(new RegExp(`\b${reader.id}\b`))));
+
+    if (form.external && !form.allow_everyone && form.external_access) {
+        try {
+            const request = await fetch(`${form.external_url}/access?user=${reader.id}`);
+            if (!request.ok) throw 0;
+
+            const response = await request.json();
+            if (!response) access = false;
+        } catch {
+            return {
+                unauthorized: true,
+                form: min,
+                ext_fault:
+                    "External access check failed; this is an issue with the form creator's API.",
+            };
+        }
+    }
 
     if (access || (locals as any).observer) {
         for (const page of form.pages) {

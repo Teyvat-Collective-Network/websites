@@ -4,7 +4,6 @@ import { email_regex, timeinfo, timestamp, url_regex, webhook_regex } from "$lib
 import { hq_bot } from "../../../../bot.js";
 import { PUBLIC_DOMAIN } from "$env/static/public";
 import type { User } from "discord.js";
-
 export const POST: RequestHandler = async ({ request, params, locals, fetch }) => {
     const data = await db.forms.findOne({ id: params.id });
     const reader = (locals as any).user;
@@ -23,6 +22,16 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                 (!data.allow_logged_in && !data.allowlist.match(new RegExp(`\b${reader.id}\b`))))
         )
             throw 0;
+        if (!data.allow_everyone && data.external && data.external_access)
+            try {
+                const request = await fetch(`${data.external_url}/access?user=${reader.id}`);
+                if (!request.ok) throw 1;
+
+                const response = await request.json();
+                if (!response) throw 0;
+            } catch (error) {
+                throw typeof error === "number" ? error : 1;
+            }
 
         const form = await request.json();
 
@@ -37,7 +46,26 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
 
             if (dpage.questions.length !== page.questions.length) throw 0;
 
-            if (dpage.condition?.source === -1) {
+            if (data.external) {
+                if (dpage.use_condition)
+                    try {
+                        const request = await fetch(
+                            `${data.external_url}/condition/${page_index}`,
+                            {
+                                method: "post",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ user: reader, answers: form.answers }),
+                            },
+                        );
+
+                        if (!request.ok) throw 1;
+
+                        const response = await request.json();
+                        if (!response) continue;
+                    } catch (error) {
+                        throw typeof error === "number" ? error : 1;
+                    }
+            } else if (dpage.condition?.source === -1) {
                 if (data.observer) {
                     if (!dpage.condition.council_observer) continue;
                 } else if (data.owner) {
@@ -139,120 +167,194 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                 const dq = dpage.questions[qi];
                 const q = page.questions[qi];
 
-                if (dq.type !== q.type) throw 0;
+                if (dq.id !== q.id || dq.type !== q.type) throw 0;
 
                 let empty = false;
 
-                if (["short", "long"].includes(dq.type))
-                    if (q.value)
-                        if (
-                            dq.type === "short" &&
-                            dq.short_format === "email" &&
-                            !q.value.match(email_regex)
-                        )
-                            throw 0;
-                        else if (
-                            dq.type === "short" &&
-                            dq.short_format === "url" &&
-                            !q.value.match(url_regex)
-                        )
-                            throw 0;
-                        else if (
-                            dq.type === "short" &&
-                            dq.short_format === "user" &&
-                            (!q.value.match(/^\d{17,20}$/) ||
-                                !(await fetch(`/api/get-tag/${q.value}`)).ok)
-                        )
-                            throw 0;
-                        else if (
-                            (dq.type !== "short" || dq.short_format === "none") &&
-                            dq.min != undefined &&
-                            q.value.length < dq.min
-                        )
-                            throw 0;
-                        else if (
-                            (dq.type !== "short" || dq.short_format === "none") &&
-                            dq.max != undefined &&
-                            q.value.length > dq.max
-                        )
-                            throw 0;
-                        else if (dq.type === "short") q.value = q.value.replace(/\r\f|\n/g, " ");
-                        else;
-                    else if (dq.required) throw 0;
-                    else empty = true;
-                if (dq.type === "number")
-                    if (q.value != undefined)
-                        if (dq.min != undefined && q.value < dq.min) throw 0;
-                        else if (dq.max != undefined && q.value > dq.max) throw 0;
-                        else if (!dq.float && q.value % 1 !== 0) throw 0;
-                        else;
-                    else if (dq.required) throw 0;
-                    else empty = true;
-                if (dq.type === "mcq")
-                    if (dq.max === 1) {
-                        if (!q.value)
+                if (data.external) {
+                    let answer = form.answers[dq.id];
+
+                    if (["short", "long", "date"].includes(dq.type)) {
+                        if (!answer)
                             if (dq.required) throw 0;
                             else empty = true;
-                    } else {
-                        const length = Object.values(q.selected).filter((x) => x).length;
-                        if (dq.min != undefined && length < dq.min) throw 0;
-                        else if (dq.max != undefined && length > dq.max) throw 0;
-                        else if (length === 0)
+                    } else if (dq.type === "number") {
+                        if (answer == undefined)
+                            if (dq.required) throw 0;
+                            else empty = true;
+                    } else if (dq.type === "mcq") {
+                        if (dq.max === 1) {
+                            if (answer == undefined)
+                                if (dq.required) throw 0;
+                                else empty = true;
+                        } else if (!answer?.length)
                             if (dq.required) throw 0;
                             else empty = true;
                     }
-                if (dq.type === "date")
-                    if ((q.date &&= new Date(q.date)))
-                        if (dq.show_date && dq.relative_time === "past") {
-                            if (!dq.show_time) {
-                                q.date.setHours(0);
-                                q.date.setMinutes(0);
-                                q.date.setSeconds(0);
-                            }
 
-                            if (q.date > new Date()) throw 0;
-                        } else if (dq.show_date && dq.relative_time === "future") {
-                            if (!dq.show_time) {
-                                q.date.setHours(23);
-                                q.date.setMinutes(59);
-                                q.date.setSeconds(59);
-                            }
+                    if (dq.use_validation)
+                        try {
+                            const request = await fetch(
+                                `${data.external_url}/validation/${dq.id}`,
+                                {
+                                    method: "post",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        user: reader,
+                                        answer: answer,
+                                    }),
+                                },
+                            );
 
-                            if (q.date < new Date()) throw 0;
-                        } else;
-                    else if (dq.required) throw 0;
-                    else empty = true;
+                            if (!request.ok) throw 1;
 
-                if (!empty)
-                    answers.push({
-                        id: dq.id,
-                        question: dq.question,
-                        answer: ["short", "long", "number"].includes(dq.type)
-                            ? q.value
-                            : dq.type === "mcq"
-                            ? (dq.max === 1
-                                  ? [dq.options.indexOf(q.value)]
-                                  : Object.entries(q.selected)
-                                        .filter(([, x]) => x)
-                                        .map(([x]) => parseInt(x))
-                              ).map((x) => ({ index: x, text: dq.options[x] }))
-                            : dq.type === "date"
-                            ? q.date
-                            : null,
-                        ...(dq.type === "date"
-                            ? { show_date: dq.show_date, show_time: dq.show_time }
-                            : {}),
-                        ...(dq.type === "short" && dq.short_format === "user"
-                            ? { user: true }
-                            : {}),
-                    });
-                else answers.push({ id: dq.id, question: dq.question });
+                            const response = await request.json();
+                            if (response) throw 0;
+                        } catch (error) {
+                            throw typeof error === "number" ? error : 1;
+                        }
+
+                    if (dq.type === "date" && !empty) answer = new Date(answer);
+
+                    if (!empty)
+                        answers.push({
+                            id: dq.id,
+                            question: dq.question,
+                            answer: ["short", "long", "number"].includes(dq.type)
+                                ? answer
+                                : dq.type === "mcq"
+                                ? (dq.max === 1 ? [answer] : answer).map((x: number) => ({
+                                      index: x,
+                                      text: dq.options[x],
+                                  }))
+                                : dq.type === "date"
+                                ? answer
+                                : null,
+                            ...(dq.type === "date"
+                                ? { show_date: dq.show_date, show_time: dq.show_time }
+                                : {}),
+                        });
+                    else answers.push({ id: dq.id, question: dq.question });
+                } else {
+                    if (["short", "long"].includes(dq.type))
+                        if (q.value)
+                            if (
+                                dq.type === "short" &&
+                                dq.short_format === "email" &&
+                                !q.value.match(email_regex)
+                            )
+                                throw 0;
+                            else if (
+                                dq.type === "short" &&
+                                dq.short_format === "url" &&
+                                !q.value.match(url_regex)
+                            )
+                                throw 0;
+                            else if (
+                                dq.type === "short" &&
+                                dq.short_format === "user" &&
+                                (!q.value.match(/^\d{17,20}$/) ||
+                                    !(await fetch(`/api/get-tag/${q.value}`)).ok)
+                            )
+                                throw 0;
+                            else if (
+                                (dq.type !== "short" || dq.short_format === "none") &&
+                                dq.min != undefined &&
+                                q.value.length < dq.min
+                            )
+                                throw 0;
+                            else if (
+                                (dq.type !== "short" || dq.short_format === "none") &&
+                                dq.max != undefined &&
+                                q.value.length > dq.max
+                            )
+                                throw 0;
+                            else if (dq.type === "short")
+                                q.value = q.value.replace(/\r\f|\n/g, " ");
+                            else;
+                        else if (dq.required) throw 0;
+                        else empty = true;
+                    else if (dq.type === "number")
+                        if (q.value != undefined)
+                            if (dq.min != undefined && q.value < dq.min) throw 0;
+                            else if (dq.max != undefined && q.value > dq.max) throw 0;
+                            else if (!dq.float && q.value % 1 !== 0) throw 0;
+                            else;
+                        else if (dq.required) throw 0;
+                        else empty = true;
+                    else if (dq.type === "mcq")
+                        if (dq.max === 1) {
+                            if (!q.value)
+                                if (dq.required) throw 0;
+                                else empty = true;
+                        } else {
+                            const length = Object.values(q.selected).filter((x) => x).length;
+                            if (dq.min != undefined && length < dq.min) throw 0;
+                            else if (dq.max != undefined && length > dq.max) throw 0;
+                            else if (length === 0)
+                                if (dq.required) throw 0;
+                                else empty = true;
+                        }
+                    else if (dq.type === "date")
+                        if ((q.date &&= new Date(q.date)))
+                            if (dq.show_date && dq.relative_time === "past") {
+                                if (!dq.show_time) {
+                                    q.date.setHours(0);
+                                    q.date.setMinutes(0);
+                                    q.date.setSeconds(0);
+                                }
+
+                                if (q.date > new Date()) throw 0;
+                            } else if (dq.show_date && dq.relative_time === "future") {
+                                if (!dq.show_time) {
+                                    q.date.setHours(23);
+                                    q.date.setMinutes(59);
+                                    q.date.setSeconds(59);
+                                }
+
+                                if (q.date < new Date()) throw 0;
+                            } else;
+                        else if (dq.required) throw 0;
+                        else empty = true;
+
+                    if (!empty)
+                        answers.push({
+                            id: dq.id,
+                            question: dq.question,
+                            answer: ["short", "long", "number"].includes(dq.type)
+                                ? q.value
+                                : dq.type === "mcq"
+                                ? (dq.max === 1
+                                      ? [dq.options.indexOf(q.value)]
+                                      : Object.entries(q.selected)
+                                            .filter(([, x]) => x)
+                                            .map(([x]) => parseInt(x))
+                                  ).map((x) => ({ index: x, text: dq.options[x] }))
+                                : dq.type === "date"
+                                ? q.date
+                                : null,
+                            ...(dq.type === "date"
+                                ? { show_date: dq.show_date, show_time: dq.show_time }
+                                : {}),
+                            ...(dq.type === "short" && dq.short_format === "user"
+                                ? { user: true }
+                                : {}),
+                        });
+                    else answers.push({ id: dq.id, question: dq.question });
+                }
             }
         }
     } catch (error) {
         if (error === 0)
             return new Response(
-                "Client-side may be out of date. Use the reload button to reload data without losing responses that can be retained.",
+                data?.external
+                    ? "Validation failed; either client-side is out of date or external validation changed. Use the reload button to reload data and try again without losing responses that can be retained."
+                    : "Client-side may be out of date. Use the reload button to reload data without losing responses that can be retained.",
+                { status: 400 },
+            );
+        if (error === 1)
+            return new Response(
+                "External validation failed; this is an issue with the form creator's API. Reloading using the reload button will reload data and allow you to try again without losing responses that can be retained, which may resolve the issue.",
                 { status: 400 },
             );
 
@@ -432,11 +534,27 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                 submission.answers = answers.filter((x) => !questions[x.id].hide);
                 delete submission._id;
 
-                await fetch(data.webhook, {
-                    method: "post",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(submission),
-                });
+                const headers: any = { "Content-Type": "application/json" };
+                const body = JSON.stringify(submission);
+
+                if (data.secret) {
+                    const timestamp = new Date().getTime();
+                    const nonce = Math.floor(Math.random() * 1000000000);
+
+                    headers["X-Signature-Timestamp"] = timestamp.toString();
+                    headers["X-Signature-Nonce"] = nonce.toString();
+
+                    headers["X-Signature-Hash"] = Buffer.from(
+                        await crypto.subtle.digest(
+                            "SHA-512",
+                            new TextEncoder().encode(
+                                `${timestamp}:${nonce}:${data.secret}:${body}`,
+                            ),
+                        ),
+                    ).toString("hex");
+                }
+
+                await fetch(data.webhook, { method: "post", headers, body });
             } catch {}
     }
 

@@ -4,7 +4,9 @@
     import { onMount } from "svelte";
 
     function update() {
-        for (const element of document.querySelectorAll("a:not(.confirm-leave-class)") as any) {
+        for (const element of document.querySelectorAll(
+            "a:not([target=_blank]):not(.confirm-leave-class)",
+        ) as any) {
             if (element.href === "javascript:void(0)") continue;
             element.onclick = (e: any) =>
                 e.ctrlKey ||
