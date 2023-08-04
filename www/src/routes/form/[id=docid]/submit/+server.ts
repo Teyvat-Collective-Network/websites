@@ -50,11 +50,14 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                 if (dpage.use_condition)
                     try {
                         const request = await fetch(
-                            `${data.external_url}/condition/${page_index}`,
+                            `${data.external_url}/condition/${page_index + 1}`,
                             {
                                 method: "post",
                                 headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ user: reader, answers: form.answers }),
+                                body: JSON.stringify({
+                                    user: reader?.id ?? null,
+                                    answers: form.answers,
+                                }),
                             },
                         );
 
@@ -200,7 +203,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                                     method: "post",
                                     headers: { "Content-Type": "application/json" },
                                     body: JSON.stringify({
-                                        user: reader,
+                                        user: reader?.id ?? null,
                                         answer: answer,
                                     }),
                                 },
@@ -363,7 +366,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
     }
 
     const sid = await autoinc(`forms/${data.id}`);
-    const submission: any = { id: data.id, sid, answers };
+    const submission: any = { id: data.id, sid, answers, user: null };
 
     let author: User | null = null;
 

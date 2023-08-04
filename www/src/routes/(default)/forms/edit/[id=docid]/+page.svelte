@@ -337,6 +337,9 @@
                                     Question {qi + 1}
                                     <ListButtons bind:array={page.questions} index={qi} />
                                 </h5>
+                                {#if data.form.external}
+                                    <b>ID: </b> <code>{question.id}</code>
+                                {/if}
                                 <p><b>Name</b></p>
                                 <input
                                     type="text"

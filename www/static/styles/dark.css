@@ -32,11 +32,6 @@
 
     --pure-rgb: 10, 10, 10;
     --invert-rgb: 240, 240, 240;
-
-    --hljs-blue: #2196f3;
-    --hljs-cyan: #00bcd4;
-    --hljs-teal: #009688;
-    --hljs-green: #66bb6a;
 }
 
 .light {

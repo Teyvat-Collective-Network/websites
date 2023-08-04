@@ -353,11 +353,14 @@
             if (!data.form.pages[page_index].use_condition) break;
 
             try {
-                const request = await fetch(`${data.form.external_url}/condition/${page_index}`, {
-                    method: "post",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ user: data.user, answers }),
-                });
+                const request = await fetch(
+                    `${data.form.external_url}/condition/${page_index + 1}`,
+                    {
+                        method: "post",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ user: data.user?.id ?? null, answers }),
+                    },
+                );
 
                 if (!request.ok) throw 0;
 
@@ -417,7 +420,7 @@
                 const request = await fetch(`${data.form.external_url}/validation/${q.id}`, {
                     method: "post",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ user: data.user, answer: answers[q.id] }),
+                    body: JSON.stringify({ user: data.user?.id ?? null, answer: answers[q.id] }),
                 });
 
                 if (!request.ok) throw 0;

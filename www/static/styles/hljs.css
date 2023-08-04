@@ -14,7 +14,11 @@
     display: block;
     overflow-x: auto;
     padding: 0.5em;
-    background-color: #303136;
+    background-color: #28292d;
+}
+
+.hljs * {
+    color: #999a9e;
 }
 
 .hljs-built_in,
