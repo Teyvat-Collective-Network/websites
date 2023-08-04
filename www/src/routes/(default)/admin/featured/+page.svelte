@@ -48,7 +48,7 @@
             </div>
             <br />
             <div class="row" style="gap: 10px">
-                <ListButtons bind:array={data.announcements} {index} delete_first />
+                <ListButtons bind:array={data.announcements} {index} />
             </div>
         </div>
     {/each}
@@ -61,7 +61,7 @@
                     {
                         icon: "campaign",
                         title: "Announcement",
-                        body: "<p><b>HTML</b> is supported. Please use paragraph tags.</p>",
+                        body: "**Markdown** is supported.",
                     },
                 ])}
         >
@@ -75,7 +75,9 @@
                     method: "post",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data.announcements),
-                }).then((res) => (res.ok ? goto("/featured") : alert("An error occurred!")))}
+                }).then((res) =>
+                    res.ok ? goto("/featured") : alert(`An error occurred! (${res.status})`),
+                )}
         >
             <i class="material-icons">save</i> Save
         </button>

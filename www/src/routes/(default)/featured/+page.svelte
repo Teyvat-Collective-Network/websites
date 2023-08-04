@@ -18,7 +18,7 @@
                     <span>{item.title}</span>
                 </div>
                 <div>
-                    {@html item.body}
+                    {@html item.parsed}
                 </div>
             </div>
             <br />
