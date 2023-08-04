@@ -44,9 +44,11 @@ setInterval(async () => {
         }
     }
 
-    for (const poll of await db.polls
-        .find({ dm: true, closed: { $ne: true }, close: { $lt: threshold } })
-        .toArray()) {
+    const filter = { dm: true, closed: { $ne: true }, close: { $lt: threshold } };
+    const polls = await db.polls.find(filter).toArray();
+    await db.polls.updateMany(filter, { $set: { dm: false } });
+
+    for (const poll of polls) {
         await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false } });
 
         const required = await get_required(poll);
