@@ -38,6 +38,14 @@
         }
     }
 
+    function hl() {
+        try {
+            hljs.highlightAll();
+        } catch {
+            setTimeout(hl, 250);
+        }
+    }
+
     onMount(() => {
         function replace_links() {
             for (const element of document.querySelectorAll("#content a") as any) {
@@ -48,9 +56,9 @@
         }
 
         replace_links();
-        page.subscribe(() => replace_links());
+        hl();
 
-        hljs.highlightAll();
+        page.subscribe(() => (replace_links(), hl()));
     });
 </script>
 

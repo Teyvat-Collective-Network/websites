@@ -10,9 +10,17 @@
     import Navigation from "$lib/Navigation.svelte";
     import { onMount } from "svelte";
 
+    function hl() {
+        try {
+            hljs.highlightAll();
+        } catch {
+            setTimeout(hl, 250);
+        }
+    }
+
     onMount(() => {
-        hljs.highlightAll();
-        page.subscribe(() => hljs.highlightAll());
+        hl();
+        page.subscribe(() => hl());
     });
 </script>
 
