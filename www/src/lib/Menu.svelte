@@ -179,6 +179,7 @@
     #bar {
         position: fixed;
         background-color: var(--background-X);
+        z-index: 10;
     }
 
     svg {
