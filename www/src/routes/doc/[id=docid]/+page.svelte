@@ -9,6 +9,7 @@
     import Callout from "$lib/Callout.svelte";
     import Menu from "$lib/Menu.svelte";
     import Navbar from "$lib/Navbar.svelte";
+    import { highlight } from "$lib/util";
     import { onMount } from "svelte";
 
     export let data: any;
@@ -38,14 +39,6 @@
         }
     }
 
-    function hl() {
-        try {
-            hljs.highlightAll();
-        } catch {
-            setTimeout(hl, 250);
-        }
-    }
-
     onMount(() => {
         function replace_links() {
             for (const element of document.querySelectorAll("#content a") as any) {
@@ -56,9 +49,9 @@
         }
 
         replace_links();
-        hl();
+        highlight();
 
-        page.subscribe(() => (replace_links(), hl()));
+        page.subscribe(() => (replace_links(), highlight()));
     });
 </script>
 

@@ -10,14 +10,16 @@
  * @author Zeno Rocha <hi@zenorocha.com>
  */
 
-.hljs {
+.hljs,
+._hljs {
     display: block;
     overflow-x: auto;
     padding: 0.5em;
     background-color: #28292d;
 }
 
-.hljs * {
+.hljs *,
+._hljs * {
     color: #999a9e;
 }
 

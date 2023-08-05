@@ -8,19 +8,12 @@
 
     import Linkable from "$lib/Linkable.svelte";
     import Navigation from "$lib/Navigation.svelte";
+    import { highlight } from "$lib/util";
     import { onMount } from "svelte";
 
-    function hl() {
-        try {
-            hljs.highlightAll();
-        } catch {
-            setTimeout(hl, 250);
-        }
-    }
-
     onMount(() => {
-        hl();
-        page.subscribe(() => hl());
+        highlight();
+        page.subscribe(() => highlight());
     });
 </script>
 
