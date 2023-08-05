@@ -42,7 +42,9 @@
     onMount(() => {
         function replace_links() {
             for (const element of document.querySelectorAll("#content a") as any) {
-                if (element.href?.startsWith("#")) continue;
+                if (element.href?.startsWith(`${$page.url.href}#`) || element.href?.startsWith("#"))
+                    continue;
+
                 element.target = "_blank";
                 element.rel = "noreferrer";
             }
