@@ -271,10 +271,16 @@
             border-left: 2px solid var(--text-secondary);
         }
 
-        table {
-            display: block;
-            width: 100%;
+        div.table-wrapper {
             overflow-x: scroll;
+        }
+
+        table {
+            width: 100%;
+
+            .mention {
+                top: 0px !important;
+            }
         }
 
         table,
@@ -288,6 +294,13 @@
         td,
         th {
             padding: 5px;
+        }
+
+        span.table-cell {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
         }
     }
 </style>

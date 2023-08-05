@@ -101,6 +101,12 @@ export function markdown_postprocess(text: string, reader: any) {
         }</span>`,
     );
 
+    text = text.replace(/<table>/g, "<div class='table-wrapper'><table>");
+    text = text.replace(/<\/table>/g, "</table></div>");
+
+    text = text.replace(/<t[dh].+?>/g, (x) => `${x}<span class="table-cell">`);
+    text = text.replace(/<\/t[dh]>/g, (x) => `</span>${x}`);
+
     return text;
 }
 
