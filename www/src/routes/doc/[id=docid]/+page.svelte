@@ -272,7 +272,9 @@
         }
 
         table {
+            display: block;
             width: 100%;
+            overflow-x: scroll;
         }
 
         table,

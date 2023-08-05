@@ -188,7 +188,7 @@
         width: 32px;
         height: 32px;
         padding: 24px;
-        z-index: 10;
+        z-index: 11;
     }
 
     rect {
