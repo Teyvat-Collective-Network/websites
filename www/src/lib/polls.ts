@@ -49,7 +49,14 @@ setInterval(async () => {
     await db.polls.updateMany(filter, { $set: { dm: false } });
 
     for (const poll of polls) {
-        await db.polls.updateOne({ _id: poll._id }, { $set: { dm: false } });
+        try {
+            const channel = await hq_bot.channels.fetch(poll.channel);
+            if (!channel?.isTextBased()) throw "Channel is not text-based.";
+            await channel.messages.fetch(poll.message);
+        } catch {
+            // The poll message is deleted, so don't DM.
+            continue;
+        }
 
         const required = await get_required(poll);
 
@@ -192,6 +199,58 @@ export async function render(
             } else results += "⬜".repeat(10);
 
             results += ` ⬇️ ${no}`;
+
+            const approval = yes + no > 0 ? (yes / (yes + no)) * 100 : 50;
+
+            results += `\n\n(Approval: ${approval.toFixed(2)}%${
+                approval > 40 && approval < 60 ? " - tie" : ""
+            })`;
+        } else if (data.mode === "induction") {
+            let induct_now = 0,
+                induct_later = 0,
+                reject = 0,
+                extend = 0;
+
+            for (const vote of ballots)
+                if (vote.verdict === "induct-now") induct_now++;
+                else if (vote.verdict === "induct-later")
+                    if (data.preinduct) induct_later++;
+                    else induct_now++;
+                else if (vote.verdict === "reject") reject++;
+                else if (vote.verdict === "extend") extend++;
+
+            results = `- Induct${data.preinduct ? " Now" : ""}: ${induct_now}${
+                data.preinduct ? `\n- Induct Later: ${induct_later}` : ""
+            }\n- Reject: ${reject}\n- Extend Observation: ${extend}\n\n`;
+
+            const ratio =
+                induct_now + induct_later + reject + extend > 0
+                    ? (induct_now + induct_later) /
+                      (induct_now + induct_later + reject + extend || 1)
+                    : 0.5;
+
+            if (ratio > 0.4 && ratio < 0.6)
+                results +=
+                    "Approval and non-approval are too close and therefore count as a tie. A full re-vote is required.";
+            else if (induct_now + induct_later > reject + extend) {
+                const subratio = induct_now / (induct_now + induct_later || 1);
+
+                if (subratio > 40 && subratio < 60)
+                    results += `${data.server} was approved, but induction timing was a tie. A re-vote between inducting now and later is required.`;
+                else if (induct_now > induct_later)
+                    results += `${data.server} was approved for induction! Prepare for their arrival.`;
+                else
+                    results += `${data.server} was approved to be inducted upon official confirmation of their mascot character.`;
+            } else {
+                const subratio = reject / (reject + extend || 1);
+
+                if (subratio > 40 && subratio < 60)
+                    results += `${data.server} was not approved, but whether to reject or extend was a tie. A re-vote between rejection and extending observation is required.`;
+                else if (reject > extend)
+                    results += `${data.server} was rejected. Better luck next time!`;
+                else
+                    results += `The verdict is to extend observation for ${data.server}. A new observer will carry out another 28 days of observation.`;
+            }
         } else if (data.mode === "selection") {
             const totals = data.options.reduce((o: any, x: string) => ({ ...o, [x]: 0 }), {});
             for (const vote of ballots) for (const x of vote.selected) totals[x]++;
@@ -207,6 +266,7 @@ export async function render(
                 )
                 .join("\n");
         } else if (data.mode === "election") {
+            data.question = `**Wave ${data.wave} Election**`;
             const points = data.candidates.reduce((o: any, x: string) => ({ ...o, [x]: 0 }), {});
             const disapproval = structuredClone(points);
 
@@ -249,7 +309,12 @@ export async function render(
         embeds: [
             {
                 title: `${turnout.toFixed(2)}% Turnout Reached`,
-                description: data.question,
+                description:
+                    data.mode === "election"
+                        ? `**Wave ${data.wave} Election**`
+                        : data.mode === "induction"
+                        ? `**Induct ${data.server}?**`
+                        : data.question,
                 color: 0x2b2d31,
                 fields: [
                     ...(data.mode === "selection"
@@ -301,6 +366,39 @@ export async function render(
                               style: ButtonStyle.Danger,
                               emoji: "⬇️",
                               disabled: closed,
+                          },
+                      ],
+                  }
+                : data.mode === "induction"
+                ? {
+                      type: ComponentType.ActionRow,
+                      components: [
+                          {
+                              type: ComponentType.StringSelect,
+                              customId: "poll/induct-vote",
+                              disabled: closed,
+                              options: [
+                                  {
+                                      value: "induct-now",
+                                      label: `Induct${data.preinduct ? " Now" : ""}`,
+                                      emoji: "🟩",
+                                  },
+                                  ...(data.preinduct
+                                      ? [
+                                            {
+                                                value: "induct-later",
+                                                label: "Induct Later",
+                                                emoji: "🟨",
+                                            },
+                                        ]
+                                      : []),
+                                  { value: "reject", label: "Reject", emoji: "🟥" },
+                                  {
+                                      value: "extend",
+                                      label: "Extend Observation",
+                                      emoji: "🟪",
+                                  },
+                              ],
                           },
                       ],
                   }
@@ -437,13 +535,12 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
 
             const users = [] as [string, string][];
 
-            for (const id of required) {
+            for (const id of required)
                 try {
                     users.push([(await hq_bot.users.fetch(id)).tag, id]);
                 } catch {
                     users.push([`Unknown [${id}]`, id]);
                 }
-            }
 
             users.sort((a, b) => a[0].localeCompare(b[0]));
 
@@ -537,7 +634,16 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
                 color: 0x2b2d31,
             });
     } else if (interaction.isStringSelectMenu()) {
-        if (interaction.customId === "poll/select-vote") {
+        if (interaction.customId === "poll/induct-vote") {
+            await db.poll_votes.updateOne(
+                { poll: poll.id, user: interaction.user.id },
+                { $set: { abstain: false, verdict: interaction.values[0] } },
+                { upsert: true },
+            );
+
+            await reply(render_vote(poll, { abstain: false, verdict: interaction.values[0] }));
+            await update();
+        } else if (interaction.customId === "poll/select-vote") {
             await db.poll_votes.updateOne(
                 { poll: poll.id, user: interaction.user.id },
                 { $set: { abstain: false, selected: interaction.values } },
@@ -665,6 +771,34 @@ function render_vote(poll: any, vote: any) {
         return {
             title: `Voted In ${vote.yes ? "Favor" : "Opposition"}`,
             description: `You have voted __${vote.yes ? "in support of" : "against"}__ the motion.`,
+            color: 0x2b2d31,
+        };
+    else if (poll.mode === "induction")
+        return {
+            title: `Voted to ${
+                (
+                    {
+                        "induct-now": `Induct${poll.preinduct ? " Now" : ""}`,
+                        "induct-later": "Induct Later",
+                        reject: "Reject",
+                        extend: "Extend Observation",
+                    } as any
+                )[vote.verdict]
+            }`,
+            description: `You have voted to ${
+                (
+                    {
+                        "induct-now": `induct ${poll.server} into the TCN${
+                            poll.preinduct
+                                ? " immediately and not wait for official confirmation of playability"
+                                : ""
+                        }`,
+                        "induct-later": `approve ${poll.server} and induct them into the TCN once there is official confirmation of playability`,
+                        reject: `reject ${poll.server} from the TCN`,
+                        extend: `extend TCN observation of ${poll.server}`,
+                    } as any
+                )[vote.verdict]
+            }.`,
             color: 0x2b2d31,
         };
     else if (poll.mode === "selection")

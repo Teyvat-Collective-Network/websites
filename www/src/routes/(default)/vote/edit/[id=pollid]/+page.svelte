@@ -10,7 +10,7 @@
     export let form: any;
 
     form ??= data.form ?? {};
-    form.options ??= [];
+    form.options ??= ["", ""];
     form.min ??= 1;
     form.max ??= 1;
     form.candidates ??= [];
@@ -50,23 +50,55 @@
             <b>Mode</b>
             <select name="mode" bind:value={form.mode}>
                 <option value="proposal">Proposal</option>
+                <option value="induction">Induction</option>
                 <option value="selection">Selection</option>
                 <option value="election">Election</option>
             </select>
         </div>
-        <Textarea
-            name="question"
-            placeholder="Poll question (Discord markdown supported)"
-            bind:value={form.question}
-        />
+
+        <p>
+            {#if form.mode === "induction"}
+                <input
+                    type="text"
+                    name="server"
+                    placeholder="Server Name"
+                    bind:value={form.server}
+                />
+            {:else if form.mode === "election"}
+                <input
+                    type="number"
+                    name="wave"
+                    placeholder="Election Wave"
+                    bind:value={form.wave}
+                />
+            {:else}
+                <Textarea
+                    name="question"
+                    placeholder="Poll question (Discord markdown supported)"
+                    bind:value={form.question}
+                />
+            {/if}
+        </p>
+
+        {#if form.mode == "induction"}
+            <p>
+                <label>
+                    <input type="checkbox" name="preinduct" bind:checked={form.preinduct} />
+                    <span>
+                        <b>Pre-induct</b> (enable if the character has not been officially confirmed
+                        by Hoyoverse)
+                    </span>
+                </label>
+            </p>
+        {/if}
 
         {#if form.mode === "selection"}
             <div style="display: grid; grid-template-columns: auto 1fr auto; gap: 10px">
-                <b>Min # Options</b>
+                <b>User must select at least:</b>
                 <input type="number" name="min" bind:value={form.min} />
                 <span />
 
-                <b>Max # Options</b>
+                <b>User must select at most:</b>
                 <input type="number" name="max" bind:value={form.max} />
                 <span />
 
@@ -179,7 +211,7 @@
         flex-direction: column;
         gap: 20px;
 
-        div {
+        & > div {
             padding: 20px;
             border-radius: 5px;
             background-color: var(--background-2);

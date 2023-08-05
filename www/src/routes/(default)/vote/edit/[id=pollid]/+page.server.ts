@@ -26,16 +26,18 @@ export const actions: Actions = {
         const obj = await request.formData();
         const data: any = {};
 
-        for (const key of ["mode", "question"]) data[key] = obj.get(key) ?? "";
-        for (const key of ["live", "restricted", "dm"]) data[key] = !!obj.get(key);
+        for (const key of ["mode", "question", "server"]) data[key] = obj.get(key) ?? "";
+        for (const key of ["preinduct", "live", "restricted", "dm"]) data[key] = !!obj.get(key);
 
-        if (!["proposal", "selection", "election"].includes(data.mode))
+        if (!["proposal", "induction", "selection", "election"].includes(data.mode))
             return fail("Invalid poll mode.");
 
-        if (!data.question) return fail("No question provided.");
+        if (data.mode === "proposal" || data.mode === "selection") {
+            if (!data.question) return fail("No question provided.");
 
-        if (data.question.length > 1024)
-            return fail("Question length cannot exceed 1024 characters.");
+            if (data.question.length > 1024)
+                return fail("Question length cannot exceed 1024 characters.");
+        }
 
         data.duration = parseFloat(obj.get("duration") as string);
 
@@ -44,12 +46,15 @@ export const actions: Actions = {
         data.close = new Date();
         data.close.setHours(data.close.getHours() + data.duration);
 
-        for (const key of ["quorum", "min", "max", "seats"])
+        for (const key of ["quorum", "min", "max", "wave", "seats"])
             data[key] = parseInt(obj.get(key) as string);
 
         if (![0, 60, 75].includes(data.quorum)) return fail("Invalid quorum provided.");
 
-        if (data.mode === "selection") {
+        if (data.mode === "induction") {
+            if (!data.server) return fail("No server name provided.");
+            if (data.server.length > 256) return fail("Server name cannot exceed 256 characters.");
+        } else if (data.mode === "selection") {
             data.options = [...new Array(10).keys()]
                 .map((i) => (obj.get(`option${i}`) as any)?.trim())
                 .filter((x) => x);
@@ -57,7 +62,7 @@ export const actions: Actions = {
             if (data.options.length < 2 || data.options.length > 10)
                 return fail("2-10 options required.");
 
-            if (data.options.length < [...new Set(data.options)].length)
+            if (data.options.length > [...new Set(data.options)].length)
                 return fail("Options must be unique.");
 
             if (isNaN(data.min) || data.min < 0)
@@ -73,10 +78,11 @@ export const actions: Actions = {
 
             if (data.options.some((x: string) => x.length === 0 || x.length > 100))
                 return fail("Options must be 1-100 characters long.");
-        }
+        } else if (data.mode === "election") {
+            if (data.wave == undefined || isNaN(data.wave) || data.wave < 1)
+                return fail("Enter a positive integer for the election wave.");
 
-        if (data.mode === "election") {
-            if (isNaN(data.seats) || data.seats < 1)
+            if (data.seats == undefined || isNaN(data.seats) || data.seats < 1)
                 return fail("Enter a positive integer for the number of seats.");
 
             data.candidates = [...new Array(20).keys()]
@@ -86,7 +92,7 @@ export const actions: Actions = {
             if (data.candidates.length < 1 || data.candidates.length > 20)
                 return fail("1-20 candidates required.");
 
-            if (data.candidates.length < [...new Set(data.candidates)].length)
+            if (data.candidates.length > [...new Set(data.candidates)].length)
                 return fail("Candidates must be unique.");
 
             const api_request = await fetch(`${PUBLIC_TCN_API}/users`);
