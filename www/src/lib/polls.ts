@@ -1,4 +1,4 @@
-import { PUBLIC_DOMAIN, PUBLIC_HQ, PUBLIC_TCN_API } from "$env/static/public";
+import { PUBLIC_DOMAIN, PUBLIC_HQ } from "$env/static/public";
 import {
     ComponentType,
     type MessageCreateOptions,
@@ -10,13 +10,13 @@ import {
     TextInputStyle,
     MessageFlags,
 } from "discord.js";
-import db from "../db.js";
 import { hq_bot } from "../bot.js";
 import { VOTE_CHANNEL, VOTE_LOG } from "$env/static/private";
+import { TCN } from "./api.js";
+import { DB } from "../db.js";
+import type { ActionRow, BaseVote, Poll, PollVote } from "./types.js";
 
-fetch(`${PUBLIC_TCN_API}/users`)
-    .then((response) => response.json())
-    .then((data) => data.forEach(({ id }: { id: string }) => id && hq_bot.users.fetch(id)));
+TCN.users().then((users) => users.forEach(({ id }) => id && hq_bot.users.fetch(id)));
 
 setInterval(async () => {
     const log = hq_bot.channels.cache.get(VOTE_LOG);
@@ -25,14 +25,9 @@ setInterval(async () => {
     const threshold = new Date();
     threshold.setHours(threshold.getHours() + 24);
 
-    for (const poll of await db.polls
-        .find({ close: { $lt: new Date() }, closed: { $ne: true } })
-        .toArray()) {
+    for (const poll of await DB.Polls.get_polls_to_close()) {
         const required = await get_required(poll);
-        await db.polls.updateOne(
-            { _id: poll._id },
-            { $set: { dm: false, closed: true, required } },
-        );
+        await DB.Polls.close(poll._id, required);
 
         try {
             const channel = await hq_bot.channels.fetch(poll.channel);
@@ -44,11 +39,7 @@ setInterval(async () => {
         }
     }
 
-    const filter = { dm: true, closed: { $ne: true }, close: { $lt: threshold } };
-    const polls = await db.polls.find(filter).toArray();
-    await db.polls.updateMany(filter, { $set: { dm: false } });
-
-    for (const poll of polls) {
+    for (const poll of await DB.Polls.get_polls_to_dm()) {
         try {
             const channel = await hq_bot.channels.fetch(poll.channel);
             if (!channel?.isTextBased()) throw "Channel is not text-based.";
@@ -59,10 +50,7 @@ setInterval(async () => {
         }
 
         const required = await get_required(poll);
-
-        const votes = new Set(
-            (await db.poll_votes.find({ poll: poll.id }).toArray()).map(({ user }) => user),
-        );
+        const votes = new Set(await DB.Polls.who_has_voted(poll.id));
 
         const failed = [];
 
@@ -114,62 +102,61 @@ setInterval(async () => {
     }
 }, 10000);
 
-export async function get_required(data: any): Promise<string[]> {
-    const request = await fetch(`${PUBLIC_TCN_API}/users`);
-    const response = await request.json();
-
-    const ids = response
-        .filter((x: any) =>
+export async function get_required(data: Poll): Promise<string[]> {
+    const ids = (await TCN.users())
+        .filter((x) =>
             data.restricted
                 ? x.roles.includes("voter")
                 : x.roles.includes("owner") || x.roles.includes("advisor"),
         )
-        .map((x: any) => x.id);
+        .map((x) => x.id);
 
     if (data.mode === "election") return ids.filter((x: string) => !data.candidates.includes(x));
     return ids;
 }
 
-const default_row = (id: number, closed: boolean) => ({
-    type: ComponentType.ActionRow,
-    components: [
-        {
-            type: ComponentType.Button,
-            customId: "poll/abstain",
-            style: ButtonStyle.Secondary,
-            label: "Abstain",
-            disabled: closed,
-        },
-        {
-            type: ComponentType.Button,
-            customId: "poll/view",
-            style: ButtonStyle.Secondary,
-            label: "View Your Vote",
-        },
-        {
-            type: ComponentType.Button,
-            customId: "poll/view-voters",
-            style: ButtonStyle.Secondary,
-            label: "View Voters",
-        },
-        {
-            type: ComponentType.Button,
-            style: ButtonStyle.Link,
-            url: `${PUBLIC_DOMAIN}/vote/edit/${id}`,
-            label: "Edit Poll",
-        },
-    ],
-});
+function default_row(id: number, closed: boolean): ActionRow {
+    return {
+        type: ComponentType.ActionRow,
+        components: [
+            {
+                type: ComponentType.Button,
+                custom_id: "poll/abstain",
+                style: ButtonStyle.Secondary,
+                label: "Abstain",
+                disabled: closed,
+            },
+            {
+                type: ComponentType.Button,
+                custom_id: "poll/view",
+                style: ButtonStyle.Secondary,
+                label: "View Your Vote",
+            },
+            {
+                type: ComponentType.Button,
+                custom_id: "poll/view-voters",
+                style: ButtonStyle.Secondary,
+                label: "View Voters",
+            },
+            {
+                type: ComponentType.Button,
+                style: ButtonStyle.Link,
+                url: `${PUBLIC_DOMAIN}/vote/edit/${id}`,
+                label: "Edit Poll",
+            },
+        ],
+    };
+}
 
 export async function render(
-    data: any,
+    data: Poll,
     required?: string[],
 ): Promise<MessageCreateOptions & MessageEditOptions> {
     let results: string = "";
 
     required ??= await get_required(data);
 
-    const votes = await db.poll_votes.find({ poll: data.id, user: { $in: required } }).toArray();
+    const votes = await DB.Polls.get_votes(data.id, required);
 
     const turnout = ((votes.length ?? 0) * 100) / required.length;
 
@@ -252,8 +239,12 @@ export async function render(
                     results += `The verdict is to extend observation for ${data.server}. A new observer will carry out another 28 days of observation.`;
             }
         } else if (data.mode === "selection") {
-            const totals = data.options.reduce((o: any, x: string) => ({ ...o, [x]: 0 }), {});
-            for (const vote of ballots) for (const x of vote.selected) totals[x]++;
+            const totals: Record<string, number> = data.options.reduce(
+                (o, x: string) => ({ ...o, [x]: 0 }),
+                {},
+            );
+
+            for (const vote of ballots) for (const x of vote.selected ?? []) totals[x]++;
 
             results = data.options
                 .map(
@@ -267,17 +258,22 @@ export async function render(
                 .join("\n");
         } else if (data.mode === "election") {
             data.question = `**Wave ${data.wave} Election**`;
-            const points = data.candidates.reduce((o: any, x: string) => ({ ...o, [x]: 0 }), {});
+
+            const points: Record<string, number> = data.candidates.reduce(
+                (o, x: string) => ({ ...o, [x]: 0 }),
+                {},
+            );
+
             const disapproval = structuredClone(points);
 
             for (const vote of ballots) {
-                vote.rankings.forEach(
+                vote.rankings?.forEach(
                     (x: string, i: number) =>
                         (points[x] +=
                             data.seats < data.candidates.length ? data.candidates.length - i : 1),
                 );
 
-                for (const x of vote.countered) disapproval[x]++;
+                for (const x of vote.countered ?? []) disapproval[x]++;
             }
 
             const eligible: string[] = data.candidates.filter(
@@ -348,7 +344,7 @@ export async function render(
             },
         ],
         components: [
-            default_row(data.id, closed) as any,
+            default_row(data.id, closed),
             data.mode === "proposal"
                 ? {
                       type: ComponentType.ActionRow,
@@ -469,7 +465,7 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isMessageComponent() && !interaction.isModalSubmit()) return;
     if (!interaction.message) return;
 
-    const poll = await db.polls.findOne({ message: interaction.message.id });
+    const poll = await DB.Polls.get_from_message(interaction.message.id);
     if (!poll) return;
 
     const update = async () => await interaction.message!.edit(await render(poll));
@@ -487,16 +483,11 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
 
     if (interaction.isButton()) {
         if (interaction.customId === "poll/abstain") {
-            await db.poll_votes.updateOne(
-                { poll: poll.id, user: interaction.user.id },
-                { $set: { abstain: true } },
-                { upsert: true },
-            );
-
+            await DB.Votes.set_abstain(poll.id, interaction.user.id);
             await reply(render_vote(poll, { abstain: true }));
             await update();
         } else if (interaction.customId === "poll/view") {
-            const vote = await db.poll_votes.findOne({ poll: poll.id, user: interaction.user.id });
+            const vote = await DB.Votes.get(poll.id, interaction.user.id);
 
             if (!vote)
                 await reply({
@@ -506,11 +497,7 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
                 });
             else await reply(render_vote(poll, vote));
         } else if (interaction.customId === "poll/view-voters") {
-            const data = await (
-                await fetch(`${PUBLIC_TCN_API}/users/${interaction.user.id}`)
-            ).json();
-
-            if (!data?.roles?.includes("observer")) {
+            if (!(await TCN.user(interaction.user.id)).roles.includes("observer")) {
                 await reply({
                     title: "No Permission",
                     description:
@@ -522,9 +509,7 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
             }
 
             const required = await get_required(poll);
-            const votes = await db.poll_votes
-                .find({ poll: poll.id, user: { $in: required } })
-                .toArray();
+            const votes = await DB.Polls.get_votes(poll.id, required);
 
             const header = `Turnout: ${votes.length} / ${required.length} (${(
                 (votes.length / required.length) *
@@ -573,20 +558,26 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
             interaction.customId === "poll/vote-down"
         ) {
             const yes = interaction.customId === "poll/vote-up";
-
-            await db.poll_votes.updateOne(
-                { poll: poll.id, user: interaction.user.id },
-                { $set: { abstain: false, yes } },
-                { upsert: true },
-            );
-
+            await DB.Votes.set_proposal(poll.id, interaction.user.id, yes);
             await reply(render_vote(poll, { abstain: false, yes }));
             await update();
         } else if (interaction.customId === "poll/elect-vote") {
-            const vote = (await db.poll_votes.findOne({
-                poll: poll.id,
-                user: interaction.user.id,
-            })) ?? { rankings: [], countered: [], blank: true, abstain: true };
+            if (poll.mode !== "election") {
+                await interaction.reply({
+                    content: "Invalid poll type; this error should never occur.",
+                    ephemeral: true,
+                });
+
+                return;
+            }
+
+            const vote: PollVote<true> | ({ blank: true } & Partial<PollVote>) =
+                (await DB.Votes.get(poll.id, interaction.user.id)) ?? {
+                    rankings: [],
+                    countered: [],
+                    blank: true,
+                    abstain: true,
+                };
 
             if (vote.abstain) vote.rankings = vote.countered = [];
 
@@ -607,7 +598,7 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
                                         : "Select Favored Candidates",
                                 value: `${poll.candidates
                                     .map(
-                                        (x: string) =>
+                                        (x) =>
                                             `${hq_bot.users.cache.get(x)?.tag ?? x}: ${
                                                 vote.rankings?.includes(x)
                                                     ? poll.candidates.length > poll.seats
@@ -615,7 +606,7 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
                                                         : 1
                                                     : vote.countered?.includes(x)
                                                     ? -1
-                                                    : vote.blank
+                                                    : "blank" in vote
                                                     ? ""
                                                     : 0
                                             }`,
@@ -635,26 +626,25 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
             });
     } else if (interaction.isStringSelectMenu()) {
         if (interaction.customId === "poll/induct-vote") {
-            await db.poll_votes.updateOne(
-                { poll: poll.id, user: interaction.user.id },
-                { $set: { abstain: false, verdict: interaction.values[0] } },
-                { upsert: true },
-            );
-
+            await DB.Votes.set_induction(poll.id, interaction.user.id, interaction.values[0]);
             await reply(render_vote(poll, { abstain: false, verdict: interaction.values[0] }));
             await update();
         } else if (interaction.customId === "poll/select-vote") {
-            await db.poll_votes.updateOne(
-                { poll: poll.id, user: interaction.user.id },
-                { $set: { abstain: false, selected: interaction.values } },
-                { upsert: true },
-            );
-
+            await DB.Votes.set_selection(poll.id, interaction.user.id, interaction.values);
             await reply(render_vote(poll, { abstain: false, selected: interaction.values }));
             await update();
         }
     } else if (interaction.isModalSubmit()) {
         if (interaction.customId === "poll/elect-modal") {
+            if (poll.mode !== "election") {
+                await interaction.reply({
+                    content: "Invalid poll type; this error should never occur.",
+                    ephemeral: true,
+                });
+
+                return;
+            }
+
             const error = (message: string) => ({
                 title: "Invalid Vote",
                 description: message,
@@ -663,8 +653,8 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
 
             const input = interaction.fields.getTextInputValue("input");
 
-            const id_map = poll.candidates.reduce(
-                (o: any, x: string) => ({
+            const id_map: Record<string, string> = poll.candidates.reduce(
+                (o, x: string) => ({
                     ...o,
                     [x]: x,
                     [hq_bot.users.cache.get(x)?.tag ?? x]: x,
@@ -677,7 +667,7 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
 
             let count = 0;
 
-            const new_vote: { abstain: false; rankings: string[]; countered: string[] } = {
+            const new_vote: Pick<Required<BaseVote>, "abstain" | "rankings" | "countered"> = {
                 abstain: false,
                 rankings: [],
                 countered: [],
@@ -726,15 +716,11 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
             }
 
             if (new_vote.rankings.length + new_vote.countered.length === 0) {
-                await db.poll_votes.updateOne(
-                    { poll: poll.id, user: interaction.user.id },
-                    { $set: { abstain: true } },
-                    { upsert: true },
-                );
+                await DB.Votes.set_abstain(poll.id, interaction.user.id);
 
                 await reply(render_vote(poll, { abstain: true }));
-                await update();
 
+                await update();
                 return;
             }
 
@@ -748,11 +734,7 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
                 return;
             }
 
-            await db.poll_votes.updateOne(
-                { poll: poll.id, user: interaction.user.id },
-                { $set: new_vote },
-                { upsert: true },
-            );
+            await DB.Votes.set(poll.id, interaction.user.id, new_vote);
 
             await reply(render_vote(poll, new_vote));
             await update();
@@ -760,7 +742,7 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
     }
 });
 
-function render_vote(poll: any, vote: any) {
+function render_vote(poll: Poll, vote: BaseVote) {
     if (vote.abstain)
         return {
             title: "Abstained",
@@ -782,8 +764,8 @@ function render_vote(poll: any, vote: any) {
                         "induct-later": "Induct Later",
                         reject: "Reject",
                         extend: "Extend Observation",
-                    } as any
-                )[vote.verdict]
+                    } as Record<string, string>
+                )[vote.verdict!]
             }`,
             description: `You have voted to ${
                 (
@@ -796,8 +778,8 @@ function render_vote(poll: any, vote: any) {
                         "induct-later": `approve ${poll.server} and induct them into the TCN once there is official confirmation of playability`,
                         reject: `reject ${poll.server} from the TCN`,
                         extend: `extend TCN observation of ${poll.server}`,
-                    } as any
-                )[vote.verdict]
+                    } as Record<string, string>
+                )[vote.verdict!]
             }.`,
             color: 0x2b2d31,
         };
@@ -805,7 +787,7 @@ function render_vote(poll: any, vote: any) {
         return {
             title: "Your Vote",
             description: `You voted for the following option(s):\n${poll.options
-                .filter((x: string) => vote.selected.includes(x))
+                .filter((x: string) => vote.selected!.includes(x))
                 .map((x: string) => `- ${x}`)
                 .join("\n")}`,
             color: 0x2b2d31,
@@ -813,18 +795,18 @@ function render_vote(poll: any, vote: any) {
     else if (poll.mode === "election")
         return {
             title: "Election Vote",
-            description: `Here is your election vote:\n${vote.rankings
-                .map((x: string, i: number) => `\`${i + 1}.\` <@${x}>`)
+            description: `Here is your election vote:\n${vote
+                .rankings!.map((x: string, i: number) => `\`${i + 1}.\` <@${x}>`)
                 .join("\n")}${
-                vote.countered.length > 0
-                    ? `\nCounter-votes: ${vote.countered.map((x: string) => `<@${x}>`).join(", ")}`
+                vote.countered!.length > 0
+                    ? `\nCounter-votes: ${vote.countered!.map((x: string) => `<@${x}>`).join(", ")}`
                     : ""
             }${
-                vote.rankings.length + vote.countered.length < poll.candidates.length
+                vote.rankings!.length + vote.countered!.length < poll.candidates.length
                     ? `\nAbstained: ${poll.candidates
                           .filter(
                               (x: string) =>
-                                  !vote.rankings.includes(x) && !vote.countered.includes(x),
+                                  !vote.rankings!.includes(x) && !vote.countered!.includes(x),
                           )
                           .map((x: string) => `<@${x}>`)
                           .join(", ")}`
@@ -836,7 +818,7 @@ function render_vote(poll: any, vote: any) {
     return { title: "?" };
 }
 
-async function can_vote(poll: any, user: string) {
-    const data = await (await fetch(`${PUBLIC_TCN_API}/users/${user}`)).json();
+async function can_vote(poll: Poll, user: string) {
+    const data = await TCN.user(user);
     return (poll.restricted ? ["voter"] : ["owner", "advisor"]).some((x) => data.roles.includes(x));
 }

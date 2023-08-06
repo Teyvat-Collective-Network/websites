@@ -5,7 +5,11 @@
 </script>
 
 {#if data.observer}
-    <slot />
+    {#if data.missing}
+        <Redirect to="/vote" />
+    {:else}
+        <slot />
+    {/if}
 {:else}
     <Redirect />
 {/if}

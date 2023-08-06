@@ -109,7 +109,7 @@
                                 {#if answer && "answer" in answer}
                                     <div class="answer-box row">
                                         <span style="flex-grow: 1">
-                                            <FormAnswer {answer} />
+                                            <FormAnswer value={answer} />
                                         </span>
                                         <a
                                             href={"javascript:void(0)"}
@@ -184,7 +184,7 @@
                                     </p>
                                 {/if}
                                 {#if "answer" in answer}
-                                    <FormAnswer {answer} />
+                                    <FormAnswer value={answer} />
                                 {:else}
                                     <p style="color: var(--text-secondary)">No answer provided.</p>
                                 {/if}

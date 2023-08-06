@@ -1,16 +1,15 @@
 import type { Invite } from "discord.js";
 import type { RequestHandler } from "@sveltejs/kit";
 import bot from "../../../bot.js";
-import db from "../../../db.js";
+import { DB } from "../../../db.js";
+import type { CalendarEvent } from "$lib/types.js";
 
 export const POST: RequestHandler = async ({ locals, request }) => {
     const user = (locals as any).api_user;
     if (!user) return new Response(null, { status: 403 });
     if (!user.roles.includes("observer")) new Response(null, { status: 403 });
 
-    await db.events.updateMany({}, { $set: { mark: true } });
-
-    const items = await request.json();
+    const items = (await request.json()) as CalendarEvent[][];
 
     for (const track of items) {
         for (const event of track) {
@@ -35,9 +34,6 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         }
     }
 
-    if (items.length > 0) await db.events.insertMany(items.map((events: any) => ({ events })));
-
-    await db.events.deleteMany({ mark: true });
-
+    if (items.length > 0) await DB.Events.set_tracks(items.map((events: any) => ({ events })));
     return new Response();
 };

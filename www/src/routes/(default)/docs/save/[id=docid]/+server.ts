@@ -1,14 +1,15 @@
 import type { RequestHandler } from "@sveltejs/kit";
-import db from "../../../../../db.js";
 import DOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
 import { marked } from "marked";
+import { DB } from "../../../../../db.js";
+import type { Doc } from "$lib/types.js";
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {
-    const doc = (await request.json()).doc;
-    let id = params.id;
+    const doc = (await request.json()).doc as Partial<Doc>;
+    let id = params.id!;
 
-    const data = id !== "new" ? await db.docs.findOne({ id }) : null;
+    const data = id !== "new" ? await DB.Docs.get(id) : null;
 
     try {
         if (!(locals as any).council)
@@ -58,13 +59,13 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                             "0123456789abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 36)],
                     )
                     .join("");
-                if (!(await db.docs.findOne({ id }))) break;
+                if (!(await DB.Docs.get(id))) break;
             }
         }
 
         try {
             const window: any = new JSDOM("").window;
-            doc.parsed = DOMPurify(window).sanitize(marked.parse(doc.content));
+            doc.parsed = DOMPurify(window).sanitize(marked.parse(doc.content!));
         } catch (error) {
             console.error(error);
             throw "An error occurred parsing your document's markdown.";
@@ -73,11 +74,6 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         return new Response(JSON.stringify({ error }));
     }
 
-    await db.docs.findOneAndUpdate(
-        { id },
-        { $set: { ...doc, author: (locals as any).user.id } },
-        { upsert: true },
-    );
-
+    await DB.Docs.save(id, { ...doc, author: locals.user.id });
     return new Response(JSON.stringify({ id }));
 };

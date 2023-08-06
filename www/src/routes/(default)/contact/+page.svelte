@@ -3,6 +3,8 @@
     import Callout from "$lib/Callout.svelte";
     import Invite from "$lib/Invite.svelte";
     import Linkable from "$lib/Linkable.svelte";
+
+    export let data: any;
 </script>
 
 <div class="container">
@@ -22,39 +24,15 @@
         />
         <Linkable id="observers" e="h2" value="Observers" />
         <div>
-            {#await new Promise((r) => onMount(() => r(null)))}
-                <p>Loading observers...</p>
-            {:then _}
-                {#await fetch("/api/observers")}
-                    <p>Loading observers...</p>
-                {:then response}
-                    {#await response.json()}
-                        <p>Loading observers...</p>
-                    {:then [observers, error]}
-                        {#if error}
-                            <Callout style="red">
-                                <p>{error}</p>
-                            </Callout>
-                        {/if}
-                        {#if observers}
-                            <ul>
-                                {#each observers as observer}
-                                    <li>
-                                        <a href="https://discord.com/users/{observer.id}"
-                                            >{observer.tag}</a
-                                        >
-                                        - <code>{observer.id}</code>
-                                    </li>
-                                {/each}
-                            </ul>
-                        {/if}
-                    {/await}
-                {:catch _}
-                    <Callout style="red">
-                        <p>Fetching observers failed; please check your internet connection.</p>
-                    </Callout>
-                {/await}
-            {/await}
+            <ul>
+                {#each data.observers as observer}
+                    <li>
+                        <span class="mention user" data-id={observer}>
+                            <i class="material-icons">pending</i> &nbsp; Loading User...
+                        </span>
+                    </li>
+                {/each}
+            </ul>
         </div>
     </div>
 </div>

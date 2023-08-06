@@ -1,7 +1,7 @@
 <script lang="ts">
     import ListButton from "./ListButton.svelte";
 
-    export let array: any[];
+    export let array: unknown[];
     export let index: number;
     export let delete_last: boolean = false;
     export let table: boolean = false;

@@ -1,29 +1,33 @@
-import { PUBLIC_TCN_API } from "$env/static/public";
+import { TCN } from "$lib/api.js";
+import type { TCNGuild } from "$lib/types.js";
 import { hq_bot } from "../../../../bot.js";
 import type { Load } from "@sveltejs/kit";
 
 export const load: Load = async ({ params }) => {
-    const data = { id: params.id };
-
-    const request = await fetch(`${PUBLIC_TCN_API}/users/${params.id}`);
-
-    if (request.ok) {
-        data.api = await request.json();
-
-        const guilds = await (await fetch(`${PUBLIC_TCN_API}/guilds`)).json();
-
-        data.api.owns = guilds.filter((x) => x.owner == params.id);
-        data.api.advises = guilds.filter((x) => x.advisor == params.id);
-        data.api.staff = guilds.filter(
-            (x) =>
-                x.owner !== params.id && x.advisor !== params.id && data.api.guilds.includes(x.id),
-        );
-    }
+    const data: {
+        id: string;
+        api?: { owns: TCNGuild[]; advises: TCNGuild[]; staff: TCNGuild[] };
+        discord?: { icon: string; tag: string };
+    } = { id: params.id! };
 
     try {
-        const user = await hq_bot.users.fetch(params.id);
+        const user = await TCN.user(params.id!);
+        const guilds = await TCN.guilds();
+
+        data.api = { owns: [], advises: [], staff: [] };
+
+        for (const guild of guilds) {
+            if (guild.owner === user.id) data.api.owns.push(guild);
+            else if (guild.advisor === user.id) data.api.advises.push(guild);
+            else if (user.guilds.includes(user.id)) data.api.staff.push(guild);
+        }
+    } catch {}
+
+    try {
+        const user = await hq_bot.users.fetch(params.id!);
+
         data.discord = {
-            icon: user.displayAvatarURL({ dynamic: true }),
+            icon: user.displayAvatarURL(),
             tag: user.discriminator === "0" ? `@${user.username}` : user.tag,
         };
     } catch {}

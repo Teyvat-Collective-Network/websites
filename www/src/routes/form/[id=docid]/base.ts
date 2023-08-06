@@ -1,9 +1,9 @@
 import { fix, markdown_postprocess } from "$lib/util.js";
-import db from "../../../db.js";
+import { DB } from "../../../db.js";
 
 export async function load_data({ params, locals }: any) {
-    const { id } = params;
-    const form = await db.forms.findOne({ id });
+    const id = params.id!;
+    const form = await DB.Forms.get(id);
 
     if (!form || (form.deleted && !(locals as any).observer))
         return {
@@ -54,10 +54,10 @@ export async function load_data({ params, locals }: any) {
 
     if (access || (locals as any).observer) {
         for (const page of form.pages) {
-            page.description = markdown_postprocess(page.parsed_description, reader);
+            page.description = markdown_postprocess(page.parsed_description!, reader);
 
             for (const question of page.questions) {
-                question.description = markdown_postprocess(question.parsed_description, reader);
+                question.description = markdown_postprocess(question.parsed_description!, reader);
             }
         }
 

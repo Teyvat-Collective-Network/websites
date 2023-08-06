@@ -51,11 +51,13 @@
             ? new Date(year ?? 1970, month ?? 0, date ?? 1, hour ?? 0, minute ?? 0, second ?? 0)
             : undefined;
 
-    function jump(e: any, id: string) {
-        if (e.target.value.length < 2) return;
-        if (id === "hour" && (e.target.value < 1 || e.target.value > lengths[month ?? 0])) return;
-        if (id === "minute" && (e.target.value < 0 || e.target.value > 23)) return;
-        if (id === "second" && (e.target.value < 0 || e.target.value > 59)) return;
+    function jump(e: Event, id: string) {
+        const target = e.target as EventTarget & HTMLInputElement;
+
+        if (target.value.length < 2) return;
+        if (id === "hour" && (+target.value < 1 || +target.value > lengths[month ?? 0])) return;
+        if (id === "minute" && (+target.value < 0 || +target.value > 23)) return;
+        if (id === "second" && (+target.value < 0 || +target.value > 59)) return;
 
         document.getElementById(id)!.focus();
     }

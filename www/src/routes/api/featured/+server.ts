@@ -1,8 +1,8 @@
 import type { RequestHandler } from "@sveltejs/kit";
-import db from "../../../db.js";
 import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
+import { DB } from "../../../db.js";
 
 export const POST: RequestHandler = async ({ locals, request }) => {
     const user = (locals as any).api_user;
@@ -22,9 +22,6 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         }
     }
 
-    await db.announcements.deleteMany();
-
-    if (items.length > 0) await db.announcements.insertMany(items);
-
+    await DB.Announcements.set(items);
     return new Response();
 };

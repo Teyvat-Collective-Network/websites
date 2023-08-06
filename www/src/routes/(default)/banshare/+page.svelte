@@ -1,11 +1,12 @@
 <script lang="ts">
-    import { PUBLIC_DOMAIN, PUBLIC_TCN_API, PUBLIC_TCN_AUTH } from "$env/static/public";
+    import { PUBLIC_DOMAIN, PUBLIC_TCN_AUTH } from "$env/static/public";
     import { onMount } from "svelte";
     import { escape } from "svelte/internal";
     import { LoadingSpinner, Modal, Textarea } from "@daedalus-discord/webkit";
     import Callout from "$lib/Callout.svelte";
     import Redirect from "$lib/Redirect.svelte";
     import LoggedInAs from "$lib/LoggedInAs.svelte";
+    import { TCN } from "../../../lib/api";
 
     export let data: any;
     export let form: any;
@@ -15,15 +16,8 @@
     onMount(async () => {
         if (!data.user) return;
 
-        const [user_data, guilds_data] = await Promise.all(
-            [`${PUBLIC_TCN_API}/users/${data.user.id}`, `${PUBLIC_TCN_API}/guilds`].map(
-                async (url) => {
-                    const response = await fetch(url);
-                    if (!response.ok) return {};
-                    return await response.json();
-                },
-            ),
-        );
+        const user_data = await TCN.user(data.user.id)
+        const guilds_data = await TCN.guilds()
 
         const map = new Map<string, string>();
         for (const guild of guilds_data) map.set(guild.id, guild.name);

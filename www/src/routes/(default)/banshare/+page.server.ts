@@ -1,12 +1,13 @@
 import { ALERT, CHANNEL, NON_URGENT, URGENT } from "$env/static/private";
-import { PUBLIC_TCN_API } from "$env/static/public";
 import { fail, type Actions } from "@sveltejs/kit";
 import { escape } from "svelte/internal";
-import { components } from "../../../lib.js";
 import bot, { sync_dashboard } from "../../../bot.js";
-import { banshares } from "../../../db.js";
 import { create_gist } from "../../../gists.js";
 import { escapeMarkdown } from "discord.js";
+import { components } from "$lib/banshares/components.js";
+import type { TCNUser } from "$lib/types.js";
+import { TCN } from "$lib/api.js";
+import { DB } from "../../../db.js";
 
 function compare(a: string, b: string): number {
     if (!a.match(/^\d+$/))
@@ -66,28 +67,21 @@ export const actions: Actions = {
                 "Maximum evidence length is 1200. If you need more space, please create and link a document and include some basic information about it in the evidence field.",
             );
 
-        const tcn_request = await fetch(`${PUBLIC_TCN_API}/users/${user.id}`);
+        let api_user: TCNUser;
 
-        if (!tcn_request.ok)
+        try {
+            api_user = await TCN.user(user.id);
+        } catch {
             return abort(
                 400,
                 "You do not appear to be a staff member of any TCN servers. Contact your server owner or a TCN observer if you believe this is a mistake.",
             );
+        }
 
-        const tcn_data = await tcn_request.json();
-
-        if (!tcn_data.guilds.includes(server))
+        if (!api_user.guilds.includes(server))
             return abort(400, "You are not a staff member on the server you selected.");
 
-        const server_request = await fetch(`${PUBLIC_TCN_API}/guilds/${server}`);
-
-        if (!server_request.ok)
-            return abort(
-                400,
-                "The server you selected does not appear to be in the TCN. (This message should never appear...)",
-            );
-
-        const server_name = (await server_request.json()).name;
+        const server_name = (await TCN.guild(server)).name;
 
         if (!bot.user)
             return abort(
@@ -187,7 +181,7 @@ export const actions: Actions = {
 
         const post = await channel.send({ ...send_data, components: components(false, severity) });
 
-        await banshares.banshares.insertOne({
+        await DB.Banshares.submit({
             message: post.id,
             url: post.url,
             user: user.id,

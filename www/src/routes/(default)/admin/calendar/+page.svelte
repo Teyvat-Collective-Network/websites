@@ -1,18 +1,12 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import ListButton from "$lib/ListButton.svelte";
+    import { API } from "$lib/api";
+    import type { CalendarEvent } from "$lib/types";
     import Textarea from "@daedalus-discord/webkit/Textarea.svelte";
 
     export let data: {
-        events: {
-            start: number;
-            end: number;
-            name: string;
-            body: string;
-            invites: string;
-            light: string;
-            dark: string;
-        }[][];
+        events: CalendarEvent[][];
     };
 
     let button: any;
@@ -98,11 +92,9 @@
         bind:this={button}
         style="background-color: transparent; color: var(--blue-text)"
         on:click={() =>
-            fetch("/api/calendar", {
-                method: "post",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data.events),
-            }).then((res) => (res.ok ? goto("/calendar") : alert("An error occurred!")))}
+            API.post_calendar(data.events)
+                .then(() => goto("/calendar"))
+                .catch(() => alert("An error occurred!"))}
     >
         <i class="material-icons">save</i> Save
     </button>

@@ -3,11 +3,13 @@
     import { PUBLIC_DOMAIN, PUBLIC_TCN_AUTH } from "$env/static/public";
     import { onMount } from "svelte";
     import { dark_mode } from "./stores";
+    import { selectall, selectall_nullable } from "./html";
+    import type { LocalsData, LocalsDataAPIUser, LocalsDataUser } from "./types";
 
     export let dark: boolean;
-    export let data: any;
-    export let user: any;
-    export let api_user: any;
+    export let data: LocalsData;
+    export let user: LocalsDataUser;
+    export let api_user: LocalsDataAPIUser | null;
 
     dark_mode.set(dark);
 
@@ -19,15 +21,16 @@
     let doc: Document | null = null;
 
     onMount(() => {
-        document
-            .querySelectorAll("#contents > a:not([href='javascript:void(0)'])")
-            .forEach((e: any) => (e.onclick = () => setTimeout(close)));
+        selectall<HTMLAnchorElement>("#contents > a:not([href='javascript:void(0)'])").forEach(
+            (e) => (e.onclick = () => setTimeout(close)),
+        );
+
         page.subscribe(
             (x) => (
                 (href = x.url.href),
-                document.querySelectorAll("#contents > a").forEach((e: any) => {
-                    e.style.backgroundColor = e.href === href ? "#00000022" : "";
-                })
+                selectall<HTMLAnchorElement>("#contents > a").forEach(
+                    (e) => (e.style.backgroundColor = e.href === href ? "#00000022" : ""),
+                )
             ),
         );
 
@@ -36,10 +39,8 @@
 
     let index = 0;
     $: open &&
-        (index = [...document.querySelectorAll("#contents > a")].findIndex(
-            (e: any) => e.href === href,
-        ));
-    $: (doc?.querySelectorAll("#contents > a:not(.hidden)")?.[index] as any)?.focus();
+        (index = selectall<HTMLAnchorElement>("#contents > a").findIndex((e) => e.href === href));
+    $: selectall_nullable<HTMLAnchorElement>("#contents > a:not(.hidden)")?.[index]?.focus();
 
     let info_open: boolean = false;
     let staff_open: boolean = false;
@@ -54,7 +55,7 @@
         else if (open && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
             e.preventDefault();
 
-            const length = [...document.querySelectorAll("#contents > a:not(.hidden)")].length;
+            const { length } = selectall("#contents > a:not(.hidden)");
 
             if (e.key === "ArrowUp") index = (index + length - 1) % length;
             else index = (index + 1) % length;
@@ -117,7 +118,7 @@
             >Website Documentation</a
         >
         {#if user}
-            {#if api_user?.guilds?.length > 0}
+            {#if api_user?.guilds?.length}
                 <a
                     href={"javascript:void(0)"}
                     class="t1"

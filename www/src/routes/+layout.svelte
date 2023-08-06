@@ -8,9 +8,9 @@
             return;
         }
 
-        for (const element of document.querySelectorAll("span.time") as any) {
+        for (const element of selectall<HTMLSpanElement>("span.time")) {
             try {
-                const timestamp = parseInt(element.dataset.timestamp);
+                const timestamp = parseInt(element.dataset.timestamp!);
                 const isostring = new Date(timestamp * 1000 - offset * 60000).toISOString();
 
                 element.innerHTML = (
@@ -21,25 +21,22 @@
             } catch {}
         }
 
-        const cache: Record<string, any> = {};
+        const cache: Record<string, string | 1> = {};
         const real = new Set<string>();
 
-        if (document.querySelector(".guild")) {
-            let actual = true;
+        if (select(".guild")) {
+            for (const entry of await TCN.guilds()) {
+                cache[entry.id] = entry.name;
+                real.add(entry.id);
+            }
 
-            for (const route of [`${PUBLIC_TCN_API}/guilds`, "/api/guild-names"]) {
-                const request = await fetch(route);
-                const response = await request.json();
-
-                response.forEach((x: any) => (cache[x.id] = x.name));
-
-                if (actual) response.forEach((x: any) => real.add(x.id));
-                actual = false;
+            for (const entry of await API.guild_names()) {
+                cache[entry.id] = entry.name;
             }
         }
 
-        for (const element of document.querySelectorAll(".guild") as any) {
-            const id = element.dataset.id;
+        for (const element of selectall<DatasetElement>(".guild")) {
+            const { id } = element.dataset;
 
             if (id === PUBLIC_HQ || id === PUBLIC_HUB) {
                 element.outerHTML = `<a href="/about#organization" target="_blank"><span class="mention"><i class="material-icons">domain</i> &nbsp; ${
@@ -55,9 +52,7 @@
         }
 
         if (document.querySelector(".user")) {
-            const request = await fetch("/api/get-all-tags");
-            const response = await request.json();
-            response.forEach(
+            (await API.get_all_tags()).forEach(
                 (x: any) =>
                     (cache[x.id] = x.fake
                         ? `<s>${x.tag}</s>`
@@ -88,14 +83,11 @@
             if (cache[id]) return;
 
             try {
-                const request = await fetch(`/api/get-tag/${id || "0"}`);
-                if (!request.ok) throw 0;
+                const tag = await API.get_tag(id || "0");
 
-                const response = await request.text();
-
-                cache[id] = response.endsWith("#0")
-                    ? `<b>${response.slice(0, -2)}</b>`
-                    : `<b>${response.slice(0, -5)}</b>${response.slice(-5)}`;
+                cache[id] = tag.endsWith("#0")
+                    ? `<b>${tag.slice(0, -2)}</b>`
+                    : `<b>${tag.slice(0, -5)}</b>${tag.slice(-5)}`;
             } catch {
                 cache[id] = 1;
             }
@@ -108,6 +100,9 @@
 <script lang="ts">
     import { page } from "$app/stores";
     import { PUBLIC_HQ, PUBLIC_HUB, PUBLIC_TCN_API } from "$env/static/public";
+    import { API, TCN } from "$lib/api";
+    import { select, selectall } from "$lib/html";
+    import type { DatasetElement } from "$lib/types";
     import { onMount } from "svelte";
 
     onMount(async () => {

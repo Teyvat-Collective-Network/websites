@@ -1,4 +1,7 @@
-declare const hljs: any;
+import type { ObjectId } from "mongodb";
+import type { Fixed, LocalsDataUser } from "./types.js";
+
+declare const hljs: { configure(options: unknown): void; highlightAll(): void };
 
 export const email_regex =
     /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/i;
@@ -6,7 +9,7 @@ export const url_regex =
     /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9\u00a1-\uffff][a-z0-9\u00a1-\uffff_-]{0,62})?[a-z0-9\u00a1-\uffff]\.)+(?:[a-z\u00a1-\uffff]{2,}\.?))(?::\d{2,5})?(?:[/?#]\S*)?$/i;
 export const webhook_regex = /^https:\/\/(.+?\.)?discord\.com\/api\/webhooks\/\d{17,20}\/.+$/;
 
-export function debounce<T extends any[], U>(
+export function debounce<T extends unknown[], U>(
     fn: (...args: T) => U,
     timeout: number = 500,
 ): (...args: T) => void {
@@ -18,18 +21,18 @@ export function debounce<T extends any[], U>(
     };
 }
 
-export function fix(x: any): any {
-    if (Array.isArray(x)) return x.map((k) => fix(k));
+export function fix<T>(x: T & { _id?: ObjectId }): Fixed<T> {
+    if (Array.isArray(x)) return x.map((k) => fix(k)) as unknown as Fixed<T>;
 
     delete x._id;
-    return x;
+    return x as Fixed<T>;
 }
 
-export function without(array: any[], index: number) {
+export function without<T extends unknown>(array: T[], index: number): T[] {
     return [...array.slice(0, index), ...array.slice(index + 1)];
 }
 
-export function swap(array: any[], x: number, y: number): any[] {
+export function swap<T extends unknown>(array: T[], x: number, y: number): T[] {
     if (x === y) return array;
     if (x > y) return swap(array, y, x);
     return [
@@ -41,7 +44,7 @@ export function swap(array: any[], x: number, y: number): any[] {
     ];
 }
 
-export function markdown_postprocess(text: string, reader: any) {
+export function markdown_postprocess(text: string, reader?: LocalsDataUser) {
     let match: RegExpMatchArray | null, regex: RegExp;
 
     regex = /\[@(\d+)\]/;

@@ -3,10 +3,10 @@ import { PUBLIC_DIS_API, PUBLIC_STAGING, PUBLIC_TCN_AUTH } from "$env/static/pub
 import type { Handle } from "@sveltejs/kit";
 
 import "./lib/polls.js";
-import "./hq_utils.js";
+import "./bots/hq_utils.js";
 
 export const handle: Handle = async ({ event, resolve }) => {
-    const locals = event.locals as any;
+    const locals = event.locals;
 
     locals.dark = event.cookies.get("mode") !== "light";
 

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { swap, without } from "./util";
 
-    export let array: any[];
+    export let array: unknown[];
     export let index: number;
     export let del: boolean = false;
     export let up: boolean | null = null;

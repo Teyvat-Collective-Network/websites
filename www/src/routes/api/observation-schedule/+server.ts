@@ -1,15 +1,14 @@
 import type { RequestHandler } from "@sveltejs/kit";
-import db from "../../../db.js";
 import { results } from "../../(default)/admin/observation-schedule/+page.svelte";
+import { DB } from "../../../db.js";
+import type { ObservationRecord } from "$lib/types.js";
 
 export const POST: RequestHandler = async ({ locals, request }) => {
     const user = (locals as any).api_user;
     if (!user) return new Response(null, { status: 403 });
     if (!user.roles.includes("observer")) new Response(null, { status: 403 });
 
-    await db.observation_schedule.deleteMany();
-
-    const entries = await request.json();
+    const entries = (await request.json()) as ObservationRecord[];
 
     for (const entry of entries) {
         if (
@@ -33,7 +32,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         }
     }
 
-    if (entries.length > 0) await db.observation_schedule.insertMany(entries);
+    await DB.HistoricalRecords.set_observation_schedule(entries);
 
     return new Response();
 };

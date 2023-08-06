@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { PUBLIC_DOMAIN, PUBLIC_TCN_AUTH } from "$env/static/public";
+    import { PUBLIC_TCN_AUTH } from "$env/static/public";
+    import type { LocalsDataUser } from "./types";
 
-    export let user: any;
+    export let user: LocalsDataUser;
     export let redirect: string;
 </script>
 

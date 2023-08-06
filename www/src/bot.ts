@@ -9,7 +9,7 @@ import {
     URGENT,
     URGENT_DELAY,
 } from "$env/static/private";
-import { PUBLIC_ALLOWLIST, PUBLIC_DDL_API, PUBLIC_HQ, PUBLIC_TCN_API } from "$env/static/public";
+import { PUBLIC_ALLOWLIST, PUBLIC_DDL_API, PUBLIC_HQ } from "$env/static/public";
 import {
     type ButtonInteraction,
     ButtonStyle,
@@ -23,14 +23,16 @@ import {
     type StringSelectMenuInteraction,
     TextInputStyle,
     type User,
-    type StringSelectMenuComponentData,
     type APIEmbed,
     GuildMember,
     type APIGuildMember,
     SnowflakeUtil,
+    type APIStringSelectComponent,
 } from "discord.js";
-import { banshares } from "./db.js";
-import { components } from "./lib.js";
+import { components } from "$lib/banshares/components.js";
+import { TCN } from "$lib/api.js";
+import type { ActionRow, Banshare, BanshareSettings } from "$lib/types.js";
+import { DB } from "./db.js";
 
 process.on("uncaughtException", (error) => console.error("[TOP-LEVEL]", error));
 
@@ -52,13 +54,13 @@ const finished = [
             {
                 type: ComponentType.Button,
                 style: ButtonStyle.Secondary,
-                customId: "/",
+                custom_id: "/",
                 label: "Banshare Executed",
                 disabled: true,
             },
         ],
     },
-] as any;
+] satisfies ActionRow[];
 
 const rescinded = [
     {
@@ -67,13 +69,13 @@ const rescinded = [
             {
                 type: ComponentType.Button,
                 style: ButtonStyle.Secondary,
-                customId: "/",
+                custom_id: "/",
                 label: "Banshare Rescinded",
                 disabled: true,
             },
         ],
     },
-] as any;
+] as ActionRow[];
 
 const report = [
     {
@@ -81,9 +83,9 @@ const report = [
         components: [
             {
                 type: ComponentType.StringSelect,
-                customId: "report-preset",
-                minValues: 1,
-                maxValues: 3,
+                custom_id: "report-preset",
+                min_values: 1,
+                max_values: 3,
                 options: [
                     "Appears unintended.",
                     "Targeted users are wrong.",
@@ -93,7 +95,7 @@ const report = [
                     "Severity should be increased.",
                 ].map((text) => ({ label: text, value: text })),
                 placeholder: "Report This Banshare",
-            } satisfies StringSelectMenuComponentData,
+            } satisfies APIStringSelectComponent,
         ],
     },
     {
@@ -102,12 +104,12 @@ const report = [
             {
                 type: ComponentType.Button,
                 style: ButtonStyle.Danger,
-                customId: "report",
+                custom_id: "report",
                 label: "Report (Custom Reason)",
             },
         ],
     },
-] as any;
+] as ActionRow[];
 
 const autoban_scheduled = [
     {
@@ -116,13 +118,13 @@ const autoban_scheduled = [
             {
                 type: ComponentType.Button,
                 style: ButtonStyle.Secondary,
-                customId: "-",
+                custom_id: "-",
                 label: "Auto-ban scheduled",
                 disabled: true,
             },
         ],
     },
-] as any;
+] as ActionRow[];
 
 const autobanning = [
     {
@@ -131,13 +133,13 @@ const autobanning = [
             {
                 type: ComponentType.Button,
                 style: ButtonStyle.Secondary,
-                customId: "/",
+                custom_id: "/",
                 label: "Auto-banning...",
                 disabled: true,
             },
         ],
     },
-] as any;
+] as ActionRow[];
 
 const published = new Set<string>();
 
@@ -147,19 +149,14 @@ bot.once("ready", async () => {
 });
 
 async function reminder_cycle() {
-    const pending = await banshares.banshares
-        .find({
-            published: { $ne: true },
-            rejected: { $ne: true },
-        })
-        .toArray();
+    const pending = await DB.Banshares.get_pending();
 
     const now = new Date().getTime();
     let notice = false;
 
     for (const { message: id, url, urgent, reminded } of pending)
         try {
-            const channel = await bot.channels.fetch(url.split("/").at(-2));
+            const channel = await bot.channels.fetch(url.split("/").at(-2)!);
             if (!channel?.isTextBased()) throw 0;
 
             const message = await channel.messages.fetch(id);
@@ -169,17 +166,10 @@ async function reminder_cycle() {
                 (urgent ? +URGENT_DELAY : +NON_URGENT_DELAY)
             ) {
                 notice = true;
-
-                await banshares.banshares.findOneAndUpdate(
-                    { message: id },
-                    { $set: { reminded: now - +REMINDER_CYCLE / 2 } },
-                );
+                await DB.Banshares.remind(id);
             }
         } catch {
-            await banshares.banshares.findOneAndUpdate(
-                { message: id },
-                { $set: { rejected: true } },
-            );
+            await DB.Banshares.reject(id);
         }
 
     if (notice) {
@@ -202,9 +192,7 @@ export async function sync_dashboard() {
     const dashboard = await bot.channels.fetch(BANSHARE_DASHBOARD);
     if (!dashboard?.isTextBased()) return;
 
-    const pending = await banshares.banshares
-        .find({ published: { $ne: true }, rejected: { $ne: true } })
-        .toArray();
+    const pending = await DB.Banshares.get_pending();
 
     const text =
         pending.length > 0
@@ -273,7 +261,7 @@ bot.on("interactionCreate", async (interaction) => {
             const subcommand = interaction.options.getSubcommand(false);
 
             if (subgroup === "post" || subgroup === "log") {
-                const collection = subgroup === "post" ? banshares.channels : banshares.logging;
+                const apply = DB.BanshareSettings[subgroup === "post" ? "set_output" : "set_log"];
 
                 if (subcommand === "here") {
                     if (
@@ -292,19 +280,12 @@ bot.on("interactionCreate", async (interaction) => {
                         return;
                     }
 
-                    await collection.findOneAndUpdate(
-                        { guild: interaction.guild!.id },
-                        { $set: { channel: interaction.channel!.id } },
-                        { upsert: true },
-                    );
-
+                    await apply(interaction.guild!.id, interaction.channel!.id);
                     await interaction.editReply(
                         `${subgroup === "post" ? "Banshares" : "Logs"} will now be posted here.`,
                     );
                 } else if (subcommand === "none") {
-                    await collection.findOneAndDelete({
-                        guild: interaction.guild!.id,
-                    });
+                    await apply(interaction.guild!.id);
 
                     await interaction.editReply(
                         subgroup === "post"
@@ -315,24 +296,14 @@ bot.on("interactionCreate", async (interaction) => {
             } else if (!subgroup) {
                 if (subcommand === "ban-button") {
                     const enable = interaction.options.getBoolean("enable", true);
-
-                    await banshares.settings.findOneAndUpdate(
-                        { guild: interaction.guild!.id },
-                        { $set: { no_button: !enable } },
-                        { upsert: true },
-                    );
+                    await DB.BanshareSettings.set_button(interaction.guild!.id, enable);
 
                     await interaction.editReply(
                         `${enable ? "Enabled" : "Disabled"} the ban button.`,
                     );
                 } else if (subcommand === "daedalus-integration") {
                     const enable = interaction.options.getBoolean("enable", true);
-
-                    await banshares.settings.findOneAndUpdate(
-                        { guild: interaction.guild!.id },
-                        { $set: { daedalus: enable } },
-                        { upsert: true },
-                    );
+                    await DB.BanshareSettings.set_daedalus(interaction.guild!.id, enable);
 
                     await interaction.editReply(
                         `${enable ? "Enabled" : "Disabled"} Daedalus integration.`,
@@ -353,16 +324,11 @@ bot.on("interactionCreate", async (interaction) => {
                         true,
                     );
 
-                    await banshares.settings.findOneAndUpdate(
-                        { guild: interaction.guild!.id },
-                        {
-                            $set: {
-                                autoban: non_member_threshold,
-                                autoban_member: member_threshold,
-                                autoban_dm_scams,
-                            },
-                        },
-                        { upsert: true },
+                    await DB.BanshareSettings.set_autoban_thresholds(
+                        interaction.guild!.id,
+                        non_member_threshold,
+                        member_threshold,
+                        autoban_dm_scams,
                     );
 
                     const k = {
@@ -381,12 +347,7 @@ bot.on("interactionCreate", async (interaction) => {
                     );
                 } else if (subcommand === "receive-dm-scams") {
                     const enable = interaction.options.getBoolean("enable", true);
-
-                    await banshares.settings.findOneAndUpdate(
-                        { guild: interaction.guild!.id },
-                        { $set: { suppress_dm_scams: !enable } },
-                        { upsert: true },
-                    );
+                    await DB.BanshareSettings.set_receive_dm_scams(interaction.guild!.id, enable);
 
                     await interaction.editReply(
                         `${enable ? "Enabled" : "Disabled"} scam DM banshares.`,
@@ -504,13 +465,7 @@ bot.on("interactionCreate", async (interaction) => {
 
             if (!banshare) return;
 
-            const lock = await banshares.executed.findOneAndUpdate(
-                { post: interaction.message.id },
-                { $set: { executed: true } },
-                { upsert: true },
-            );
-
-            if (lock.value?.executed) {
+            if (await DB.Banshares.lock(interaction.message.id)) {
                 await interaction.update({
                     content: "This banshare is already being executed by someone else.",
                     files: [],
@@ -528,22 +483,29 @@ bot.on("interactionCreate", async (interaction) => {
 
             await execute(
                 banshare,
-                await banshares.settings.findOne({ guild: interaction.guild!.id }),
+                await DB.BanshareSettings.get(interaction.guild!.id),
                 interaction.guild!,
                 message,
                 interaction.member!,
             );
 
             await interaction.editReply("Banshare executed!");
-            await message.edit({ components: finished.concat(report) });
+            await message.edit({ components: [...finished, ...report] });
         } else if (!interaction.memberPermissions?.has(PermissionFlagsBits.Administrator)) return;
         else if (interaction.customId.startsWith("sev:")) {
             const severity = interaction.customId.substring(4);
 
-            await banshares.banshares.findOneAndUpdate(
-                { message: interaction.message.id },
-                { $set: { severity } },
-            );
+            if (severity === null) {
+                await interaction.update({
+                    content: "Invalid severity.",
+                    embeds: [],
+                    components: [],
+                });
+
+                return;
+            }
+
+            await DB.Banshares.set_severity(interaction.message.id, severity);
 
             await interaction.update({
                 embeds: [
@@ -563,8 +525,7 @@ bot.on("interactionCreate", async (interaction) => {
             });
         } else if (interaction.customId.startsWith("escalate:")) {
             const severity = interaction.customId.substring(9);
-
-            const banshare = await banshares.banshares.findOne({ message: interaction.message.id });
+            const banshare = await DB.Banshares.get(interaction.message.id);
 
             if (!banshare) {
                 await interaction.update({
@@ -597,10 +558,7 @@ bot.on("interactionCreate", async (interaction) => {
         } else if (interaction.customId === "publish") {
             if (
                 published.has(interaction.message.id) ||
-                (await banshares.banshares.findOne({
-                    message: interaction.message.id,
-                    published: true,
-                }))
+                (await DB.Banshares.get(interaction.message.id))?.published
             )
                 await interaction.reply({
                     content: "This banshare has been published by someone else already.",
@@ -616,11 +574,7 @@ bot.on("interactionCreate", async (interaction) => {
             let guilds: string[];
 
             try {
-                const request = await fetch(`${PUBLIC_TCN_API}/guilds`);
-
-                if (!request.ok) throw 0;
-
-                guilds = (await request.json())
+                guilds = (await TCN.guilds())
                     .map((server: { id: string }) => server.id)
                     .concat(PUBLIC_ALLOWLIST.split(/\s+/));
             } catch {
@@ -633,18 +587,15 @@ bot.on("interactionCreate", async (interaction) => {
             published.add(id);
             setTimeout(() => published.delete(id), 10000);
 
-            const banshare = await banshares.banshares.findOneAndUpdate(
-                { message: id },
-                { $set: { published: true } },
-            );
+            const banshare = await DB.Banshares.publish(id);
 
-            if (!banshare.value)
+            if (!banshare)
                 await interaction.editReply({
                     content: "This does not appear to be a banshare.",
                     embeds: [],
                     components: [],
                 });
-            else if (fail || banshare.value.executed)
+            else if (fail || banshare.published)
                 await interaction.editReply({
                     content: "This banshare has been published by someone else already.",
                     embeds: [],
@@ -655,7 +606,7 @@ bot.on("interactionCreate", async (interaction) => {
 
                 try {
                     const message = await interaction.message.fetchReference();
-                    await message.edit({ components: components(true, banshare.value.severity) });
+                    await message.edit({ components: components(true, banshare.severity) });
                     embeds = message.embeds.map((e) => e.toJSON());
                 } catch {
                     await interaction.editReply({
@@ -684,15 +635,15 @@ bot.on("interactionCreate", async (interaction) => {
                     allowedMentions: { parse: [] },
                 });
 
-                const places = (await banshares.channels.find().toArray())
+                const places = (await DB.BanshareSettings.get_outputs())
                     .filter(
-                        (entry) =>
-                            (PUBLIC_ALLOWLIST && PUBLIC_ALLOWLIST.indexOf(entry.guild) !== -1) ||
-                            guilds.includes(entry.guild),
+                        ({ guild }) =>
+                            (PUBLIC_ALLOWLIST && PUBLIC_ALLOWLIST.indexOf(guild) !== -1) ||
+                            guilds.includes(guild),
                     )
-                    .map((entry) => ({
-                        guild: entry.guild,
-                        channel: bot.channels.cache.get(entry.channel),
+                    .map(({ guild, channel }) => ({
+                        guild,
+                        channel: bot.channels.cache.get(channel),
                     }))
                     .filter(({ channel }) => channel?.isTextBased());
 
@@ -701,20 +652,19 @@ bot.on("interactionCreate", async (interaction) => {
                         try {
                             if (!channel?.isTextBased()) return;
 
-                            const settings = await banshares.settings.findOne({ guild });
+                            const settings = await DB.BanshareSettings.get(guild);
 
-                            if (settings?.suppress_dm_scams && banshare.value!.severity === "dm")
-                                return;
+                            if (settings?.suppress_dm_scams && banshare.severity === "dm") return;
 
                             const threshold = settings?.autoban ?? "none";
 
-                            let components: any[] = [];
+                            let components: ActionRow[] = [];
 
-                            if (!banshare.value!.id_list?.length) {
+                            if (!banshare.id_list.length) {
                                 // Submitted without checking IDs, so no automation is possible.
                             } else if (
-                                (banshare.value!.severity === "dm" && settings?.autoban_dm_scams) ||
-                                autoban(threshold, banshare.value!.severity)
+                                (banshare.severity === "dm" && settings?.autoban_dm_scams) ||
+                                autoban(threshold, banshare.severity)
                             ) {
                                 components = autoban_scheduled;
                             } else if (!settings?.no_button) {
@@ -725,7 +675,7 @@ bot.on("interactionCreate", async (interaction) => {
                                             {
                                                 type: ComponentType.Button,
                                                 style: ButtonStyle.Danger,
-                                                customId: "ban",
+                                                custom_id: "ban",
                                                 label: "Ban",
                                             },
                                         ],
@@ -738,7 +688,7 @@ bot.on("interactionCreate", async (interaction) => {
                                 components: components.concat(report),
                             });
 
-                            await save(banshare, guild, post);
+                            await DB.Banshares.add_crosspost(banshare, guild, post);
 
                             if (!channel?.isTextBased()) return;
 
@@ -746,15 +696,9 @@ bot.on("interactionCreate", async (interaction) => {
 
                             await post.edit({ components: autobanning.concat(report) });
 
-                            await execute(
-                                banshare.value,
-                                await banshares.settings.findOne({ guild }),
-                                post.guild!,
-                                post,
-                                undefined,
-                            );
+                            await execute(banshare, settings, post.guild!, post, undefined);
 
-                            await post.edit({ components: finished.concat(report) });
+                            await post.edit({ components: [...finished, ...report] });
                         } catch (error) {
                             console.error("[PUBLISH ERROR]", error);
                         }
@@ -768,10 +712,7 @@ bot.on("interactionCreate", async (interaction) => {
             });
         } else if (interaction.customId === "confirm-reject") {
             const message = await interaction.message.fetchReference();
-            await banshares.banshares.findOneAndUpdate(
-                { message: message.id },
-                { $set: { rejected: true } },
-            );
+            await DB.Banshares.reject(message.id);
 
             const embed = message.embeds[0].toJSON();
             embed.fields = embed.fields!.slice(0, -1);
@@ -833,12 +774,14 @@ bot.on("interactionCreate", async (interaction) => {
         if (interaction.customId === "confirm-rescind") {
             await interaction.deferReply({ ephemeral: true });
 
-            const lock = await banshares.banshares.findOneAndUpdate(
-                { message: interaction.message!.id },
-                { $set: { rescinded: true } },
-            );
+            const lock = await DB.Banshares.rescind(interaction.message!.id);
 
-            if (lock.value?.rescinded) {
+            if (!lock) {
+                await interaction.editReply("This does not appear to be a banshare.");
+                return;
+            }
+
+            if (lock?.rescinded) {
                 await interaction.editReply(
                     "This banshare is already being rescinded by someone else.",
                 );
@@ -846,9 +789,7 @@ bot.on("interactionCreate", async (interaction) => {
                 return;
             }
 
-            await interaction.message!.edit({
-                components: rescinded,
-            });
+            await interaction.message!.edit({ components: rescinded });
 
             await interaction.editReply(
                 "This banshare is being rescinded. You may dismiss this message.",
@@ -860,9 +801,7 @@ bot.on("interactionCreate", async (interaction) => {
 
             await interaction.message!.reply(explanation);
 
-            for (const post of await banshares.banshare_posts
-                .find({ banshare: interaction.message!.id })
-                .toArray()) {
+            for (const post of await DB.Banshares.get_crossposts(interaction.message!.id)) {
                 try {
                     const channel = await bot.channels.fetch(post.channel);
                     if (!channel?.isTextBased()) throw 0;
@@ -878,16 +817,24 @@ bot.on("interactionCreate", async (interaction) => {
             await interaction.deferUpdate();
 
             const severity = interaction.customId.substring(19);
+
+            if (severity === null) {
+                await interaction.editReply({
+                    content: "Invalid severity.",
+                    embeds: [],
+                    components: [],
+                });
+
+                return;
+            }
+
             const reason = interaction.fields.getTextInputValue("reason");
 
             const value = severity[0].toUpperCase() + severity.slice(1);
 
-            const banshare = await banshares.banshares.findOneAndUpdate(
-                { message: interaction.message!.id },
-                { $set: { severity } },
-            );
+            const banshare = await DB.Banshares.set_severity(interaction.message!.id, severity);
 
-            if (!banshare.value) {
+            if (!banshare) {
                 await interaction.editReply({
                     content: "This does not appear to be a banshare.",
                     embeds: [],
@@ -897,13 +844,11 @@ bot.on("interactionCreate", async (interaction) => {
                 return;
             }
 
-            const posts = await banshares.banshare_posts
-                .find({ banshare: interaction.message!.id })
-                .toArray();
+            const posts = await DB.Banshares.get_crossposts(interaction.message!.id);
 
             await Promise.all(
                 posts.map(async (post) => {
-                    const settings = await banshares.settings.findOne({ guild: post.guild });
+                    const settings = await DB.BanshareSettings.get(post.guild);
                     const threshold = settings?.autoban ?? "none";
 
                     try {
@@ -924,22 +869,16 @@ bot.on("interactionCreate", async (interaction) => {
 
                         if (
                             autoban(threshold, severity) &&
-                            !autoban(threshold, banshare.value!.severity)
+                            !autoban(threshold, banshare.severity)
                         ) {
                             await message.edit({
                                 embeds: [embed],
                                 components: autobanning.concat(report),
                             });
 
-                            const lock = await banshares.executed.findOneAndUpdate(
-                                { post: message.id },
-                                { $set: { executed: true } },
-                                { upsert: true },
-                            );
-
-                            if (!lock.value?.executed) {
-                                await execute(banshare.value, settings, message.guild!, message);
-                                await message.edit({ components: finished.concat(report) });
+                            if (await DB.Banshares.execute(message.id)) {
+                                await execute(banshare, settings, message.guild!, message);
+                                await message.edit({ components: [...finished, ...report] });
                             }
                         } else await message.edit({ embeds: [embed] });
                     } catch {}
@@ -969,30 +908,25 @@ bot.on("interactionCreate", async (interaction) => {
             let guilds: string[];
 
             try {
-                const request = await fetch(`${PUBLIC_TCN_API}/guilds`);
-
-                if (!request.ok) throw 0;
-
-                guilds = (await request.json())
+                guilds = (await TCN.guilds())
                     .map((server: { id: string }) => server.id)
                     .concat(PUBLIC_ALLOWLIST.split(/\s+/));
             } catch {
                 await interaction.editReply("An unexpected issue occurred with the TCN API.");
-
                 return;
             }
 
             const message = interaction.fields.getTextInputValue("message");
 
-            (await banshares.channels.find().toArray())
+            (await DB.BanshareSettings.get_outputs())
                 .filter(
-                    (entry) =>
-                        (PUBLIC_ALLOWLIST && PUBLIC_ALLOWLIST.indexOf(entry.guild) !== -1) ||
-                        guilds.includes(entry.guild),
+                    ({ guild }) =>
+                        (PUBLIC_ALLOWLIST && PUBLIC_ALLOWLIST.indexOf(guild) !== -1) ||
+                        guilds.includes(guild),
                 )
-                .map((entry) => ({
-                    guild: entry.guild,
-                    channel: bot.channels.cache.get(entry.channel),
+                .map(({ guild, channel }) => ({
+                    guild,
+                    channel: bot.channels.cache.get(channel),
                 }))
                 .forEach(({ channel }) => channel?.isTextBased() && channel.send(message));
         }
@@ -1012,16 +946,10 @@ async function process_report(
     await interaction.deferReply({ ephemeral: true });
 
     try {
-        const entry = await banshares.banshare_posts.findOne({
-            message: interaction.message!.id,
-        });
-
+        const entry = await DB.Banshares.get_crosspost(interaction.message!.id);
         if (!entry) throw 0;
 
-        const banshare = await banshares.banshares.findOne({
-            message: entry.banshare,
-        });
-
+        const banshare = await DB.Banshares.get(entry.banshare);
         if (!banshare) throw 0;
 
         const channel = await bot.channels.fetch(ALERT);
@@ -1041,7 +969,10 @@ async function process_report(
     );
 }
 
-async function get_banshare(interaction: ButtonInteraction, message: string) {
+async function get_banshare(
+    interaction: ButtonInteraction,
+    message: string,
+): Promise<Banshare | void> {
     if (!(await allowed(interaction.guild!))) {
         await interaction.reply({
             content:
@@ -1052,7 +983,7 @@ async function get_banshare(interaction: ButtonInteraction, message: string) {
         return;
     }
 
-    const post = await banshares.banshare_posts.findOne({ message });
+    const post = await DB.Banshares.get_crosspost(message);
 
     if (!post) {
         await interaction.reply({
@@ -1063,9 +994,7 @@ async function get_banshare(interaction: ButtonInteraction, message: string) {
         return;
     }
 
-    const banshare = await banshares.banshares.findOne({
-        message: post.banshare,
-    });
+    const banshare = await DB.Banshares.get(post.banshare);
 
     if (!banshare) {
         await interaction.reply({
@@ -1090,8 +1019,8 @@ async function get_banshare(interaction: ButtonInteraction, message: string) {
 }
 
 async function execute(
-    banshare: any,
-    settings: any,
+    banshare: Banshare,
+    settings: BanshareSettings | null,
     guild: Guild,
     message: Message,
     executor?: GuildMember | APIGuildMember,
@@ -1108,7 +1037,7 @@ async function execute(
         let user: User;
 
         try {
-            if ((executor || settings.autoban_member) && banshare.severity !== "dm")
+            if ((executor || settings?.autoban_member) && banshare.severity !== "dm")
                 try {
                     member = await guild.members.fetch(id);
                 } catch {}
@@ -1117,7 +1046,7 @@ async function execute(
                 user = member.user;
 
                 if (
-                    settings.autoban_member &&
+                    settings?.autoban_member &&
                     !autoban(settings.autoban_member, banshare.severity)
                 ) {
                     skipped.push(user);
@@ -1140,9 +1069,8 @@ async function execute(
             )
                 throw 0;
 
-            await guild.bans.create(id, {
-                reason: "TCN Banshare: " + (banshare.reason ?? "(missing reason)"),
-            });
+            await guild.bans.create(id, { reason: "TCN Banshare: " + banshare.reason });
+
             banned.push(user);
 
             if (settings?.daedalus) {
@@ -1159,7 +1087,7 @@ async function execute(
                                 type: "ban",
                                 duration: 0,
                                 origin: message.url,
-                                reason: "TCN Banshare: " + (banshare.reason ?? "(missing reason)"),
+                                reason: "TCN Banshare: " + banshare.reason,
                                 ...mod,
                             }),
                         },
@@ -1177,11 +1105,11 @@ async function execute(
         }
     }
 
-    const entry = await banshares.logging.findOne({ guild: guild.id });
+    const channel_id = await DB.BanshareSettings.get_log(guild.id);
 
-    if (entry) {
+    if (channel_id) {
         try {
-            const channel = await bot.channels.fetch(entry.channel);
+            const channel = await bot.channels.fetch(channel_id);
             if (!channel?.isTextBased()) throw 0;
 
             const prefix = `Banshare Executed; banned ${banned.length} user${
@@ -1220,38 +1148,14 @@ async function execute(
     }
 }
 
-async function save(banshare: any, guild: string, post: Message) {
-    await banshares.banshare_posts.insertOne({
-        guild,
-        banshare: banshare.value.message,
-        channel: post.channel.id,
-        message: post.id,
-    });
-}
-
-async function get_post(banshare: any, guild: string) {
-    const entry = await banshares.banshare_posts.findOne({
-        guild,
-        banshare: banshare.value.message,
-    });
-
-    if (!entry) return;
-
-    try {
-        const channel = await bot.channels.fetch(entry.channel);
-        if (!channel?.isTextBased()) return;
-        return await channel.messages.fetch(entry.message);
-    } catch {}
-}
-
-const thresholds = { all: 0, med: 1, crit: 2, none: 3 } as any;
-const severities = { p0: 2, p1: 1, p2: 0 } as any;
+const thresholds = { all: 0, med: 1, crit: 2, none: 3 } as Record<string, number>;
+const severities = { p0: 2, p1: 1, p2: 0 } as Record<string, number>;
 
 function autoban(threshold: string, severity: string) {
     return (thresholds[threshold] ?? Infinity) <= (severities[severity] ?? -Infinity);
 }
 
-function confirm(disabled: boolean = false, suffix: string = ""): any[] {
+function confirm(disabled: boolean = false, suffix: string = ""): ActionRow[] {
     return [
         {
             type: ComponentType.ActionRow,
@@ -1259,14 +1163,14 @@ function confirm(disabled: boolean = false, suffix: string = ""): any[] {
                 {
                     type: ComponentType.Button,
                     style: ButtonStyle.Success,
-                    customId: `confirm${suffix}`,
+                    custom_id: `confirm${suffix}`,
                     label: "Confirm",
                     disabled,
                 },
                 {
                     type: ComponentType.Button,
                     style: ButtonStyle.Danger,
-                    customId: `cancel${suffix}`,
+                    custom_id: `cancel${suffix}`,
                     label: "Cancel",
                     disabled,
                 },
@@ -1278,10 +1182,12 @@ function confirm(disabled: boolean = false, suffix: string = ""): any[] {
 async function allowed(guild: Guild) {
     if (PUBLIC_ALLOWLIST && PUBLIC_ALLOWLIST.indexOf(guild.id) >= 0) return true;
 
-    const request = await fetch(`${PUBLIC_TCN_API}/guilds/${guild.id}`);
-
-    if (!request.ok) return false;
-    return true;
+    try {
+        await TCN.guild(guild.id);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 await bot.login(TOKEN);

@@ -1,11 +1,11 @@
 import type { RequestHandler } from "@sveltejs/kit";
-import db, { autoinc } from "../../../../db.js";
 import { email_regex, timeinfo, timestamp, url_regex, webhook_regex } from "$lib/util.js";
 import { hq_bot } from "../../../../bot.js";
 import { PUBLIC_DOMAIN } from "$env/static/public";
 import type { User } from "discord.js";
+import { DB } from "../../../../db.js";
 export const POST: RequestHandler = async ({ request, params, locals, fetch }) => {
-    const data = await db.forms.findOne({ id: params.id });
+    const data = await DB.Forms.get(params.id!);
     const reader = (locals as any).user;
 
     const dquestions: any = {};
@@ -69,11 +69,11 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                         throw typeof error === "number" ? error : 1;
                     }
             } else if (dpage.condition?.source === -1) {
-                if (data.observer) {
+                if ((locals as any).observer) {
                     if (!dpage.condition.council_observer) continue;
-                } else if (data.owner) {
+                } else if ((locals as any).owner) {
                     if (!dpage.condition.council_owner) continue;
-                } else if (data.advisor) {
+                } else if ((locals as any).advisor) {
                     if (!dpage.condition.council_advisor) continue;
                 } else if (!dpage.condition.council_other) continue;
             } else if (dpage.condition?.source) {
@@ -365,7 +365,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
         return new Response("An unexpected error occurred.", { status: 500 });
     }
 
-    const sid = await autoinc(`forms/${data.id}`);
+    const sid = await DB.autoinc(`forms/${data.id}`);
     const submission: any = { id: data.id, sid, answers, user: null };
 
     let author: User | null = null;
@@ -376,7 +376,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
         } catch {}
     }
 
-    await db.form_submissions.insertOne(submission);
+    await DB.Forms.submit(submission);
 
     if (data.post_to_webhook && data.webhook) {
         const questions: Record<number, any> = {};

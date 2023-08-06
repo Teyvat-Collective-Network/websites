@@ -3,8 +3,9 @@
     import { page } from "$app/stores";
     import Menu from "$lib/Menu.svelte";
     import Navbar from "$lib/Navbar.svelte";
+    import type { LocalsData } from "$lib/types";
 
-    export let data: any;
+    export let data: LocalsData;
 </script>
 
 <html lang="en">

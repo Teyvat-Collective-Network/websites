@@ -1,11 +1,8 @@
-import { PUBLIC_TCN_API } from "$env/static/public";
+import { TCN } from "$lib/api.js";
 import type { Load } from "@sveltejs/kit";
 
 export const load: Load = async () => {
-    const request = await fetch(`${PUBLIC_TCN_API}/guilds`);
-    if (!request.ok) return [];
-
-    const partners = await request.json();
+    const partners = await TCN.guilds();
     partners.sort((a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name));
 
     return { partners };

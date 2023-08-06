@@ -1,15 +1,16 @@
 import type { RequestHandler } from "@sveltejs/kit";
-import db from "../../../../../db.js";
 import DOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
 import { marked } from "marked";
 import { url_regex, webhook_regex } from "$lib/util.js";
+import type { Form } from "$lib/types.js";
+import { DB } from "../../../../../db.js";
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {
-    const form = (await request.json()).form;
-    let id = params.id;
+    const form = (await request.json()).form as Partial<Form> & Pick<Form, "pages">;
+    let id = params.id!;
 
-    const data = id !== "new" ? await db.forms.findOne({ id }) : null;
+    const data = id !== "new" ? await DB.Forms.get(id) : null;
 
     try {
         if (!(locals as any).council) throw "You are not authorized to use the TCN Forms feature.";
@@ -195,7 +196,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                             "0123456789abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 36)],
                     )
                     .join("");
-                if (!(await db.forms.findOne({ id }))) break;
+                if (!(await DB.Forms.get(id))) break;
             }
         } else {
             const ids = new Set<number>();
@@ -230,11 +231,6 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         return new Response(JSON.stringify({ error }));
     }
 
-    await db.forms.findOneAndUpdate(
-        { id },
-        { $set: { ...form, author: (locals as any).user.id } },
-        { upsert: true },
-    );
-
+    await DB.Forms.save(id, { ...form, author: locals.user.id });
     return new Response(JSON.stringify({ id }));
 };

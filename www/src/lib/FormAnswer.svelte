@@ -1,45 +1,44 @@
 <script lang="ts">
-    export let answer: any;
+    import type { FormAnswer } from "./types";
+
+    export let answer: FormAnswer;
 
     const ans = answer;
-    answer = answer.answer;
+    const value = answer.answer;
 </script>
 
 <div id="item">
-    {#if typeof answer === "string"}
+    {#if typeof value === "string"}
         {#if ans.user}
-            <span class="mention user" data-id={answer}>
+            <span class="mention user" data-id={value}>
                 <i class="material-icons">pending</i> &nbsp; Loading User...
             </span>
         {:else}
-            {#each answer.split(/\r\f|\n/) as line, index}
+            {#each value.split(/\r\f|\n/) as line, index}
                 {#if index !== 0}<br />{/if}{line}
             {/each}
         {/if}
-    {:else if typeof answer === "number"}
-        <code class="plain" style="padding: 0; color: var(--green-text)">{answer}</code>
-    {:else if Array.isArray(answer)}
+    {:else if typeof value === "number"}
+        <code class="plain" style="padding: 0; color: var(--green-text)">{value}</code>
+    {:else if Array.isArray(value)}
         <ul style="margin: 10px 0">
-            {#each answer as x}
+            {#each value as x}
                 <li>{x.text}</li>
             {/each}
         </ul>
-    {:else if answer.getTime}
+    {:else if value.getTime}
         {#if ans.show_time}
-            <span
-                class="mention"
-                data-id={ans.show_date ? Math.floor(answer.getTime() / 1000) : ""}
-            >
+            <span class="mention" data-id={ans.show_date ? Math.floor(value.getTime() / 1000) : ""}>
                 <i class="material-icons">schedule</i> &nbsp;
                 <span
                     class="time {ans.show_date ? '' : 'short'}"
-                    data-timestamp={Math.floor(answer.getTime() / 1000)}
+                    data-timestamp={Math.floor(value.getTime() / 1000)}
                 />
             </span>
         {:else}
             <span class="mention">
                 <i class="material-icons">schedule</i>
-                &nbsp;{answer.getFullYear()}-{answer.getMonth() + 1}-{answer.getDate()}
+                &nbsp;{value.getFullYear()}-{value.getMonth() + 1}-{value.getDate()}
             </span>
         {/if}
     {/if}

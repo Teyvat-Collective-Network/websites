@@ -1,11 +1,11 @@
 import type { ServerLoad } from "@sveltejs/kit";
-import db from "../../../db.js";
 import { fix, markdown_postprocess } from "$lib/util.js";
 import bot from "../../../bot.js";
+import { DB } from "../../../db.js";
 
 export const load: ServerLoad = async ({ params, locals }) => {
-    const { id } = params;
-    const doc = await db.docs.findOne({ id });
+    const id = params.id!;
+    const doc = await DB.Docs.get(id);
 
     if (!doc || (doc.deleted && !(locals as any).observer))
         return {
@@ -40,17 +40,17 @@ export const load: ServerLoad = async ({ params, locals }) => {
         if (doc.anon && reader?.id !== doc.author && !(locals as any).observer) delete doc.author;
         else
             try {
-                const user = await bot.users.fetch(doc.author);
+                const user = await bot.users.fetch(doc.author as string);
                 doc.author = {
                     username: user.username,
                     discriminator: user.discriminator,
-                    id: doc.author,
+                    id: doc.author as string,
                 };
             } catch {
-                doc.author = { missing: true, id: doc.author };
+                doc.author = { missing: true, id: doc.author as string };
             }
 
-        doc.parsed = markdown_postprocess(doc.parsed, reader);
+        doc.parsed = markdown_postprocess(doc.parsed!, reader);
 
         return { doc: fix(doc) };
     }

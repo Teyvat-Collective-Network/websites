@@ -1,11 +1,11 @@
 import type { ServerLoad } from "@sveltejs/kit";
-import db from "../../../../../db.js";
 import { fix } from "$lib/util.js";
+import { DB } from "../../../../../db.js";
 
 export const load: ServerLoad = async ({ locals, params, url }) => {
     if (!(locals as any).user) return {};
 
-    const form = await db.forms.findOne({ id: params.id });
+    const form = await DB.Forms.get(params.id!);
     if (!form || (form.deleted && !(locals as any).observer))
         return { missing: true, id: params.id };
 
@@ -18,7 +18,7 @@ export const load: ServerLoad = async ({ locals, params, url }) => {
 
     return {
         form: fix(form),
-        submissions: fix(await db.form_submissions.find({ id: params.id }).toArray()),
+        submissions: fix(await DB.Forms.get_submissions(params.id!)),
         id: params.id,
         sid: url.searchParams.get("sub"),
     };

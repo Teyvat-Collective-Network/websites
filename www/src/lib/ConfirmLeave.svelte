@@ -6,9 +6,9 @@
     function update() {
         for (const element of document.querySelectorAll(
             "a:not([target=_blank]):not(.confirm-leave-class)",
-        ) as any) {
+        ) as NodeListOf<HTMLAnchorElement>) {
             if (element.href === "javascript:void(0)") continue;
-            element.onclick = (e: any) =>
+            element.onclick = (e) =>
                 e.ctrlKey ||
                 e.shiftKey ||
                 (confirm(

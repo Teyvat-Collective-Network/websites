@@ -3,8 +3,9 @@ import { JSDOM } from "jsdom";
 import { marked as parse } from "marked";
 import type { RequestHandler } from "@sveltejs/kit";
 import bot from "../../../../bot.js";
-import db from "../../../../db.js";
 import { OBSERVER_CHANNEL } from "$env/static/private";
+import { DB } from "../../../../db.js";
+import { ObjectId } from "mongodb";
 
 const window: any = new JSDOM("").window;
 const purify = DOMPurify(window);
@@ -68,7 +69,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         );
     }
 
-    const tracks: any[] = (await db.events.find().toArray()).map((x) => ({ events: x.events }));
+    const tracks = await DB.Events.get_tracks();
     let index = 1;
 
     while (
@@ -80,8 +81,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     while (index >= tracks.length) tracks.push({ events: [] });
     tracks[index].events.push(data);
 
-    await db.events.deleteMany();
-    await db.events.insertMany(tracks);
+    await DB.Events.set_tracks(tracks);
 
     try {
         const channel = await bot.channels.fetch(OBSERVER_CHANNEL);
