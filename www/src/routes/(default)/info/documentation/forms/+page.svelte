@@ -1,7 +1,3 @@
-<script lang="ts" context="module">
-    declare const hljs: any;
-</script>
-
 <script lang="ts">
     import { page } from "$app/stores";
     import Callout from "$lib/Callout.svelte";

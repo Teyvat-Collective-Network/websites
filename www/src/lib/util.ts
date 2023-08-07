@@ -110,6 +110,18 @@ export function markdown_postprocess(text: string, reader?: LocalsDataUser) {
     text = text.replace(/<t[dh].+?>/g, (x) => `${x}<span class="table-cell">`);
     text = text.replace(/<\/t[dh]>/g, (x) => `</span>${x}`);
 
+    text = text.replace(/<img/g, "<img style='max-width: 100%; max-height: 100vh'");
+
+    text = text.replace(/\[\[panel\]\]/g, "<div class='panel'>");
+    text = text.replace(/\[\[\/panel\]\]/g, "</div>");
+
+    text = text.replace(
+        /\[\[summary .+?\]\]/g,
+        (x) => `<details><summary><b>${x.slice(10, -2)}</b></summary>`,
+    );
+
+    text = text.replace(/\[\[\/summary\]\]/g, "</details>");
+
     return text;
 }
 
@@ -133,5 +145,23 @@ export function highlight(depth: number = 0) {
     } catch {
         if (depth > 10) return;
         setTimeout(() => highlight(depth + 1), 250);
+    }
+}
+
+export function succeeds(fn: () => unknown): boolean {
+    try {
+        fn();
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export async function async_succeeds(fn: () => Promise<unknown>): Promise<boolean> {
+    try {
+        await fn();
+        return true;
+    } catch {
+        return false;
     }
 }

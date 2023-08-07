@@ -1,9 +1,8 @@
 import type { RequestHandler } from "@sveltejs/kit";
-import DOMPurify from "dompurify";
-import { JSDOM } from "jsdom";
 import { marked } from "marked";
 import { DB } from "../../../../../db.js";
 import type { Doc } from "$lib/types.js";
+import sanitize from "$lib/sanitize.js";
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {
     const doc = (await request.json()).doc as Partial<Doc>;
@@ -12,18 +11,17 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     const data = id !== "new" ? await DB.Docs.get(id) : null;
 
     try {
-        if (!(locals as any).council)
-            throw "You are not authorized to use the TCN Documents feature.";
+        if (!locals.council) throw "You are not authorized to use the TCN Documents feature.";
         if (id !== "new") {
             if (!data || data.deleted) throw "This document no longer exists.";
             else if (
-                data.author !== (locals as any).user.id &&
-                !(data.editable_observers && (locals as any).observer) &&
-                !(data.editable_council && (locals as any).council)
+                data.author !== locals.user.id &&
+                !(data.editable_observers && locals.observer) &&
+                !(data.editable_council && locals.council)
             )
                 throw "You are not authorized to edit this document.";
 
-            if (data.author !== (locals as any).user.id) {
+            if (data.author !== locals.user.id) {
                 delete doc.allow_council;
                 delete doc.allow_logged_in;
                 delete doc.editable_observers;
@@ -32,7 +30,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                 delete doc.allowlist;
             }
         }
-        if (!(locals as any).observer) doc.official = false;
+        if (!locals.observer) doc.official = false;
         if (!doc.name) throw "No name provided.";
         if (doc.name.length > 100) throw "Name cannot exceed 100 characters.";
         if (doc.embed_color && !doc.embed_color.match(/^[0-9a-f]{6}$/i))
@@ -42,10 +40,8 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         doc.embed_body ||= doc.allow_everyone
             ? doc.anon
                 ? ""
-                : `Author: ${(locals as any).user.username}${
-                      (locals as any).user.discriminator === "0"
-                          ? ""
-                          : `#${(locals as any).user.discriminator}`
+                : `Author: ${locals.user.username}${
+                      locals.user.discriminator === "0" ? "" : `#${locals.user.discriminator}`
                   }`
             : "Sign in to view this document.";
         doc.embed_color ||= "2b2d31";
@@ -64,13 +60,12 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         }
 
         try {
-            const window: any = new JSDOM("").window;
-            doc.parsed = DOMPurify(window).sanitize(marked.parse(doc.content!));
+            doc.parsed = sanitize(marked.parse(doc.content!));
         } catch (error) {
             console.error(error);
             throw "An error occurred parsing your document's markdown.";
         }
-    } catch (error: any) {
+    } catch (error) {
         return new Response(JSON.stringify({ error }));
     }
 

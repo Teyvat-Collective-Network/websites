@@ -1,11 +1,18 @@
+import type { FormLoadData } from "$lib/types.js";
 import { fix, markdown_postprocess } from "$lib/util.js";
 import { DB } from "../../../db.js";
 
-export async function load_data({ params, locals }: any) {
+export async function load_data({
+    params,
+    locals,
+}: {
+    params: Partial<Record<string, string>>;
+    locals: App.Locals;
+}): Promise<FormLoadData> {
     const id = params.id!;
     const form = await DB.Forms.get(id);
 
-    if (!form || (form.deleted && !(locals as any).observer))
+    if (!form || (form.deleted && !locals.observer))
         return {
             missing: true,
             id,
@@ -26,14 +33,14 @@ export async function load_data({ params, locals }: any) {
         thumbnail: form.thumbnail,
     };
 
-    const reader = (locals as any).user;
+    const reader = locals.user;
 
-    let access =
+    let access: boolean =
         form.allow_everyone ||
         reader?.id === form.author ||
-        ((locals as any).observer && form.allow_observers) ||
-        ((locals as any).council && form.allow_council) ||
-        (reader && (form.allow_logged_in || form.allowlist.match(new RegExp(`\b${reader.id}\b`))));
+        (locals.observer && form.allow_observers) ||
+        (locals.council && form.allow_council) ||
+        (reader && (form.allow_logged_in || !!form.allowlist.match(new RegExp(`\b${reader.id}\b`))));
 
     if (form.external && !form.allow_everyone && form.external_access) {
         try {
@@ -52,7 +59,7 @@ export async function load_data({ params, locals }: any) {
         }
     }
 
-    if (access || (locals as any).observer) {
+    if (access || locals.observer) {
         for (const page of form.pages) {
             page.description = markdown_postprocess(page.parsed_description!, reader);
 

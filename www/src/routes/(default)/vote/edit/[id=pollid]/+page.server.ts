@@ -15,21 +15,30 @@ export const load: ServerLoad = async ({ params }) => {
 
 export const actions: Actions = {
     default: async ({ params, request, locals }) => {
-        if (!(locals as any).observer) return { error: "You are not authorized." };
+        if (!locals.observer) return { error: "You are not authorized." };
 
         const fail = (error: string) => ({ error, ...data });
 
         const obj = await request.formData();
         const data: Partial<Poll> = {};
 
-        for (const key of ["mode", "question", "server"] as const)
+        const mode = obj.get("mode") as string;
+
+        if (
+            mode !== "proposal" &&
+            mode !== "induction" &&
+            mode !== "selection" &&
+            mode !== "election"
+        )
+            return fail("Invalid poll mode.");
+
+        data.mode = mode;
+
+        for (const key of ["question", "server"] as const)
             data[key] = (obj.get(key) as string) ?? "";
 
         for (const key of ["preinduct", "live", "restricted", "dm"] as const)
             data[key] = !!obj.get(key);
-
-        if (!["proposal", "induction", "selection", "election"].includes(data.mode!))
-            return fail("Invalid poll mode.");
 
         if (data.mode === "proposal" || data.mode === "selection") {
             if (!data.question) return fail("No question provided.");
@@ -55,7 +64,7 @@ export const actions: Actions = {
             if (data.server.length > 256) return fail("Server name cannot exceed 256 characters.");
         } else if (data.mode === "selection") {
             data.options = [...new Array(10).keys()]
-                .map((i) => (obj.get(`option${i}`) as any)?.trim())
+                .map((i) => (obj.get(`option${i}`) as string)?.trim())
                 .filter((x) => x);
 
             if (data.options.length < 2 || data.options.length > 10)
@@ -94,7 +103,7 @@ export const actions: Actions = {
             if (data.candidates.length > [...new Set(data.candidates)].length)
                 return fail("Candidates must be unique.");
 
-            const ids = (await TCN.users()).map((x: any) => x.id).filter((x: string) => x);
+            const ids = (await TCN.users()).map((x) => x.id).filter((x: string) => x);
 
             for (const id of data.candidates) {
                 if (!hq_bot.users.cache.has(id)) return fail("Invalid candidate ID provided.");
@@ -114,7 +123,7 @@ export const actions: Actions = {
                 const channel = await hq_bot.channels.fetch(entry.channel);
                 if (!channel?.isTextBased()) throw 0;
                 const message = await channel.messages.fetch(entry.message);
-                await message.edit(await render(data));
+                await message.edit(await render(data as Poll));
                 await DB.Polls.edit(id, data);
                 return;
             } catch {}
@@ -122,7 +131,7 @@ export const actions: Actions = {
         try {
             const channel = await hq_bot.channels.fetch(VOTE_CHANNEL);
             if (!channel?.isTextBased()) throw 0;
-            const message = await channel.send(await render(data));
+            const message = await channel.send(await render(data as Poll));
             await DB.Polls.edit(id, { ...data, channel: channel.id, message: message.id });
         } catch (error) {
             console.error("[POST POLL]", error);

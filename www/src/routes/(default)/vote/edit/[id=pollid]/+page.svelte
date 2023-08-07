@@ -5,27 +5,31 @@
     import { onMount } from "svelte";
     import { page } from "$app/stores";
     import ListButton from "$lib/ListButton.svelte";
+    import { API } from "$lib/api";
+    import type { LocalsData, Poll, UserTagEntry } from "$lib/types";
 
-    export let data: any;
-    export let form: any;
+    export let data: LocalsData & { missing?: boolean; form?: Poll };
+    export let form: Poll & { error?: string; success?: string };
 
-    form ??= data.form ?? {};
-    form.options ??= ["", ""];
-    form.min ??= 1;
-    form.max ??= 1;
-    form.candidates ??= [];
-    form.seats ??= 1;
-    form.live ??= false;
-    form.restricted ??= true;
-    form.dm ??= true;
-    form.quorum ??= 60;
+    const x = form ?? data.form ?? {};
+    x.options ??= ["", ""];
+    x.min ??= 1;
+    x.max ??= 1;
+    x.candidates ??= [];
+    x.seats ??= 1;
+    x.live ??= false;
+    x.restricted ??= true;
+    x.dm ??= true;
+    x.quorum ??= 60;
 
-    let users: any[];
+    form = x;
+
+    let users: UserTagEntry[];
 
     onMount(() =>
-        fetch("/api/council")
-            .then((x) => x.json())
-            .then((x) => (users = x)),
+        API.get_council()
+            .then((x) => (users = x))
+            .catch(),
     );
 </script>
 
@@ -114,7 +118,7 @@
             </div>
             {#if form.options.length < 10}
                 <br />
-                <button type="button" on:click={() => (form.options = [...form.options, ""])}>
+                <button type="button" on:click={() => (form.options &&= [...form.options, ""])}>
                     Add Option
                 </button>
             {/if}
@@ -144,7 +148,10 @@
             </div>
             {#if form.candidates.length < 20}
                 <br />
-                <button type="button" on:click={() => (form.candidates = [...form.candidates, ""])}>
+                <button
+                    type="button"
+                    on:click={() => (form.candidates &&= [...form.candidates, ""])}
+                >
                     Add Candidate
                 </button>
             {/if}

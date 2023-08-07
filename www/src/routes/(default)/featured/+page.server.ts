@@ -6,7 +6,7 @@ export const load: ServerLoad = async ({ locals }) => {
     return {
         announcements: fix(await DB.Announcements.get()).map((item) => ({
             ...item,
-            parsed: markdown_postprocess(item.parsed, (locals as any).user),
+            parsed: markdown_postprocess(item.parsed!, locals.user),
         })),
     };
 };

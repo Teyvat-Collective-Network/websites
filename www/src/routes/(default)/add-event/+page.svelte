@@ -1,32 +1,43 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import DatetimePicker from "$lib/DatetimePicker.svelte";
+    import { API } from "$lib/api";
+    import { APIError } from "$lib/errors";
+    import type { CalendarEvent } from "$lib/types";
     import { Modal, Textarea } from "@daedalus-discord/webkit";
     import { marked as parse } from "marked";
     import { hex } from "wcag-contrast";
 
-    let data: any = { start: new Date(), end: new Date(new Date().getTime() + 86400000) };
-    let button: any;
+    let data: Partial<Omit<CalendarEvent, "start" | "end">> & {
+        start: Date;
+        end: Date;
+    } = {
+        start: new Date(),
+        end: new Date(new Date().getTime() + 86400000),
+    };
+
+    let disabled = false;
 
     async function submit() {
         if (!data.start || !data.end || !data.title || !data.body)
             return alert("All fields except invites are required.");
 
-        button.disabled = true;
+        disabled = true;
 
-        const request = await fetch("/add-event/submit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...data, start: data.start.getTime(), end: data.end.getTime() }),
-        });
+        try {
+            await API.post_add_event({
+                ...(data as Omit<CalendarEvent, "start" | "end">),
+                start: data.start.getTime(),
+                end: data.end.getTime(),
+            });
 
-        if (!request.ok) {
-            alert(await request.text());
-        } else {
             goto("/calendar");
+        } catch (error) {
+            if (error instanceof APIError) alert(error.response);
+            else alert("An error occurred!");
         }
 
-        button.disabled = false;
+        disabled = false;
     }
 
     let open: boolean = false;
@@ -123,7 +134,7 @@
     />
 
     <br /><br />
-    <button bind:this={button} on:click={submit}>Submit</button>
+    <button {disabled} on:click={submit}>Submit</button>
 </div>
 
 <style lang="scss">

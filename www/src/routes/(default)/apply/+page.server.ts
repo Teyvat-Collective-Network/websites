@@ -8,11 +8,12 @@ import {
 import { fail, type Actions } from "@sveltejs/kit";
 import { ChannelType, type Invite } from "discord.js";
 import bot from "../../../bot.js";
+import type { ApplyFormData } from "$lib/types.js";
 
 export const actions: Actions = {
-    default: async ({ request, locals, fetch }) => {
+    default: async ({ request, locals }) => {
         const data = await request.formData();
-        const user = (locals as any).user;
+        const user = locals.user;
 
         if (!user) return fail(500, { error: "Not Authenticated" });
 
@@ -32,7 +33,7 @@ export const actions: Actions = {
         const partnerlistconsent = data.has("partnerlistconsent");
         const eventsconsent = data.has("eventsconsent");
 
-        const values = {
+        const values: ApplyFormData = {
             mascot,
             role,
             roleother,

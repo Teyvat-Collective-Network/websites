@@ -28,17 +28,15 @@
     import { goto } from "$app/navigation";
     import ConfirmLeave from "$lib/ConfirmLeave.svelte";
     import ListButton from "$lib/ListButton.svelte";
+    import { API } from "$lib/api";
+    import type { MembershipChange } from "$lib/types";
 
-    export let data: any;
+    export let data: { entries: MembershipChange[] };
 
     async function save() {
-        fetch("/api/membership-changes", {
-            method: "post",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data.entries),
-        }).then((res) =>
-            res.ok ? goto("/historical-records/membership-changes") : alert("An error occurred!"),
-        );
+        API.post_membership_changes(data.entries)
+            .then(() => goto("/historical-records/membership-changes"))
+            .catch(() => alert("An error occurred!"));
     }
 </script>
 

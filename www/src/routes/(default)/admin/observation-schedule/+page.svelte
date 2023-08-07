@@ -20,16 +20,19 @@
     import { goto } from "$app/navigation";
     import ConfirmLeave from "$lib/ConfirmLeave.svelte";
     import ListButtons from "$lib/ListButtons.svelte";
+    import { API } from "$lib/api";
+    import type { ObservationRecord } from "$lib/types";
 
-    export let data: any;
+    export let data: { entries: ObservationRecord[] };
 
     async function save() {
         const copy = data.entries.filter(
-            (entry: any) =>
+            (entry) =>
                 entry.start_year != undefined &&
                 entry.start_month != undefined &&
-                entry.start_year != undefined,
-        );
+                entry.start_date != undefined,
+        ) as (ObservationRecord &
+            Pick<Required<ObservationRecord>, "start_year" | "start_month" | "start_date">)[];
 
         for (let x = 0; x < copy.length - 1; x++)
             if (
@@ -43,13 +46,9 @@
                 return;
             }
 
-        fetch("/api/observation-schedule", {
-            method: "post",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data.entries),
-        }).then((res) =>
-            res.ok ? goto("/historical-records/observation-schedule") : alert("An error occurred!"),
-        );
+        API.post_observation_schedule(data.entries)
+            .then(() => goto("/historical-records/observation-schedule"))
+            .catch(() => alert("An error occurred!"));
     }
 </script>
 

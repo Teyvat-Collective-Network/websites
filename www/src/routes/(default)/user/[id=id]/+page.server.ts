@@ -1,14 +1,10 @@
 import { TCN } from "$lib/api.js";
-import type { TCNGuild } from "$lib/types.js";
+import type { UserRouteData } from "$lib/types.js";
 import { hq_bot } from "../../../../bot.js";
 import type { Load } from "@sveltejs/kit";
 
 export const load: Load = async ({ params }) => {
-    const data: {
-        id: string;
-        api?: { owns: TCNGuild[]; advises: TCNGuild[]; staff: TCNGuild[] };
-        discord?: { icon: string; tag: string };
-    } = { id: params.id! };
+    const data: UserRouteData = { id: params.id! };
 
     try {
         const user = await TCN.user(params.id!);

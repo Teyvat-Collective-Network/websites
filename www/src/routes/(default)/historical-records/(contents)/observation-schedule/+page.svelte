@@ -1,9 +1,10 @@
 <script lang="ts">
+    import type { LocalsData, ObservationRecord } from "$lib/types";
     import { results } from "../../../admin/observation-schedule/+page.svelte";
 
-    export let data: any;
+    export let data: LocalsData & { entries: (ObservationRecord & { has_mention?: boolean })[] };
 
-    data.entries.forEach((entry: any) => {
+    data.entries.forEach((entry) => {
         if (!entry.notes) return;
 
         const regex = /\[@(\d+)\]/;

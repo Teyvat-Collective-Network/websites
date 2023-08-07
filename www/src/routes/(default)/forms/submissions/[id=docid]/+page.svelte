@@ -3,22 +3,22 @@
     import Callout from "$lib/Callout.svelte";
     import FormAnswer from "$lib/FormAnswer.svelte";
     import Redirect from "$lib/Redirect.svelte";
+    import type { Form, FormQuestion, FormSubmission, LocalsData } from "$lib/types";
 
-    export let data: any;
+    export let data: LocalsData & {
+        missing?: boolean;
+        unauthorized?: boolean;
+        id?: string;
+        sid?: string;
+        form: Form;
+        submissions: FormSubmission[];
+    };
 
-    const questions: any[] = data.form.pages.flatMap((page: any) => page.questions);
-    const ids: number[] = data.submissions.map((x: any) => x.sid);
+    const questions = data.form.pages.flatMap((page) => page.questions);
+    const ids = data.submissions.map((x) => x.sid);
 
     let mode: string = data.sid ? "individual" : "summary";
-    let si: number = parseInt(data.sid ?? 1);
-
-    function has_user(x: any) {
-        return !!x.user;
-    }
-
-    function find(question: any, submission: any) {
-        return submission.answers.find((answer: any) => answer.id === question.id);
-    }
+    let si: number = parseInt(data.sid ?? "1");
 </script>
 
 <div class="container">
@@ -71,7 +71,7 @@
                 {/each}
             </p>
             <div style={mode === "summary" ? "" : "display: none"}>
-                {#if data.submissions.some(has_user)}
+                {#if data.submissions.some((x) => !!x.user)}
                     <div class="panel" style="border-left: 5px solid var(--accent)">
                         <h4>Users</h4>
                         <div class="scroll">
@@ -104,12 +104,14 @@
                         <h4>{question.question}</h4>
                         <div class="scroll">
                             {#each data.submissions as submission, index}
-                                {@const answer = find(question, submission)}
+                                {@const answer = submission.answers.find(
+                                    (answer) => answer.id === question.id,
+                                )}
 
-                                {#if answer && "answer" in answer}
+                                {#if answer}
                                     <div class="answer-box row">
                                         <span style="flex-grow: 1">
-                                            <FormAnswer value={answer} />
+                                            <FormAnswer {answer} />
                                         </span>
                                         <a
                                             href={"javascript:void(0)"}
@@ -184,7 +186,7 @@
                                     </p>
                                 {/if}
                                 {#if "answer" in answer}
-                                    <FormAnswer value={answer} />
+                                    <FormAnswer {answer} />
                                 {:else}
                                     <p style="color: var(--text-secondary)">No answer provided.</p>
                                 {/if}

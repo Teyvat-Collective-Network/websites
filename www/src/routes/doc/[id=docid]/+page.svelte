@@ -1,7 +1,3 @@
-<script lang="ts" context="module">
-    declare const hljs: any;
-</script>
-
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
@@ -9,10 +5,16 @@
     import Callout from "$lib/Callout.svelte";
     import Menu from "$lib/Menu.svelte";
     import Navbar from "$lib/Navbar.svelte";
+    import type { Doc, LocalsData } from "$lib/types";
     import { highlight } from "$lib/util";
     import { onMount } from "svelte";
 
-    export let data: any;
+    export let data: LocalsData & {
+        missing?: boolean;
+        unauthorized?: boolean;
+        id?: string;
+        doc: Doc & Pick<Required<Doc>, "author_data">;
+    };
 
     const offset = new Date().getTimezoneOffset();
 
@@ -183,11 +185,11 @@
                         {/if}
                         <h3>
                             {data.doc.name}
-                            {#if (data.doc.author && data.doc.author.id === data.user?.id) || (data.doc.editable_observers && data.observer) || (data.doc.editable_council && data.council)}&nbsp;<a
+                            {#if (data.doc.author && data.doc.author === data.user?.id) || (data.doc.editable_observers && data.observer) || (data.doc.editable_council && data.council)}&nbsp;<a
                                     href="/docs/edit/{data.doc.id}"
                                     ><i class="material-icons">edit</i></a
                                 >{/if}
-                            {#if data.doc.author.id === data.user?.id || data.observer}&nbsp;<a
+                            {#if (data.doc.author && data.doc.author === data.user?.id) || data.observer}&nbsp;<a
                                     href={"javascript:void(0)"}
                                     on:click={del}
                                     style="color: var(--red-text)"
@@ -197,18 +199,18 @@
                         {#if data.doc.author}
                             <p>
                                 Written by
-                                <span class="mention" data-id={data.doc.author.id}>
-                                    {#if data.doc.author.missing}
+                                <span class="mention" data-id={data.doc.author}>
+                                    {#if data.doc.author_data.missing}
                                         <div class="material-icons">pin</div>
                                         &nbsp;
                                         <code class="plain" style="padding: 0"
-                                            >{data.doc.author.id}</code
+                                            >{data.doc.author}</code
                                         >
                                     {:else}
                                         <i class="material-icons">alternate_email</i>
-                                        <b>{data.doc.author.username}</b
-                                        >{#if data.doc.author.discriminator !== "0"}#{data.doc
-                                                .author.discriminator}{/if}
+                                        <b>{data.doc.author_data.username}</b
+                                        >{#if data.doc.author_data.discriminator !== "0"}#{data.doc
+                                                .author_data.discriminator}{/if}
                                     {/if}
                                 </span>{#if data.doc.anon}
                                     <b>(anonymously)</b

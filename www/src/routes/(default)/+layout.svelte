@@ -2,8 +2,9 @@
     import { PUBLIC_DOMAIN } from "$env/static/public";
     import Menu from "$lib/Menu.svelte";
     import Navbar from "$lib/Navbar.svelte";
+    import type { LocalsData } from "$lib/types";
 
-    export let data: any;
+    export let data: LocalsData;
     let width = 0;
     let scroll = 0;
 </script>

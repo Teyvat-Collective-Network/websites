@@ -1,5 +1,9 @@
 <script lang="ts">
-    export let data: any;
+    import type { TCNGuild } from "$lib/types";
+
+    export let data:
+        | { id: string; missing: true }
+        | (TCNGuild & { missing: undefined; owner_tag?: string; advisor_tag?: string });
 </script>
 
 <div class="container">

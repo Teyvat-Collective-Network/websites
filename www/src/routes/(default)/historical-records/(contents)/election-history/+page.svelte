@@ -1,7 +1,8 @@
 <script lang="ts">
+    import type { ElectionRecord, LocalsData } from "$lib/types";
     import { statuses } from "../../../admin/election-history/+page.svelte";
 
-    export let data: any;
+    export let data: LocalsData & { entries: ElectionRecord[] };
 </script>
 
 <h3 class="row" style="gap: 10px">

@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { LoadingSpinner } from "@daedalus-discord/webkit";
+    import type { Poll, PollVote } from "$lib/types";
 
-    export let data: any;
+    export let data: { polls: Poll[]; votes: PollVote[]; ids: string[] };
 
     const votes = new Set();
     for (const vote of data.votes) votes.add(`${vote.poll}/${vote.user}`);

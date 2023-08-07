@@ -2,8 +2,9 @@
     import { PUBLIC_DOMAIN, PUBLIC_TCN_AUTH } from "$env/static/public";
     import Callout from "$lib/Callout.svelte";
     import Redirect from "$lib/Redirect.svelte";
+    import type { Doc, LocalsData } from "$lib/types";
 
-    export let data: any;
+    export let data: LocalsData & { docs: Doc[] };
 </script>
 
 <div class="container">

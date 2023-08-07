@@ -1,5 +1,13 @@
 <script lang="ts">
-    export let data: any;
+    import type { UserRouteData } from "$lib/types";
+
+    export let data: UserRouteData;
+
+    const arrays = [
+        [data.api?.owns, "Server Owner"],
+        [data.api?.advises, "Council Advisor"],
+        [data.api?.staff, "Staff"],
+    ] as const;
 </script>
 
 <div class="container">
@@ -14,7 +22,7 @@
                 />
                 <h2>{data.discord.tag}</h2>
             </div>
-            {#each [[data.api?.owns, "Server Owner"], [data.api?.advises, "Council Advisor"], [data.api?.staff, "Staff"]] as [array, title]}
+            {#each arrays as [array, title]}
                 {#if array?.length}
                     <b>{title} of</b>
                     {#each array as server, index}

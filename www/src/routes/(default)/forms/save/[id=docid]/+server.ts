@@ -1,10 +1,9 @@
 import type { RequestHandler } from "@sveltejs/kit";
-import DOMPurify from "dompurify";
-import { JSDOM } from "jsdom";
 import { marked } from "marked";
 import { url_regex, webhook_regex } from "$lib/util.js";
-import type { Form } from "$lib/types.js";
+import type { Form, FormQuestion } from "$lib/types.js";
 import { DB } from "../../../../../db.js";
+import sanitize from "$lib/sanitize.js";
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {
     const form = (await request.json()).form as Partial<Form> & Pick<Form, "pages">;
@@ -13,17 +12,17 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     const data = id !== "new" ? await DB.Forms.get(id) : null;
 
     try {
-        if (!(locals as any).council) throw "You are not authorized to use the TCN Forms feature.";
+        if (!locals.council) throw "You are not authorized to use the TCN Forms feature.";
         if (id !== "new") {
             if (!data || data.deleted) throw "This form no longer exists.";
             else if (
-                data.author !== (locals as any).user.id &&
-                !(data.editable_observers && (locals as any).observer) &&
-                !(data.editable_council && (locals as any).council)
+                data.author !== locals.user.id &&
+                !(data.editable_observers && locals.observer) &&
+                !(data.editable_council && locals.council)
             )
                 throw "You are not authorized to edit this form.";
 
-            if (data.author !== (locals as any).user.id) {
+            if (data.author !== locals.user.id) {
                 delete form.allow_observers;
                 delete form.allow_council;
                 delete form.allow_logged_in;
@@ -58,7 +57,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         }
 
         if (form.pages.length === 0) throw "At least one page is required.";
-        const questions: any = {};
+        const questions: Record<number, FormQuestion> = {};
         for (let index = 0; index < form.pages.length; index++) {
             const page = form.pages[index];
             if (page.name.length > 100)
@@ -79,24 +78,30 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                         } must be a number, multiple-choice, or date question.`;
                     if (condition.type === "number")
                         if (
-                            !["gt", "ge", "eq", "le", "lt", "ne"].includes(page.condition.number_op)
+                            !["gt", "ge", "eq", "le", "lt", "ne"].includes(
+                                page.condition.number_op ?? "",
+                            )
                         )
                             throw `Invalid comparator for condition for page ${index + 1}.`;
                         else if (page.condition.number_value == undefined)
                             throw `Missing comparator value for condition for page ${index + 1}.`;
                         else;
                     else if (condition.type === "mcq")
-                        if (!["any", "all"].includes(page.condition.mcq_anyall))
+                        if (!["any", "all"].includes(page.condition.mcq_anyall ?? ""))
                             throw `Invalid any/all for condition for page ${index + 1}.`;
-                        else if (!["yes", "no"].includes(page.condition.mcq_mode))
+                        else if (!["yes", "no"].includes(page.condition.mcq_mode ?? ""))
                             throw `Invalid yes/no mode for condition for page ${index + 1}.`;
                         else;
                     else if (condition.type === "date")
-                        if (!["le", "lt", "ge", "gt", "bw", "nb"].includes(page.condition.date_op))
+                        if (
+                            !["le", "lt", "ge", "gt", "bw", "nb"].includes(
+                                page.condition.date_op ?? "",
+                            )
+                        )
                             throw `Invalid comparator for condition for page ${index + 1}.`;
                         else if (
                             !page.condition.first_date ||
-                            (["bw", "nb"].includes(page.condition.date_op) &&
+                            (["bw", "nb"].includes(page.condition.date_op ?? "") &&
                                 !page.condition.second_date)
                         )
                             throw `Missing date for condition for page ${index + 1}.`;
@@ -141,7 +146,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                     if (
                         !form.external &&
                         ((question.min != undefined && question.options.length < question.min) ||
-                            (question.min != undefined && question.options.length < question.max))
+                            (question.max != undefined && question.options.length < question.max))
                     )
                         throw `Minimum and maximum required options must be at most the number of options for page ${
                             index + 1
@@ -200,7 +205,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             }
         } else {
             const ids = new Set<number>();
-            form.pages.forEach((p: any) => p.questions.forEach((q: any) => ids.add(q.id)));
+            form.pages.forEach((p) => p.questions.forEach((q) => ids.add(q.id)));
 
             for (const page of data!.pages)
                 for (const question of page.questions)
@@ -211,23 +216,17 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         }
 
         try {
-            const window: any = new JSDOM("").window;
-            const purify = DOMPurify(window);
-
             for (const page of form.pages) {
-                page.parsed_description = purify.sanitize(marked.parse(page.description));
+                page.parsed_description = sanitize(marked.parse(page.description));
 
-                for (const question of page.questions) {
-                    question.parsed_description = purify.sanitize(
-                        marked.parse(question.description),
-                    );
-                }
+                for (const question of page.questions)
+                    question.parsed_description = sanitize(marked.parse(question.description));
             }
         } catch (error) {
             console.error(error);
             throw "An error occurred parsing your form's markdown.";
         }
-    } catch (error: any) {
+    } catch (error) {
         return new Response(JSON.stringify({ error }));
     }
 

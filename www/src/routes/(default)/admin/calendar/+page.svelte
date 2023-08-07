@@ -9,13 +9,17 @@
         events: CalendarEvent[][];
     };
 
-    let button: any;
+    function save() {
+        API.post_calendar(data.events)
+            .then(() => goto("/calendar"))
+            .catch((e) => (console.error(e), alert("An error occurred!")));
+    }
 </script>
 
 <svelte:window
     on:keydown={(e) => {
         if (e.key === "s" && e.ctrlKey) {
-            button.click();
+            save();
             e.preventDefault();
         }
     }}
@@ -29,14 +33,14 @@
         </h3>
         {#each track as event, ei}
             <div class="card">
-                <h5>{event.name}</h5>
+                <h5>{event.title}</h5>
                 <div class="inputs">
                     Start (Timestamp):
                     <input type="number" bind:value={event.start} />
                     End (Timestamp):
                     <input type="number" bind:value={event.end} />
-                    Name:
-                    <input type="text" bind:value={event.name} />
+                    Title:
+                    <input type="text" bind:value={event.title} />
                     Invites:
                     <input
                         type="text"
@@ -65,7 +69,7 @@
                     {
                         start: Math.floor(new Date().getTime() / 1000) * 1000,
                         end: Math.floor(new Date().getTime() / 1000) * 1000 + 86400000,
-                        name: "New Event",
+                        title: "New Event",
                         body: "<b>HTML</b> is supported",
                         invites: "",
                         light: "aaaaaa",
@@ -88,14 +92,7 @@
 
     <br />
 
-    <button
-        bind:this={button}
-        style="background-color: transparent; color: var(--blue-text)"
-        on:click={() =>
-            API.post_calendar(data.events)
-                .then(() => goto("/calendar"))
-                .catch(() => alert("An error occurred!"))}
-    >
+    <button style="background-color: transparent; color: var(--blue-text)" on:click={save}>
         <i class="material-icons">save</i> Save
     </button>
 </div>

@@ -1,10 +1,10 @@
 <script lang="ts">
     import Testimonial from "$lib/Testimonial.svelte";
+    import type { LocalsData, TCNGuild, Testimonial as TestimonialType } from "$lib/types";
 
-    export let data: {
-        observer: boolean;
-        partners: any[];
-        testimonials: { image: string; name: string; content: string }[];
+    export let data: LocalsData & {
+        partners: TCNGuild[];
+        testimonials: TestimonialType[];
     };
 </script>
 

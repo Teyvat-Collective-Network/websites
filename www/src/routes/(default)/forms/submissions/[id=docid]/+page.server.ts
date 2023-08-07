@@ -3,16 +3,15 @@ import { fix } from "$lib/util.js";
 import { DB } from "../../../../../db.js";
 
 export const load: ServerLoad = async ({ locals, params, url }) => {
-    if (!(locals as any).user) return {};
+    if (!locals.user) return {};
 
     const form = await DB.Forms.get(params.id!);
-    if (!form || (form.deleted && !(locals as any).observer))
-        return { missing: true, id: params.id };
+    if (!form || (form.deleted && !locals.observer)) return { missing: true, id: params.id };
 
     if (
-        form.author !== (locals as any).user.id &&
-        !(form.editable_observers && (locals as any).observer) &&
-        !(form.editable_council && (locals as any).council)
+        form.author !== locals.user.id &&
+        !(form.editable_observers && locals.observer) &&
+        !(form.editable_council && locals.council)
     )
         return { unauthorized: true };
 

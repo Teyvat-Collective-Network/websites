@@ -7,17 +7,18 @@
     import Redirect from "$lib/Redirect.svelte";
     import LoggedInAs from "$lib/LoggedInAs.svelte";
     import { TCN } from "../../../lib/api";
+    import type { BanshareFormData, LocalsData } from "$lib/types";
 
-    export let data: any;
-    export let form: any;
+    export let data: LocalsData;
+    export let form: BanshareFormData;
 
     let servers: [string, string][] | undefined;
 
     onMount(async () => {
         if (!data.user) return;
 
-        const user_data = await TCN.user(data.user.id)
-        const guilds_data = await TCN.guilds()
+        const user_data = await TCN.user(data.user.id);
+        const guilds_data = await TCN.guilds();
 
         const map = new Map<string, string>();
         for (const guild of guilds_data) map.set(guild.id, guild.name);

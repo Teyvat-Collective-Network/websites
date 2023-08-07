@@ -1,6 +1,8 @@
 <script lang="ts">
     import Partner from "$lib/Partner.svelte";
-    export let data: { partners: any[] };
+    import type { TCNGuild } from "$lib/types";
+
+    export let data: { partners: TCNGuild[] };
 
     let query: string = "";
 

@@ -83,7 +83,7 @@ export namespace DB {
     }
 
     export namespace Banshares {
-        export async function get_pending(): Promise<Banshare<true>[]> {
+        export async function get_pending<T extends boolean = true>(): Promise<Banshare<T>[]> {
             return (await banshares.banshares
                 .find({
                     published: { $ne: true },
@@ -92,17 +92,23 @@ export namespace DB {
                 .toArray()) as Banshare<true>[];
         }
 
-        export async function get(message: string): Promise<Banshare<true> | null> {
+        export async function get<T extends boolean = true>(
+            message: string,
+        ): Promise<Banshare<T> | null> {
             return (await banshares.banshares.findOne({ message })) as Banshare<true> | null;
         }
 
-        export async function get_crossposts(banshare: string): Promise<BansharePost<true>[]> {
+        export async function get_crossposts<T extends boolean = true>(
+            banshare: string,
+        ): Promise<BansharePost<T>[]> {
             return (await banshares.banshare_posts
                 .find({ banshare })
                 .toArray()) as BansharePost<true>[];
         }
 
-        export async function get_crosspost(message: string): Promise<BansharePost<true> | null> {
+        export async function get_crosspost<T extends boolean = true>(
+            message: string,
+        ): Promise<BansharePost<T> | null> {
             return (await banshares.banshare_posts.findOne({
                 message,
             })) as BansharePost<true> | null;
@@ -112,10 +118,10 @@ export namespace DB {
             await banshares.banshares.insertOne(banshare);
         }
 
-        export async function set_severity(
+        export async function set_severity<T extends boolean = true>(
             message: string,
             severity: string,
-        ): Promise<Banshare<true> | null> {
+        ): Promise<Banshare<T> | null> {
             return (await banshares.banshares.findOneAndUpdate({ message }, { $set: { severity } }))
                 .value as Banshare<true> | null;
         }
@@ -127,7 +133,9 @@ export namespace DB {
             );
         }
 
-        export async function publish(message: string): Promise<Banshare<true> | null> {
+        export async function publish<T extends boolean = true>(
+            message: string,
+        ): Promise<Banshare<T> | null> {
             return (
                 await banshares.banshares.findOneAndUpdate(
                     { message },
@@ -140,7 +148,9 @@ export namespace DB {
             await banshares.banshares.updateOne({ message }, { $set: { rejected: true } });
         }
 
-        export async function rescind(message: string): Promise<Banshare<true> | null> {
+        export async function rescind<T extends boolean = true>(
+            message: string,
+        ): Promise<Banshare<T> | null> {
             return (
                 await banshares.banshares.findOneAndUpdate(
                     { message },
@@ -184,7 +194,9 @@ export namespace DB {
     }
 
     export namespace BanshareSettings {
-        export async function get(guild: string): Promise<BanshareSettings<true> | null> {
+        export async function get<T extends boolean = true>(
+            guild: string,
+        ): Promise<BanshareSettings<T> | null> {
             return (await banshares.settings.findOne({ guild })) as BanshareSettings<true> | null;
         }
 
@@ -258,7 +270,7 @@ export namespace DB {
     }
 
     export namespace Characters {
-        export async function get(): Promise<Character[]> {
+        export async function get<T extends boolean = true>(): Promise<Character<T>[]> {
             const data: Record<string, Record<string, string>> = {};
 
             for (const key of ["elements", "weapons", "regions"]) {
@@ -267,7 +279,7 @@ export namespace DB {
                     data[key][entry.name] = entry.emoji;
             }
 
-            const characters: Character[] = [];
+            const characters: Character<T>[] = [];
 
             for (const character of await db.characters.find().toArray()) {
                 const output: Partial<Character> = { id: character.id, name: character.name };
@@ -275,7 +287,7 @@ export namespace DB {
                 for (const key of ["element", "weapon", "region"] as const)
                     output[key] = data[`${key}s`][character[key]] ?? "";
 
-                characters.push(output as Character);
+                characters.push(output as Character<T>);
             }
 
             return characters;
@@ -293,19 +305,21 @@ export namespace DB {
     }
 
     export namespace Polls {
-        export async function get(id: number): Promise<Poll<true> | null> {
+        export async function get<T extends boolean = true>(id: number): Promise<Poll<T> | null> {
             return (await db.polls.findOne({ id })) as Poll<true> | null;
         }
 
-        export async function get_from_message(message: string): Promise<Poll<true> | null> {
+        export async function get_from_message<T extends boolean = true>(
+            message: string,
+        ): Promise<Poll<T> | null> {
             return (await db.polls.findOne({ message })) as Poll<true> | null;
         }
 
-        export async function get_all(): Promise<Poll<true>[]> {
+        export async function get_all<T extends boolean = true>(): Promise<Poll<T>[]> {
             return (await db.polls.find().toArray()) as Poll<true>[];
         }
 
-        export async function get_polls_to_close(): Promise<Poll<true>[]> {
+        export async function get_polls_to_close<T extends boolean = true>(): Promise<Poll<T>[]> {
             return (await db.polls
                 .find({ close: { $lt: new Date() }, closed: { $ne: true } })
                 .toArray()) as Poll<true>[];
@@ -319,7 +333,7 @@ export namespace DB {
             await db.polls.updateOne({ id }, { $set: poll });
         }
 
-        export async function get_polls_to_dm(): Promise<Poll<true>[]> {
+        export async function get_polls_to_dm<T extends boolean = true>(): Promise<Poll<T>[]> {
             const threshold = new Date();
             threshold.setHours(threshold.getHours() + 24);
 
@@ -330,10 +344,10 @@ export namespace DB {
             return polls as Poll<true>[];
         }
 
-        export async function get_votes(
+        export async function get_votes<T extends boolean = true>(
             poll: number,
             required: string[],
-        ): Promise<PollVote<true>[]> {
+        ): Promise<PollVote<T>[]> {
             return (await db.poll_votes
                 .find({ poll, user: { $in: required } })
                 .toArray()) as PollVote<true>[];
@@ -345,11 +359,14 @@ export namespace DB {
     }
 
     export namespace Votes {
-        export async function get(poll: number, user: string): Promise<PollVote<true> | null> {
+        export async function get<T extends boolean = true>(
+            poll: number,
+            user: string,
+        ): Promise<PollVote<T> | null> {
             return (await db.poll_votes.findOne({ poll, user })) as PollVote<true> | null;
         }
 
-        export async function get_all(): Promise<PollVote<true>[]> {
+        export async function get_all<T extends boolean = true>(): Promise<PollVote<T>[]> {
             return (await db.poll_votes.find().toArray()) as PollVote<true>[];
         }
 
@@ -391,15 +408,17 @@ export namespace DB {
     }
 
     export namespace Events {
-        export async function get_tracks(): Promise<CalendarTrack<true>[]> {
+        export async function get_tracks<T extends boolean = true>(): Promise<CalendarTrack<T>[]> {
             return (await db.events.find().toArray()).map((x) => ({ events: x.events }));
         }
 
-        export async function get_event_matrix(): Promise<CalendarEvent<true>[][]> {
+        export async function get_event_matrix<T extends boolean = true>(): Promise<
+            CalendarEvent<T>[][]
+        > {
             return (await get_tracks()).map(({ events }) => events);
         }
 
-        export async function set_tracks(tracks: CalendarTrack[]): Promise<void> {
+        export async function set_tracks(tracks: CalendarTrack<boolean>[]): Promise<void> {
             await replace("events", tracks);
         }
     }
@@ -414,7 +433,7 @@ export namespace DB {
             "characters",
         ] as const;
 
-        export async function get(): Promise<InternalData<true>> {
+        export async function get<T extends boolean = true>(): Promise<InternalData<T>> {
             return {
                 guild_map: await guild_map(),
                 user_map: await user_map(),
@@ -426,19 +445,49 @@ export namespace DB {
         }
 
         export async function set(data: InternalData): Promise<void> {
-            for (const key of keys) await replace(key, data[key]);
+            await replace("guild_map", data.guild_map);
+            await replace("user_map", data.user_map);
+            await replace("elements", data.elements);
+            await replace("weapons", data.weapons);
+            await replace("regions", data.regions);
+            await replace("characters", data.characters);
         }
 
-        async function get_set(key: keyof InternalData): Promise<InternalData<true>[typeof key]> {
-            return await db[key].find().toArray();
+        async function get_set<T extends boolean = true>(
+            key: keyof InternalData,
+        ): Promise<InternalData<T>[typeof key]> {
+            return (await db[key].find().toArray()) as InternalData<true>[typeof key];
         }
 
-        export const user_map = () => get_set("user_map") as Promise<UserMapEntry<true>[]>;
-        export const guild_map = () => get_set("guild_map") as Promise<GuildMapEntry<true>[]>;
-        export const elements = () => get_set("elements") as Promise<CharacterAttribute<true>[]>;
-        export const weapons = () => get_set("weapons") as Promise<CharacterAttribute<true>[]>;
-        export const regions = () => get_set("regions") as Promise<CharacterAttribute<true>[]>;
-        export const characters = () => get_set("characters");
+        export async function user_map<T extends boolean = true>(): Promise<UserMapEntry<T>[]> {
+            return (await get_set("user_map")) as UserMapEntry<T>[];
+        }
+
+        export async function guild_map<T extends boolean = true>(): Promise<GuildMapEntry<T>[]> {
+            return (await get_set("guild_map")) as GuildMapEntry<T>[];
+        }
+
+        export async function elements<T extends boolean = true>(): Promise<
+            CharacterAttribute<T>[]
+        > {
+            return (await get_set("elements")) as CharacterAttribute<T>[];
+        }
+
+        export async function weapons<T extends boolean = true>(): Promise<
+            CharacterAttribute<T>[]
+        > {
+            return (await get_set("weapons")) as CharacterAttribute<T>[];
+        }
+
+        export async function regions<T extends boolean = true>(): Promise<
+            CharacterAttribute<T>[]
+        > {
+            return (await get_set("regions")) as CharacterAttribute<T>[];
+        }
+
+        export async function characters<T extends boolean = true>(): Promise<Character<T>[]> {
+            return (await get_set("characters")) as Character<T>[];
+        }
     }
 
     export namespace HistoricalRecords {
@@ -489,7 +538,7 @@ export namespace DB {
 
     export namespace Testimonials {
         export async function get(): Promise<Testimonial<true>[]> {
-            return await db.testimonials.find().toArray();
+            return (await db.testimonials.find().toArray()) as Testimonial<true>[];
         }
 
         export async function set(entries: Testimonial[]): Promise<void> {

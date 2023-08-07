@@ -5,7 +5,7 @@ import bot, { sync_dashboard } from "../../../bot.js";
 import { create_gist } from "../../../gists.js";
 import { escapeMarkdown } from "discord.js";
 import { components } from "$lib/banshares/components.js";
-import type { TCNUser } from "$lib/types.js";
+import type { BanshareFormData, TCNUser } from "$lib/types.js";
 import { TCN } from "$lib/api.js";
 import { DB } from "../../../db.js";
 
@@ -20,9 +20,9 @@ function compare(a: string, b: string): number {
 }
 
 export const actions: Actions = {
-    default: async ({ request, locals, fetch }) => {
+    default: async ({ request, locals }) => {
         const data = await request.formData();
-        const user = (locals as any).user;
+        const user = locals.user;
 
         if (!user) return fail(500, { error: "Not Authenticated" });
 
@@ -35,7 +35,7 @@ export const actions: Actions = {
 
         const action = (data.get("submit") as string) ?? "Submit";
 
-        const values = {
+        const values: BanshareFormData = {
             ids,
             reason,
             evidence,

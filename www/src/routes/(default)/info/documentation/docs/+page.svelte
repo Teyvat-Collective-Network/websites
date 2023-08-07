@@ -2,8 +2,9 @@
     import { PUBLIC_DOMAIN } from "$env/static/public";
     import Linkable from "$lib/Linkable.svelte";
     import Navigation from "$lib/Navigation.svelte";
+    import type { LocalsData } from "$lib/types";
 
-    export let data: any;
+    export let data: LocalsData;
 
     const cheat_sheet = [
         ["# heading 1", "<h1 style='margin: 0'>heading 1</h1>"],

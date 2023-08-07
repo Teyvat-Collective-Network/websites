@@ -13,17 +13,15 @@
     import { goto } from "$app/navigation";
     import ConfirmLeave from "$lib/ConfirmLeave.svelte";
     import ListButtons from "$lib/ListButtons.svelte";
+    import { API } from "$lib/api";
+    import type { ElectionRecord } from "$lib/types";
 
-    export let data: any;
+    export let data: { entries: ElectionRecord[] };
 
     async function save() {
-        fetch("/api/election-history", {
-            method: "post",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data.entries),
-        }).then((res) =>
-            res.ok ? goto("/historical-records/election-history") : alert("An error occurred!"),
-        );
+        API.post_election_history(data.entries)
+            .then(() => goto("/historical-records/election-history"))
+            .catch(() => alert("An error occurred!"));
     }
 </script>
 

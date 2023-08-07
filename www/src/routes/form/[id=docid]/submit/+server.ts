@@ -88,7 +88,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                             if (!pc.number_default) continue;
                         } else {
                             const a = ans.answer;
-                            const b = pc.number_value;
+                            const b = pc.number_value!;
 
                             switch (pc.number_op) {
                                 case "gt":
@@ -125,8 +125,8 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                             if (!pc.date_default) continue;
                         } else {
                             const a = ans.answer;
-                            const b = new Date(pc.first_date);
-                            const c = new Date(pc.second_date);
+                            const b = new Date(pc.first_date!);
+                            const c = new Date(pc.second_date!);
 
                             if (!dq.show_date)
                                 for (const d of [a, b, c]) {

@@ -5,7 +5,8 @@ import { DB } from "../../../db.js";
 import type { CalendarEvent } from "$lib/types.js";
 
 export const POST: RequestHandler = async ({ locals, request }) => {
-    const user = (locals as any).api_user;
+    const user = locals.api_user;
+
     if (!user) return new Response(null, { status: 403 });
     if (!user.roles.includes("observer")) new Response(null, { status: 403 });
 
@@ -34,6 +35,6 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         }
     }
 
-    if (items.length > 0) await DB.Events.set_tracks(items.map((events: any) => ({ events })));
+    await DB.Events.set_tracks(items.map((events) => ({ events })));
     return new Response();
 };

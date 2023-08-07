@@ -5,7 +5,7 @@ import type { LocalsData } from "$lib/types.js";
 // for information about these interfaces
 declare global {
     namespace App {
-        type Locals = LocalsData;
+        interface Locals extends LocalsData {}
         // interface Error {}
         // interface PageData {}
         // interface Platform {}

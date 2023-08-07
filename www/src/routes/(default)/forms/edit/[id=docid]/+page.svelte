@@ -1,3 +1,12 @@
+<script lang="ts" context="module">
+    const council_positions = [
+        ["council_observer", "observer"],
+        ["council_owner", "owner"],
+        ["council_advisor", "advisor"],
+        ["council_other", "non-member"],
+    ] as const;
+</script>
+
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { PUBLIC_DOMAIN, PUBLIC_TCN_AUTH } from "$env/static/public";
@@ -6,9 +15,15 @@
     import DatetimePicker from "$lib/DatetimePicker.svelte";
     import ListButtons from "$lib/ListButtons.svelte";
     import Redirect from "$lib/Redirect.svelte";
+    import type { Form, LocalsData } from "$lib/types";
     import { url_regex, webhook_regex } from "$lib/util";
 
-    export let data: any;
+    export let data: LocalsData & {
+        missing?: boolean;
+        unauthorized?: boolean;
+        id?: string;
+        form: Partial<Form> & Pick<Required<Form>, "pages" | "next_id">;
+    };
 
     data.form ??= {
         allow_observers: false,
@@ -56,8 +71,8 @@
 
     function find_question(id: number) {
         return data.form.pages
-            .flatMap((page: any) => page.questions)
-            .find((question: any) => question.id === id);
+            .flatMap((page) => page.questions)
+            .find((question) => question.id === id);
     }
 
     let webhook_input_show = false;
@@ -210,19 +225,17 @@
                                 {/if}
                                 {#if page.condition.source === -1}
                                     <p class="row" style="gap: 20px; flex-wrap: wrap">
-                                        {#each ["observer", "owner", "advisor", ""] as key}
+                                        {#each council_positions as [key, display]}
                                             <label>
                                                 <input
                                                     type="checkbox"
-                                                    bind:checked={page.condition[
-                                                        `council_${key || "other"}`
-                                                    ]}
+                                                    bind:checked={page.condition[key]}
                                                 />
-                                                if {key || "non-member"}
+                                                if {display ?? key}
                                             </label>
                                         {/each}
                                     </p>
-                                {:else if page.condition.source > 0}
+                                {:else if page.condition.source}
                                     {@const question = find_question(page.condition.source)}
                                     {#if question?.type === "number"}
                                         <p class="row" style="gap: 10px; flex-wrap: wrap">
@@ -300,7 +313,7 @@
                                                     show_time={question.show_time}
                                                 />
                                             </span>
-                                            {#if ["bw", "nb"].includes(page.condition.date_op)}
+                                            {#if ["bw", "nb"].includes(page.condition.date_op ?? "")}
                                                 and
                                                 <span
                                                     style="padding: 10px; border-radius: 5px; background-color: var(--background-1)"
@@ -569,12 +582,13 @@
                                     (page.questions = [
                                         ...page.questions,
                                         {
-                                            id: data.form.next_id++,
+                                            id: data.form.next_id,
                                             question: "",
                                             description: "",
                                             type: "short",
                                             required: false,
                                             options: [],
+                                            selected: {},
                                         },
                                     ])}
                             >
@@ -591,8 +605,8 @@
                                 {
                                     name: "",
                                     description: "",
-                                    condition: { options: {} },
                                     questions: [],
+                                    condition: { source: 0, options: {} },
                                 },
                             ])}
                     >

@@ -20,6 +20,7 @@
     import Invite from "$lib/Invite.svelte";
     import { Modal } from "@daedalus-discord/webkit";
     import { dark_mode } from "$lib/stores";
+    import type { CalendarEvent, LocalsData } from "$lib/types";
 
     const open: Record<string, boolean> = {};
     let sx: number = 0;
@@ -39,9 +40,9 @@
         return k;
     });
 
-    export let data: any;
-
-    const f = (e: any) => (sx = e.target.scrollLeft);
+    export let data: LocalsData & { events: CalendarEvent[][] };
+    const scroll = (e: UIEvent & { currentTarget: { scrollLeft: number } }) =>
+        (sx = e.currentTarget.scrollLeft);
 </script>
 
 <div class="container">
@@ -56,7 +57,7 @@
             {/if}
         </h3>
 
-        <div id="calendar-box" on:scroll={f}>
+        <div id="calendar-box" on:scroll={scroll}>
             <div id="calendar">
                 {#each data.events as track, ti}
                     <div class="track">
@@ -73,7 +74,7 @@
                                 on:click={() => (open[id] = true)}
                             >
                                 <div style="padding-left: calc({sx}px - {x * 55 + 20}px)">
-                                    {event.name}
+                                    {event.title}
                                 </div>
                             </button>
 
@@ -83,7 +84,7 @@
                                 background_color="var(--background-1)"
                                 overlay_color="rgb(var(--pure-rgb), 80%)"
                             >
-                                <h2>{event.name}</h2>
+                                <h2>{event.title}</h2>
                                 {@html event.body}
 
                                 {#if event.invite_data?.length}
@@ -92,7 +93,7 @@
                                         {#each event.invite_data as invite}
                                             <Invite
                                                 code={invite.code}
-                                                icon={invite.icon}
+                                                icon={invite.icon ?? ""}
                                                 title={invite.name}
                                                 banner={invite.banner}
                                             />

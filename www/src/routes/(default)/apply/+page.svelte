@@ -6,15 +6,17 @@
     import Invite from "$lib/Invite.svelte";
     import LoggedInAs from "$lib/LoggedInAs.svelte";
     import { debounce } from "$lib/util.js";
+    import type { ApplyFormData, InviteData, LocalsData } from "$lib/types";
+    import { API } from "$lib/api";
 
-    export let data: any;
-    export let form: any;
+    export let data: LocalsData;
+    export let form: ApplyFormData;
 
     let role: string;
     let invite: string = form?.invite ?? "";
-    let invite_data: any;
+    let invite_data: InviteData | null;
 
-    const suppress = (e: any) => e.key === "Enter" && e.preventDefault();
+    const suppress = (e: KeyboardEvent) => e.key === "Enter" && e.preventDefault();
 
     async function check_invite() {
         invite = invite.trim();
@@ -24,21 +26,20 @@
                 /^(https:\/\/)?discord(?:(?:app)?\.com\/invite|\.gg(?:\/invite)?)\/[\w-]{2,255}$/i,
             )
         )
-            return (invite_data = undefined);
+            return (invite_data = null);
 
-        const request = await fetch(
-            `/fetch-invite?code=${encodeURIComponent(invite.slice(invite.lastIndexOf("/") + 1))}`,
-        );
-
-        if (!request.ok) return (invite_data = null);
-        invite_data = await request.json();
+        try {
+            invite_data = await API.get_fetch_invite(invite.slice(invite.lastIndexOf("/") + 1));
+        } catch {
+            invite_data = null;
+        }
     }
 
     onMount(() => check_invite());
 
     function submit(e: Event) {
         if (
-            !invite_data ||
+            !invite_data?.guild ||
             invite_data.guild.vanityURLCode === invite_data.code ||
             invite_data.expires
         ) {
@@ -188,7 +189,7 @@
                 />
                 <br />
                 {#if invite_data}
-                    {#if invite_data.guild.vanityURLCode === invite_data.code}
+                    {#if invite_data.guild?.vanityURLCode === invite_data.code}
                         <br />
                         <Callout style="red">
                             <p>Vanity URLs are not allowed!</p>
@@ -225,11 +226,13 @@
                         </Callout>
                     {/if}
                     <Invite
-                        banner={invite_data.guild.splash
+                        banner={invite_data.guild?.splash
                             ? `https://cdn.discordapp.com/splashes/${invite_data.guild.id}/${invite_data.guild.splash}?size=1024`
                             : null}
-                        icon={`https://cdn.discordapp.com/icons/${invite_data.guild.id}/${invite_data.guild.icon}?size=256`}
-                        title={invite_data.guild.name}
+                        icon={invite_data.guild
+                            ? `https://cdn.discordapp.com/icons/${invite_data.guild.id}/${invite_data.guild.icon}?size=256`
+                            : ""}
+                        title={invite_data.guild?.name ?? "Not A Guild Invite"}
                         code={invite_data.code}
                     />
                 {:else}

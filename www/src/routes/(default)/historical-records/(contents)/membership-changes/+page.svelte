@@ -1,9 +1,10 @@
 <script lang="ts">
+    import type { LocalsData, MembershipChange } from "$lib/types";
     import { actions } from "../../../admin/membership-changes/+page.svelte";
 
-    export let data: any;
+    export let data: LocalsData & { entries: (MembershipChange & { has_mention?: boolean })[] };
 
-    data.entries.forEach((entry: any) => {
+    data.entries.forEach((entry) => {
         if (!entry.notes) return;
 
         const regex = /\[@(\d+)\]/;

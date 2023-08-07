@@ -1,10 +1,9 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import Callout from "$lib/Callout.svelte";
     import Invite from "$lib/Invite.svelte";
     import Linkable from "$lib/Linkable.svelte";
+    import type { TCNUser } from "$lib/types";
 
-    export let data: any;
+    export let data: { observers: TCNUser[] };
 </script>
 
 <div class="container">

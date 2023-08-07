@@ -4,9 +4,15 @@
     import Callout from "$lib/Callout.svelte";
     import ConfirmLeave from "$lib/ConfirmLeave.svelte";
     import Redirect from "$lib/Redirect.svelte";
+    import type { Doc, LocalsData } from "$lib/types";
     import { Textarea } from "@daedalus-discord/webkit";
 
-    export let data: any;
+    export let data: LocalsData & {
+        missing?: boolean;
+        unauthorized?: boolean;
+        id?: string;
+        doc: Partial<Doc>;
+    };
 
     data.doc ??= {
         anon: false,

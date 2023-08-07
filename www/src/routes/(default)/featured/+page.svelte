@@ -1,5 +1,7 @@
 <script lang="ts">
-    export let data: any;
+    import type { Announcement, LocalsData } from "$lib/types";
+
+    export let data: LocalsData & { announcements: Announcement[] };
 </script>
 
 <div class="container">

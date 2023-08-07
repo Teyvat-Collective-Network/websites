@@ -35,7 +35,7 @@
             }
         }
 
-        for (const element of selectall<DatasetElement>(".guild")) {
+        for (const element of selectall<BaseElement>(".guild")) {
             const { id } = element.dataset;
 
             if (id === PUBLIC_HQ || id === PUBLIC_HUB) {
@@ -53,7 +53,7 @@
 
         if (document.querySelector(".user")) {
             (await API.get_all_tags()).forEach(
-                (x: any) =>
+                (x) =>
                     (cache[x.id] = x.fake
                         ? `<s>${x.tag}</s>`
                         : x.tag.endsWith("#0")
@@ -63,8 +63,8 @@
         }
 
         function sync_users() {
-            for (const element of document.querySelectorAll(".user") as any) {
-                const id = element.dataset.id;
+            for (const element of selectall<BaseElement>(".user")) {
+                const { id } = element.dataset;
 
                 if (cache[id] === 1)
                     element.outerHTML = `<span class="mention" data-id="${id}"><i class="material-icons">pin</i> &nbsp; <code class="plain" style="padding: 0">${id}</code></span>`;
@@ -75,9 +75,9 @@
 
         sync_users();
 
-        let element: any;
+        let element: BaseElement;
 
-        while ((element = document.querySelector(".user"))) {
+        while ((element = select<BaseElement>(".user"))) {
             const id = element.dataset.id;
 
             if (cache[id]) return;
@@ -102,12 +102,12 @@
     import { PUBLIC_HQ, PUBLIC_HUB, PUBLIC_TCN_API } from "$env/static/public";
     import { API, TCN } from "$lib/api";
     import { select, selectall } from "$lib/html";
-    import type { DatasetElement } from "$lib/types";
+    import type { BaseElement } from "$lib/types";
     import { onMount } from "svelte";
 
     onMount(async () => {
         document.addEventListener("click", (e) => {
-            const target = e.target as any;
+            const target = e.target as BaseElement;
 
             if (!target.classList.contains("mention")) return;
             if (!target.dataset.id) return;

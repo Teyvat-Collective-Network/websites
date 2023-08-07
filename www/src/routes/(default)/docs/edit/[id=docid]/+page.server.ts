@@ -10,9 +10,9 @@ export const load: ServerLoad = async ({ locals, params }) => {
     if (!doc || doc.deleted) return { missing: true, id: params.id };
 
     if (
-        doc.author !== (locals as any).user.id &&
-        !(doc.editable_observers && (locals as any).observer) &&
-        !(doc.editable_council && (locals as any).council)
+        doc.author !== locals.user.id &&
+        !(doc.editable_observers && locals.observer) &&
+        !(doc.editable_council && locals.council)
     )
         return { unauthorized: true };
 

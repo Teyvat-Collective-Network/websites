@@ -2,26 +2,24 @@
     import { onMount } from "svelte";
     import { update } from "../../../../+layout.svelte";
     import ListButton from "$lib/ListButton.svelte";
+    import { API } from "$lib/api";
+    import type { LocalsData, ObserverTerm } from "$lib/types";
 
-    export let data: any;
+    export let data: LocalsData & { entries: ObserverTerm[] };
 
     async function save() {
         data.entries = data.entries.sort(
-            (x: any, y: any) => x.year - y.year || x.month - y.month || x.date - y.date,
+            (x, y) => x.year - y.year || x.month - y.month || x.date - y.date,
         );
 
-        fetch("/api/observer-terms", {
-            method: "post",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data.entries),
-        }).then((res) =>
-            res.ok
-                ? JSON.stringify(copy.map((x: any) => x.user)) ===
-                  JSON.stringify(data.entries.map((x: any) => x.user))
+        API.post_observer_terms(data.entries)
+            .then(() =>
+                JSON.stringify(copy.map((x) => x.user)) ===
+                JSON.stringify(data.entries.map((x) => x.user))
                     ? (copy = structuredClone(data.entries))
-                    : location.reload()
-                : alert("An error occurred!"),
-        );
+                    : location.reload(),
+            )
+            .catch(() => alert("An error occurred!"));
     }
 
     let copy = data.entries;
@@ -138,6 +136,7 @@
                             month: new Date().getMonth() + 1,
                             date: new Date().getDate(),
                             user: "",
+                            terms: 1,
                         },
                     ])}
             >

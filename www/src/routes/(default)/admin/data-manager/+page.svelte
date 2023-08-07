@@ -1,19 +1,26 @@
+<script lang="ts" context="module">
+    const emoji_items_singular = ["element", "weapon", "region"] as const;
+    const emoji_items = ["elements", "weapons", "regions"] as const;
+</script>
+
 <script lang="ts">
     import ConfirmLeave from "$lib/ConfirmLeave.svelte";
     import ListButton from "$lib/ListButton.svelte";
     import ToggleHeader from "$lib/ToggleHeader.svelte";
+    import { API } from "$lib/api";
+    import type { InternalData } from "$lib/types";
 
-    export let data: any;
+    export let data: InternalData;
 
     async function save() {
-        for (const key of ["elements", "weapons", "regions", "characters"])
-            data[key] = data[key].sort((x: any, y: any) => x.name.localeCompare(y.name));
+        for (const key of ["elements", "weapons", "regions", "characters"] as const)
+            data[key].sort((x, y) => x.name.localeCompare(y.name));
 
-        fetch("/api/data-manager", {
-            method: "post",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        }).then((res) => (res.ok ? alert("Saved!") : alert("An error occurred!")));
+        data = data;
+
+        API.post_data_manager(data)
+            .then(() => alert("Saved!"))
+            .catch(() => alert("An error occurred!"));
     }
 
     const show = { guild_map: false, user_map: false, genshin_data: false };
@@ -39,7 +46,7 @@
         <div class="panel">
             <ToggleHeader title="Genshin Data" bind:show={show.genshin_data} />
             {#if show.genshin_data}
-                {#each ["elements", "weapons", "regions"] as key}
+                {#each emoji_items as key}
                     {@const caps = `${key[0].toUpperCase()}${key.slice(1)}`}
 
                     <h5>{caps}</h5>
@@ -97,7 +104,7 @@
                             <td>
                                 <input type="text" bind:value={character.id} />
                             </td>
-                            {#each ["element", "weapon", "region"] as key}
+                            {#each emoji_items_singular as key}
                                 <td>
                                     <select bind:value={character[key]}>
                                         {#each data[`${key}s`] as { name }}

@@ -1,10 +1,16 @@
 import type { ServerLoad } from "@sveltejs/kit";
 import { fix } from "$lib/util.js";
 import { DB } from "../../../../db.js";
-import type { InternalData } from "$lib/types.js";
 
 export const load: ServerLoad = async () => {
     const data = await DB.InternalData.get();
-    for (const key of Object.keys(data) as (keyof InternalData)[]) data[key] = fix(data[key]);
+
+    data.guild_map = fix(data.guild_map);
+    data.user_map = fix(data.user_map);
+    data.elements = fix(data.elements);
+    data.weapons = fix(data.weapons);
+    data.regions = fix(data.regions);
+    data.characters = fix(data.characters);
+
     return data;
 };

@@ -1,17 +1,23 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import ListButtons from "$lib/ListButtons.svelte";
+    import { API } from "$lib/api";
+    import type { Testimonial } from "$lib/types";
     import { Textarea } from "@daedalus-discord/webkit";
 
-    export let data: { testimonials: { image: string; name: string; content: string }[] };
+    export let data: { testimonials: Testimonial[] };
 
-    let button: any;
+    function save() {
+        API.post_testimonials(data.testimonials)
+            .then(() => goto("/"))
+            .catch(() => alert("An error occurred!"));
+    }
 </script>
 
 <svelte:window
     on:keydown={(e) => {
         if (e.key === "s" && e.ctrlKey) {
-            button.click();
+            save();
             e.preventDefault();
         }
     }}
@@ -54,16 +60,7 @@
         >
             <i class="material-icons">add</i> Add Testimonial
         </button>
-        <button
-            bind:this={button}
-            style="background-color: transparent; color: var(--blue-text)"
-            on:click={() =>
-                fetch("/api/testimonials", {
-                    method: "post",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data.testimonials),
-                }).then((res) => (res.ok ? goto("/") : alert("An error occurred!")))}
-        >
+        <button style="background-color: transparent; color: var(--blue-text)" on:click={save}>
             <i class="material-icons">save</i> Save
         </button>
     </div>
