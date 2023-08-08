@@ -16,6 +16,8 @@
 </script>
 
 <script lang="ts">
+    import Icon from "./Icon.svelte";
+
     export let value: Date | string | undefined;
     export let show_date: boolean = false;
     export let show_time: boolean = false;
@@ -30,8 +32,7 @@
     let second: number | undefined = value?.getSeconds();
 
     const lengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    $: (lengths[1] =
-        year == undefined || (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 29 : 28),
+    $: (lengths[1] = year == undefined || (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 29 : 28),
         month === 1 ? (date &&= Math.min(date, lengths[1])) : null;
 
     let expand_date = false;
@@ -42,8 +43,7 @@
     let hover = 0;
 
     let offset = 0;
-    $: offset =
-        year == undefined || month == undefined ? 0 : (new Date(year, month, 1).getDay() + 6) % 7;
+    $: offset = year == undefined || month == undefined ? 0 : (new Date(year, month, 1).getDay() + 6) % 7;
 
     $: value =
         (!show_date || (year != undefined && month != undefined && date != undefined)) &&
@@ -75,13 +75,10 @@
                     href={"javascript:void(0)"}
                     class="inline-row"
                     on:click={(e) => (
-                        (expand_date = true),
-                        (level = "dates"),
-                        (expand_time = false),
-                        e.stopPropagation()
+                        (expand_date = true), (level = "dates"), (expand_time = false), e.stopPropagation()
                     )}
                 >
-                    <i class="material-icons">event</i>
+                    <Icon icon="event" />
                 </a>
                 {#if expand_date}
                     <div
@@ -103,7 +100,7 @@
                             }}
                             style="gap: 10px"
                         >
-                            <i class="material-icons">today</i> today
+                            <Icon icon="today" />
                         </a>
                         {#if level == "dates"}
                             {#if year != undefined && month != undefined}
@@ -114,14 +111,11 @@
                                             class="row"
                                             on:click={() => (year = (year ?? 0) - 1)}
                                         >
-                                            <i class="material-icons">chevron_left</i>
+                                            <Icon icon="chevron_left" />
                                         </a>
                                     </div>
                                     <div style="grid-column: 2 / span 5">
-                                        <a
-                                            href={"javascript:void(0)"}
-                                            on:click={() => (level = "years")}
-                                        >
+                                        <a href={"javascript:void(0)"} on:click={() => (level = "years")}>
                                             {year}
                                         </a>
                                     </div>
@@ -131,7 +125,7 @@
                                             class="row"
                                             on:click={() => (year = (year ?? 0) + 1)}
                                         >
-                                            <i class="material-icons">chevron_right</i>
+                                            <Icon icon="chevron_right" />
                                         </a>
                                     </div>
                                     <div class="row">
@@ -144,14 +138,11 @@
                                                 (date = Math.min(date ?? 1, lengths[month]))
                                             )}
                                         >
-                                            <i class="material-icons">chevron_left</i>
+                                            <Icon icon="chevron_left" />
                                         </a>
                                     </div>
                                     <div style="grid-column: 2 / span 5">
-                                        <a
-                                            href={"javascript:void(0)"}
-                                            on:click={() => (level = "months")}
-                                        >
+                                        <a href={"javascript:void(0)"} on:click={() => (level = "months")}>
                                             {months[month]}
                                         </a>
                                     </div>
@@ -165,7 +156,7 @@
                                                 (date = Math.min(date ?? 1, lengths[month]))
                                             )}
                                         >
-                                            <i class="material-icons">chevron_right</i>
+                                            <Icon icon="chevron_right" />
                                         </a>
                                     </div>
                                     {#if offset > 0}
@@ -175,9 +166,7 @@
                                         <div>
                                             <a
                                                 href={"javascript:void(0)"}
-                                                on:click={() => (
-                                                    (date = i + 1), (expand_date = false)
-                                                )}
+                                                on:click={() => ((date = i + 1), (expand_date = false))}
                                             >
                                                 <code class="plain" style="padding: 0">
                                                     {i + 1}
@@ -186,10 +175,7 @@
                                         </div>
                                     {/each}
                                     {#if (lengths[month] + offset) % 7 > 0}
-                                        <div
-                                            style="grid-column: {((lengths[month] + offset) % 7) +
-                                                1} / 8"
-                                        />
+                                        <div style="grid-column: {((lengths[month] + offset) % 7) + 1} / 8" />
                                     {/if}
                                 </div>
                             {/if}
@@ -201,14 +187,11 @@
                                         class="row"
                                         on:click={() => (year = (year ?? 0) - 1)}
                                     >
-                                        <i class="material-icons">chevron_left</i>
+                                        <Icon icon="chevron_left" />
                                     </a>
                                 </div>
                                 <div style="grid-column: 2 / 6">
-                                    <a
-                                        href={"javascript:void(0)"}
-                                        on:click={() => (level = "years")}
-                                    >
+                                    <a href={"javascript:void(0)"} on:click={() => (level = "years")}>
                                         {year}
                                     </a>
                                 </div>
@@ -218,7 +201,7 @@
                                         class="row"
                                         on:click={() => (year = (year ?? 0) + 1)}
                                     >
-                                        <i class="material-icons">chevron_right</i>
+                                        <Icon icon="chevron_right" />
                                     </a>
                                 </div>
                                 {#each months as m, i}
@@ -226,9 +209,7 @@
                                         <a
                                             href={"javascript:void(0)"}
                                             on:click={() => (
-                                                (month = i),
-                                                (level = "dates"),
-                                                (date = Math.min(date ?? 1, lengths[i]))
+                                                (month = i), (level = "dates"), (date = Math.min(date ?? 1, lengths[i]))
                                             )}
                                         >
                                             <code class="plain" style="padding: 0">{m}</code>
@@ -244,7 +225,7 @@
                                         class="row"
                                         on:click={() => (year = (year ?? 0) - 10)}
                                     >
-                                        <i class="material-icons">chevron_left</i>
+                                        <Icon icon="chevron_left" />
                                     </a>
                                 </div>
                                 {#each new Array(12).fill(0) as _, o}
@@ -253,9 +234,7 @@
                                     <div>
                                         <a
                                             href={"javascript:void(0)"}
-                                            on:click={() => (
-                                                (year = this_year), (level = "months")
-                                            )}
+                                            on:click={() => ((year = this_year), (level = "months"))}
                                         >
                                             <code class="plain" style="padding: 0">
                                                 {this_year}
@@ -269,7 +248,7 @@
                                         class="row"
                                         on:click={() => (year = (year ?? 0) + 10)}
                                     >
-                                        <i class="material-icons">chevron_right</i>
+                                        <Icon icon="chevron_right" />
                                     </a>
                                 </div>
                             </div>
@@ -325,7 +304,7 @@
                         e.stopPropagation()
                     )}
                 >
-                    <i class="material-icons">schedule</i>
+                    <Icon icon="schedule" />
                 </a>
                 {#if expand_time}
                     <div
@@ -347,7 +326,7 @@
                             }}
                             style="gap: 10px"
                         >
-                            <i class="material-icons">today</i> now
+                            <Icon icon="today" />
                         </a>
                         {#if stage == "hour"}
                             <div style="position: relative">
@@ -358,20 +337,13 @@
                                             (h / 6 + 1) * Math.PI,
                                         ) *
                                             (h >= 12 ? 160 : 120) +
-                                            150}px; left: {Math.sin((h / 6) * Math.PI) *
-                                            (h >= 12 ? 160 : 120) +
-                                            150}px; {hover === h
-                                            ? 'background-color: var(--accent)'
-                                            : ''}"
+                                            150}px; left: {Math.sin((h / 6) * Math.PI) * (h >= 12 ? 160 : 120) +
+                                            150}px; {hover === h ? 'background-color: var(--accent)' : ''}"
                                         on:mouseenter={() => (hover = h)}
                                     >
                                         <a
                                             href={"javascript:void(0)"}
-                                            on:click={() => (
-                                                (hour = h),
-                                                (hover = minute ?? 0),
-                                                (stage = "minute")
-                                            )}
+                                            on:click={() => ((hour = h), (hover = minute ?? 0), (stage = "minute"))}
                                         >
                                             <code class="plain" style="padding: 0">
                                                 {h.toString().padStart(2, "0")}
@@ -404,8 +376,7 @@
                                                 (t / 30 + 1) * Math.PI,
                                             ) *
                                                 120 +
-                                                150}px; left: {Math.sin((t / 30) * Math.PI) * 120 +
-                                                150}px"
+                                                150}px; left: {Math.sin((t / 30) * Math.PI) * 120 + 150}px"
                                         >
                                             <code class="plain" style="padding: 0">
                                                 {t.toString().padStart(2, "0")}
@@ -425,9 +396,7 @@
                                             href={"javascript:void(0)"}
                                             on:click={() =>
                                                 stage === "minute"
-                                                    ? ((minute = t),
-                                                      (hover = second ?? 0),
-                                                      (stage = "second"))
+                                                    ? ((minute = t), (hover = second ?? 0), (stage = "second"))
                                                     : ((second = t), (expand_time = false))}
                                             on:mouseenter={() => (hover = t)}
                                         >
@@ -515,7 +484,7 @@
         }}
         style="gap: 10px"
     >
-        <i class="material-icons">update</i> now
+        <Icon icon="update" />
     </a>
 </div>
 

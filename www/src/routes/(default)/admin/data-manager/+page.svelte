@@ -5,6 +5,7 @@
 
 <script lang="ts">
     import ConfirmLeave from "$lib/ConfirmLeave.svelte";
+    import Icon from "$lib/Icon.svelte";
     import ListButton from "$lib/ListButton.svelte";
     import ToggleHeader from "$lib/ToggleHeader.svelte";
     import { API } from "$lib/api";
@@ -58,20 +59,10 @@
                         {#each data[key] as item, index}
                             <tr>
                                 <td>
-                                    <input
-                                        type="text"
-                                        class="mono"
-                                        bind:value={item.name}
-                                        style="width: 240px"
-                                    />
+                                    <input type="text" class="mono" bind:value={item.name} style="width: 240px" />
                                 </td>
                                 <td>
-                                    <input
-                                        type="text"
-                                        class="mono"
-                                        bind:value={item.emoji}
-                                        style="width: 320px"
-                                    />
+                                    <input type="text" class="mono" bind:value={item.emoji} style="width: 320px" />
                                 </td>
                                 <td>
                                     <ListButton bind:array={data[key]} {index} del />
@@ -79,9 +70,7 @@
                             </tr>
                         {/each}
                         <br />
-                        <button
-                            on:click={() => (data[key] = [...data[key], { name: "", emoji: "" }])}
-                        >
+                        <button on:click={() => (data[key] = [...data[key], { name: "", emoji: "" }])}>
                             Add {caps.slice(0, -1)}
                         </button>
                     </table>
@@ -135,9 +124,9 @@
         <div class="panel">
             <ToggleHeader title="Guild Map" bind:show={show.guild_map} />
             <p>
-                This data is used to render guild mentions. Guilds not in the TCN that are not
-                specified here will appear as <span class="mention">
-                    <i class="material-icons">domain_disabled</i> &nbsp; ID
+                This data is used to render guild mentions. Guilds not in the TCN that are not specified here will
+                appear as <span class="mention">
+                    <Icon icon="domain_disabled" /> &nbsp; ID
                 </span>.
             </p>
             {#if show.guild_map}
@@ -154,10 +143,7 @@
                         </tr>
                     {/each}
                     <br />
-                    <button
-                        on:click={() =>
-                            (data.guild_map = [...data.guild_map, { id: "", name: "" }])}
-                    >
+                    <button on:click={() => (data.guild_map = [...data.guild_map, { id: "", name: "" }])}>
                         Add Entry
                     </button>
                 </table>
@@ -166,13 +152,14 @@
         <div class="panel">
             <ToggleHeader title="User Map" bind:show={show.user_map} />
             <p>
-                This data is used to render user mentions. Users whose accounts are deleted will
-                appear as <span class="mention">
-                    <i class="material-icons">alternate_email</i> <b>Deleted User abcd1234</b>#5678
+                This data is used to render user mentions. Users whose accounts are deleted will appear as <span
+                    class="mention"
+                >
+                    <Icon icon="alternate_email" /> <b>Deleted User abcd1234</b>#5678
                 </span>
                 and invalid IDs will appear as
                 <span class="mention">
-                    <i class="material-icons">pin</i> &nbsp;
+                    <Icon icon="pin" /> &nbsp;
                     <code class="plain" style="padding: 0">ID</code>
                 </span>, unless a display name is specified here.
             </p>
@@ -185,20 +172,12 @@
                     {#each data.user_map as item, index}
                         <tr>
                             <td><input type="text" bind:value={item.id} placeholder="ID" /></td>
-                            <td
-                                ><input
-                                    type="text"
-                                    bind:value={item.name}
-                                    placeholder="Display Name"
-                                /></td
-                            >
+                            <td><input type="text" bind:value={item.name} placeholder="Display Name" /></td>
                             <td><ListButton bind:array={data.user_map} {index} del /></td>
                         </tr>
                     {/each}
                     <br />
-                    <button
-                        on:click={() => (data.user_map = [...data.user_map, { id: "", name: "" }])}
-                    >
+                    <button on:click={() => (data.user_map = [...data.user_map, { id: "", name: "" }])}>
                         Add Entry
                     </button>
                 </table>

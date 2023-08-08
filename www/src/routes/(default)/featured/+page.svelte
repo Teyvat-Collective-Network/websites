@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Icon from "$lib/Icon.svelte";
     import type { Announcement, LocalsData } from "$lib/types";
 
     export let data: LocalsData & { announcements: Announcement[] };
@@ -9,14 +10,14 @@
         <h1 class="row" style="gap: 20px">
             Featured Content
             {#if data.observer}
-                <a href="/admin/featured"><i class="material-icons">edit</i></a>
+                <a href="/admin/featured"><Icon icon="edit" /></a>
             {/if}
         </h1>
 
         {#each data.announcements as item}
             <div class="announcement {item.highlight ? 'highlight' : ''}">
                 <div>
-                    <i class="material-icons">{item.icon}</i>
+                    <Icon icon={item.icon} />
                     <span>{item.title}</span>
                 </div>
                 <div>

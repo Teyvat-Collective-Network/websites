@@ -1,4 +1,6 @@
 <script lang="ts">
+    import TimeMention from "./TimeMention.svelte";
+    import User from "./UserMention.svelte";
     import type { FormAnswer } from "./types";
 
     export let answer: FormAnswer;
@@ -10,9 +12,7 @@
 <div id="item">
     {#if typeof value === "string"}
         {#if ans.user}
-            <span class="mention user" data-id={value}>
-                <i class="material-icons">pending</i> &nbsp; Loading User...
-            </span>
+            <User id={value} />
         {:else}
             {#each value.split(/\r\f|\n/) as line, index}
                 {#if index !== 0}<br />{/if}{line}
@@ -26,21 +26,8 @@
                 <li>{x.text}</li>
             {/each}
         </ul>
-    {:else if value.getTime}
-        {#if ans.show_time}
-            <span class="mention" data-id={ans.show_date ? Math.floor(value.getTime() / 1000) : ""}>
-                <i class="material-icons">schedule</i> &nbsp;
-                <span
-                    class="time {ans.show_date ? '' : 'short'}"
-                    data-timestamp={Math.floor(value.getTime() / 1000)}
-                />
-            </span>
-        {:else}
-            <span class="mention">
-                <i class="material-icons">schedule</i>
-                &nbsp;{value.getFullYear()}-{value.getMonth() + 1}-{value.getDate()}
-            </span>
-        {/if}
+    {:else}
+        <TimeMention date={value} show_date={ans.show_date} show_time={ans.show_time} />
     {/if}
 </div>
 

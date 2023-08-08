@@ -1,6 +1,7 @@
 import { TCN } from "$lib/api.js";
 import type { UserRouteData } from "$lib/types.js";
-import { hq_bot } from "../../../../bot.js";
+import { tag } from "$lib/util.js";
+import bot from "../../../../core/bot.js";
 import type { Load } from "@sveltejs/kit";
 
 export const load: Load = async ({ params }) => {
@@ -20,12 +21,8 @@ export const load: Load = async ({ params }) => {
     } catch {}
 
     try {
-        const user = await hq_bot.users.fetch(params.id!);
-
-        data.discord = {
-            icon: user.displayAvatarURL(),
-            tag: user.discriminator === "0" ? `@${user.username}` : user.tag,
-        };
+        const user = await bot.users.fetch(params.id!);
+        data.discord = { icon: user.displayAvatarURL(), tag: tag(user) };
     } catch {}
 
     return data;

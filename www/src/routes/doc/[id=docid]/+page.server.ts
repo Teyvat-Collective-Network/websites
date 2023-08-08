@@ -1,6 +1,6 @@
 import type { ServerLoad } from "@sveltejs/kit";
 import { fix, markdown_postprocess } from "$lib/util.js";
-import bot from "../../../bot.js";
+import bot from "../../../core/bot.js";
 import { DB } from "../../../db.js";
 
 export const load: ServerLoad = async ({ params, locals }) => {
@@ -38,20 +38,8 @@ export const load: ServerLoad = async ({ params, locals }) => {
         (reader && (doc.allow_logged_in || doc.allowlist.match(new RegExp(`\b${reader.id}\b`))))
     ) {
         if (doc.anon && reader?.id !== doc.author && !locals.observer) delete doc.author;
-        else
-            try {
-                const user = await bot.users.fetch(doc.author as string);
-                doc.author_data = {
-                    username: user.username,
-                    discriminator: user.discriminator,
-                    id: doc.author as string,
-                };
-            } catch {
-                doc.author_data = { missing: true, id: doc.author as string };
-            }
 
         doc.parsed = markdown_postprocess(doc.parsed!, reader);
-
         return { doc: fix(doc) };
     }
 

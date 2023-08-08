@@ -4,18 +4,18 @@
     import ListButton from "$lib/ListButton.svelte";
     import { API } from "$lib/api";
     import type { LocalsData, ObserverTerm } from "$lib/types";
+    import User from "$lib/UserMention.svelte";
+    import TimeMention from "$lib/TimeMention.svelte";
+    import Icon from "$lib/Icon.svelte";
 
     export let data: LocalsData & { entries: ObserverTerm[] };
 
     async function save() {
-        data.entries = data.entries.sort(
-            (x, y) => x.year - y.year || x.month - y.month || x.date - y.date,
-        );
+        data.entries = data.entries.sort((x, y) => x.year - y.year || x.month - y.month || x.date - y.date);
 
         API.post_observer_terms(data.entries)
             .then(() =>
-                JSON.stringify(copy.map((x) => x.user)) ===
-                JSON.stringify(data.entries.map((x) => x.user))
+                JSON.stringify(copy.map((x) => x.user)) === JSON.stringify(data.entries.map((x) => x.user))
                     ? (copy = structuredClone(data.entries))
                     : location.reload(),
             )
@@ -56,27 +56,16 @@
 
             <tr>
                 <td>
-                    <span class="mention user" data-id={entry.user}>
-                        <i class="material-icons">pending</i> &nbsp; Loading User...
-                    </span>
+                    <User id={entry.user} />
                 </td>
                 <td>
-                    <span class="mention">
-                        <i class="material-icons">schedule</i> &nbsp;
-                        {entry.year}-{entry.month}-{entry.date}
-                    </span>
+                    <TimeMention date={new Date(entry.year, entry.month - 1, entry.date)} show_time={false} />
                 </td>
                 <td>
-                    <span class="mention">
-                        <i class="material-icons">schedule</i> &nbsp;
-                        {end.getFullYear()}-{end.getMonth() + 1}-{end.getDate()}
-                    </span>
+                    <TimeMention date={end} show_time={false} />
                 </td>
                 <td>
-                    <span class="mention">
-                        <i class="material-icons">schedule</i> &nbsp;
-                        {elect.getFullYear()}-{elect.getMonth() + 1}-{elect.getDate()}
-                    </span>
+                    <TimeMention date={elect} show_time={false} />
                 </td>
                 <td>{entry.terms}</td>
             </tr>
@@ -91,35 +80,19 @@
             {#each data.entries as entry, index}
                 <tr>
                     <td>
-                        <input
-                            type="number"
-                            bind:value={entry.year}
-                            placeholder="Term Start Year"
-                        />
+                        <input type="number" bind:value={entry.year} placeholder="Term Start Year" />
                     </td>
                     <td>
-                        <input
-                            type="number"
-                            bind:value={entry.month}
-                            placeholder="Term Start Month"
-                        />
+                        <input type="number" bind:value={entry.month} placeholder="Term Start Month" />
                     </td>
                     <td>
-                        <input
-                            type="number"
-                            bind:value={entry.date}
-                            placeholder="Term Start Date"
-                        />
+                        <input type="number" bind:value={entry.date} placeholder="Term Start Date" />
                     </td>
                     <td>
                         <input type="text" bind:value={entry.user} placeholder="User" />
                     </td>
                     <td>
-                        <input
-                            type="number"
-                            bind:value={entry.terms}
-                            placeholder="Consecutive Terms"
-                        />
+                        <input type="number" bind:value={entry.terms} placeholder="Consecutive Terms" />
                     </td>
                     <td><ListButton bind:array={data.entries} {index} del /></td>
                 </tr>
@@ -140,11 +113,9 @@
                         },
                     ])}
             >
-                <i class="material-icons">add</i>
+                <Icon icon="add" />
             </button>
-            <button on:click={save}>
-                <i class="material-icons">save</i>
-            </button>
+            <button on:click={save}><Icon icon="save" /></button>
         </div>
     </div>
 {/if}

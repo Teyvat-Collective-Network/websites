@@ -8,13 +8,17 @@
 </script>
 
 <script lang="ts">
+    import Icon from "./Icon.svelte";
+
     export let style: keyof typeof styles | null = null;
     export let color: string | null = null;
     export let icon: string | null = null;
 </script>
 
 <div style="background-color: {color ?? styles[style ?? 'info'].color}">
-    <i class="material-icons">{icon ?? styles[style ?? "info"].icon}</i>
+    <span class="icon">
+        <Icon icon={icon ?? styles[style ?? "info"].icon} />
+    </span>
     <span><slot /></span>
 </div>
 
@@ -26,7 +30,7 @@
         flex-direction: row;
     }
 
-    i {
+    span.icon {
         padding-top: 1.05em;
         padding-right: 1em;
     }

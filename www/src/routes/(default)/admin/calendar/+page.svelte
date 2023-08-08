@@ -1,5 +1,6 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import Icon from "$lib/Icon.svelte";
     import ListButton from "$lib/ListButton.svelte";
     import { API } from "$lib/api";
     import type { CalendarEvent } from "$lib/types";
@@ -42,11 +43,7 @@
                     Title:
                     <input type="text" bind:value={event.title} />
                     Invites:
-                    <input
-                        type="text"
-                        bind:value={event.invites}
-                        placeholder="Space-separated codes"
-                    />
+                    <input type="text" bind:value={event.invites} placeholder="Space-separated codes" />
                     Light BG: <input type="text" bind:value={event.light} />
                     Dark BG: <input type="text" bind:value={event.dark} />
                 </div>
@@ -77,23 +74,20 @@
                     },
                 ])}
         >
-            <i class="material-icons">add</i> Add Event
+            <Icon icon="add" /> Add Event
         </button>
     {/each}
 
     <br /><br />
 
-    <button
-        style="background-color: var(--blue-callout)"
-        on:click={() => (data.events = [...data.events, []])}
-    >
-        <i class="material-icons">add</i> Add Calendar Row
+    <button style="background-color: var(--blue-callout)" on:click={() => (data.events = [...data.events, []])}>
+        <Icon icon="add" /> Add Calendar Row
     </button>
 
     <br />
 
     <button style="background-color: transparent; color: var(--blue-text)" on:click={save}>
-        <i class="material-icons">save</i> Save
+        <Icon icon="save" /> Save
     </button>
 </div>
 

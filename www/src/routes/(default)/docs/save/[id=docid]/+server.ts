@@ -3,6 +3,7 @@ import { marked } from "marked";
 import { DB } from "../../../../../db.js";
 import type { Doc } from "$lib/types.js";
 import sanitize from "$lib/sanitize.js";
+import { tag } from "$lib/util.js";
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {
     const doc = (await request.json()).doc as Partial<Doc>;
@@ -40,9 +41,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         doc.embed_body ||= doc.allow_everyone
             ? doc.anon
                 ? ""
-                : `Author: ${locals.user.username}${
-                      locals.user.discriminator === "0" ? "" : `#${locals.user.discriminator}`
-                  }`
+                : `Author: ${tag(locals.user)}`
             : "Sign in to view this document.";
         doc.embed_color ||= "2b2d31";
 
@@ -50,10 +49,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             while (true) {
                 id = new Array(32)
                     .fill(0)
-                    .map(
-                        (x) =>
-                            "0123456789abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 36)],
-                    )
+                    .map((x) => "0123456789abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 36)])
                     .join("");
                 if (!(await DB.Docs.get(id))) break;
             }

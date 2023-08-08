@@ -1,10 +1,4 @@
-import {
-    BANSHARE_MONGO_DB,
-    MONGO_DB,
-    MONGO_URI,
-    MONITOR_REPEAT,
-    REMINDER_CYCLE,
-} from "$env/static/private";
+import { BANSHARE_MONGO_DB, MONGO_DB, MONGO_URI, MONITOR_REPEAT, REMINDER_CYCLE } from "$env/static/private";
 import type {
     Character,
     Poll,
@@ -29,13 +23,7 @@ import type {
     BansharePost,
 } from "$lib/types.js";
 import type { Message } from "discord.js";
-import {
-    type Collection,
-    MongoClient,
-    type Document,
-    type ObjectId,
-    type OptionalId,
-} from "mongodb";
+import { type Collection, MongoClient, type Document, type ObjectId, type OptionalId } from "mongodb";
 
 const client = new MongoClient(MONGO_URI as string);
 await client.connect();
@@ -48,10 +36,10 @@ const db = new Proxy({}, { get: (_, property: string, __) => db_.collection(prop
     Collection<Document>
 >;
 
-const banshares = new Proxy(
-    {},
-    { get: (_, property: string, __) => banshare_db.collection(property) },
-) as Record<string, Collection<Document>>;
+const banshares = new Proxy({}, { get: (_, property: string, __) => banshare_db.collection(property) }) as Record<
+    string,
+    Collection<Document>
+>;
 
 async function replace<T extends OptionalId<Document>>(key: string, entries: T[]): Promise<void> {
     await db[key].deleteMany();
@@ -60,11 +48,7 @@ async function replace<T extends OptionalId<Document>>(key: string, entries: T[]
 
 export namespace DB {
     export async function autoinc(seq: string): Promise<number> {
-        const doc = await db.counters.findOneAndUpdate(
-            { seq },
-            { $inc: { val: 1 } },
-            { upsert: true },
-        );
+        const doc = await db.counters.findOneAndUpdate({ seq }, { $inc: { val: 1 } }, { upsert: true });
         return (doc.value?.val ?? 0) + 1;
     }
 
@@ -92,18 +76,12 @@ export namespace DB {
                 .toArray()) as Banshare<true>[];
         }
 
-        export async function get<T extends boolean = true>(
-            message: string,
-        ): Promise<Banshare<T> | null> {
+        export async function get<T extends boolean = true>(message: string): Promise<Banshare<T> | null> {
             return (await banshares.banshares.findOne({ message })) as Banshare<true> | null;
         }
 
-        export async function get_crossposts<T extends boolean = true>(
-            banshare: string,
-        ): Promise<BansharePost<T>[]> {
-            return (await banshares.banshare_posts
-                .find({ banshare })
-                .toArray()) as BansharePost<true>[];
+        export async function get_crossposts<T extends boolean = true>(banshare: string): Promise<BansharePost<T>[]> {
+            return (await banshares.banshare_posts.find({ banshare }).toArray()) as BansharePost<true>[];
         }
 
         export async function get_crosspost<T extends boolean = true>(
@@ -133,39 +111,23 @@ export namespace DB {
             );
         }
 
-        export async function publish<T extends boolean = true>(
-            message: string,
-        ): Promise<Banshare<T> | null> {
-            return (
-                await banshares.banshares.findOneAndUpdate(
-                    { message },
-                    { $set: { published: true } },
-                )
-            ).value as Banshare<true> | null;
+        export async function publish<T extends boolean = true>(message: string): Promise<Banshare<T> | null> {
+            return (await banshares.banshares.findOneAndUpdate({ message }, { $set: { published: true } }))
+                .value as Banshare<true> | null;
         }
 
         export async function reject(message: string): Promise<void> {
             await banshares.banshares.updateOne({ message }, { $set: { rejected: true } });
         }
 
-        export async function rescind<T extends boolean = true>(
-            message: string,
-        ): Promise<Banshare<T> | null> {
-            return (
-                await banshares.banshares.findOneAndUpdate(
-                    { message },
-                    { $set: { rescinded: true } },
-                )
-            ).value as Banshare<true> | null;
+        export async function rescind<T extends boolean = true>(message: string): Promise<Banshare<T> | null> {
+            return (await banshares.banshares.findOneAndUpdate({ message }, { $set: { rescinded: true } }))
+                .value as Banshare<true> | null;
         }
 
         export async function execute(post: string): Promise<boolean> {
             return !(
-                await banshares.executed.findOneAndUpdate(
-                    { post },
-                    { $set: { executed: true } },
-                    { upsert: true },
-                )
+                await banshares.executed.findOneAndUpdate({ post }, { $set: { executed: true } }, { upsert: true })
             ).value?.executed;
         }
 
@@ -179,11 +141,7 @@ export namespace DB {
             return !!lock.value?.executed;
         }
 
-        export async function add_crosspost(
-            banshare: Banshare,
-            guild: string,
-            post: Message,
-        ): Promise<void> {
+        export async function add_crosspost(banshare: Banshare, guild: string, post: Message): Promise<void> {
             await banshares.banshare_posts.insertOne({
                 guild,
                 banshare: banshare.message,
@@ -194,9 +152,7 @@ export namespace DB {
     }
 
     export namespace BanshareSettings {
-        export async function get<T extends boolean = true>(
-            guild: string,
-        ): Promise<BanshareSettings<T> | null> {
+        export async function get<T extends boolean = true>(guild: string): Promise<BanshareSettings<T> | null> {
             return (await banshares.settings.findOne({ guild })) as BanshareSettings<true> | null;
         }
 
@@ -212,47 +168,25 @@ export namespace DB {
         }
 
         export async function set_output(guild: string, channel?: string): Promise<void> {
-            if (channel)
-                await banshares.channels.updateOne(
-                    { guild },
-                    { $set: { channel } },
-                    { upsert: true },
-                );
+            if (channel) await banshares.channels.updateOne({ guild }, { $set: { channel } }, { upsert: true });
             else await banshares.channels.deleteOne({ guild });
         }
 
         export async function set_log(guild: string, channel?: string): Promise<void> {
-            if (channel)
-                await banshares.logging.updateOne(
-                    { guild },
-                    { $set: { channel } },
-                    { upsert: true },
-                );
+            if (channel) await banshares.logging.updateOne({ guild }, { $set: { channel } }, { upsert: true });
             else await banshares.logging.deleteOne({ guild });
         }
 
         export async function set_button(guild: string, enable: boolean): Promise<void> {
-            await banshares.settings.updateOne(
-                { guild },
-                { $set: { no_button: !enable } },
-                { upsert: true },
-            );
+            await banshares.settings.updateOne({ guild }, { $set: { no_button: !enable } }, { upsert: true });
         }
 
         export async function set_daedalus(guild: string, enable: boolean): Promise<void> {
-            await banshares.settings.updateOne(
-                { guild },
-                { $set: { daedalus: enable } },
-                { upsert: true },
-            );
+            await banshares.settings.updateOne({ guild }, { $set: { daedalus: enable } }, { upsert: true });
         }
 
         export async function set_receive_dm_scams(guild: string, enable: boolean): Promise<void> {
-            await banshares.settings.updateOne(
-                { guild },
-                { $set: { suppress_dm_scams: !enable } },
-                { upsert: true },
-            );
+            await banshares.settings.updateOne({ guild }, { $set: { suppress_dm_scams: !enable } }, { upsert: true });
         }
 
         export async function set_autoban_thresholds(
@@ -275,8 +209,7 @@ export namespace DB {
 
             for (const key of ["elements", "weapons", "regions"]) {
                 data[key] = {};
-                for (const entry of await db[key].find().toArray())
-                    data[key][entry.name] = entry.emoji;
+                for (const entry of await db[key].find().toArray()) data[key][entry.name] = entry.emoji;
             }
 
             const characters: Character<T>[] = [];
@@ -309,9 +242,7 @@ export namespace DB {
             return (await db.polls.findOne({ id })) as Poll<true> | null;
         }
 
-        export async function get_from_message<T extends boolean = true>(
-            message: string,
-        ): Promise<Poll<T> | null> {
+        export async function get_from_message<T extends boolean = true>(message: string): Promise<Poll<T> | null> {
             return (await db.polls.findOne({ message })) as Poll<true> | null;
         }
 
@@ -330,7 +261,7 @@ export namespace DB {
         }
 
         export async function edit(id: number, poll: Partial<Poll>): Promise<void> {
-            await db.polls.updateOne({ id }, { $set: poll });
+            await db.polls.updateOne({ id }, { $set: poll }, { upsert: true });
         }
 
         export async function get_polls_to_dm<T extends boolean = true>(): Promise<Poll<T>[]> {
@@ -348,9 +279,7 @@ export namespace DB {
             poll: number,
             required: string[],
         ): Promise<PollVote<T>[]> {
-            return (await db.poll_votes
-                .find({ poll, user: { $in: required } })
-                .toArray()) as PollVote<true>[];
+            return (await db.poll_votes.find({ poll, user: { $in: required } }).toArray()) as PollVote<true>[];
         }
 
         export async function who_has_voted(poll: number): Promise<string[]> {
@@ -359,10 +288,7 @@ export namespace DB {
     }
 
     export namespace Votes {
-        export async function get<T extends boolean = true>(
-            poll: number,
-            user: string,
-        ): Promise<PollVote<T> | null> {
+        export async function get<T extends boolean = true>(poll: number, user: string): Promise<PollVote<T> | null> {
             return (await db.poll_votes.findOne({ poll, user })) as PollVote<true> | null;
         }
 
@@ -370,40 +296,8 @@ export namespace DB {
             return (await db.poll_votes.find().toArray()) as PollVote<true>[];
         }
 
-        export async function set(
-            poll: number,
-            user: string,
-            vote: Partial<PollVote>,
-        ): Promise<void> {
+        export async function set(poll: number, user: string, vote: Partial<PollVote>): Promise<void> {
             await db.poll_votes.updateOne({ poll, user }, { $set: vote }, { upsert: true });
-        }
-
-        export async function set_abstain(poll: number, user: string): Promise<void> {
-            await set(poll, user, { abstain: true });
-        }
-
-        export async function set_proposal(
-            poll: number,
-            user: string,
-            yes: boolean,
-        ): Promise<void> {
-            await set(poll, user, { abstain: false, yes });
-        }
-
-        export async function set_induction(
-            poll: number,
-            user: string,
-            verdict: string,
-        ): Promise<void> {
-            await set(poll, user, { abstain: false, verdict });
-        }
-
-        export async function set_selection(
-            poll: number,
-            user: string,
-            selected: string[],
-        ): Promise<void> {
-            await set(poll, user, { abstain: false, selected });
         }
     }
 
@@ -412,9 +306,7 @@ export namespace DB {
             return (await db.events.find().toArray()).map((x) => ({ events: x.events }));
         }
 
-        export async function get_event_matrix<T extends boolean = true>(): Promise<
-            CalendarEvent<T>[][]
-        > {
+        export async function get_event_matrix<T extends boolean = true>(): Promise<CalendarEvent<T>[][]> {
             return (await get_tracks()).map(({ events }) => events);
         }
 
@@ -424,14 +316,7 @@ export namespace DB {
     }
 
     export namespace InternalData {
-        const keys = [
-            "guild_map",
-            "user_map",
-            "elements",
-            "weapons",
-            "regions",
-            "characters",
-        ] as const;
+        const keys = ["guild_map", "user_map", "elements", "weapons", "regions", "characters"] as const;
 
         export async function get<T extends boolean = true>(): Promise<InternalData<T>> {
             return {
@@ -467,21 +352,15 @@ export namespace DB {
             return (await get_set("guild_map")) as GuildMapEntry<T>[];
         }
 
-        export async function elements<T extends boolean = true>(): Promise<
-            CharacterAttribute<T>[]
-        > {
+        export async function elements<T extends boolean = true>(): Promise<CharacterAttribute<T>[]> {
             return (await get_set("elements")) as CharacterAttribute<T>[];
         }
 
-        export async function weapons<T extends boolean = true>(): Promise<
-            CharacterAttribute<T>[]
-        > {
+        export async function weapons<T extends boolean = true>(): Promise<CharacterAttribute<T>[]> {
             return (await get_set("weapons")) as CharacterAttribute<T>[];
         }
 
-        export async function regions<T extends boolean = true>(): Promise<
-            CharacterAttribute<T>[]
-        > {
+        export async function regions<T extends boolean = true>(): Promise<CharacterAttribute<T>[]> {
             return (await get_set("regions")) as CharacterAttribute<T>[];
         }
 
@@ -511,9 +390,7 @@ export namespace DB {
             return (await db.observation_schedule.find().toArray()) as ObservationRecord<true>[];
         }
 
-        export async function set_observation_schedule(
-            entries: ObservationRecord[],
-        ): Promise<void> {
+        export async function set_observation_schedule(entries: ObservationRecord[]): Promise<void> {
             await replace("observation_schedule", entries);
         }
 
@@ -552,9 +429,7 @@ export namespace DB {
         }
 
         export async function list(author: string): Promise<Doc<true>[]> {
-            return (await db.docs
-                .find({ author, deleted: { $ne: true } })
-                .toArray()) as Doc<true>[];
+            return (await db.docs.find({ author, deleted: { $ne: true } }).toArray()) as Doc<true>[];
         }
 
         export async function del(id: string, deleter: string): Promise<void> {
@@ -576,9 +451,7 @@ export namespace DB {
         }
 
         export async function list(author: string): Promise<Form<true>[]> {
-            return (await db.forms
-                .find({ author, deleted: { $ne: true } })
-                .toArray()) as Form<true>[];
+            return (await db.forms.find({ author, deleted: { $ne: true } }).toArray()) as Form<true>[];
         }
 
         export async function del(id: string, deleter: string): Promise<void> {

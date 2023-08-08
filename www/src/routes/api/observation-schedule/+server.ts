@@ -4,9 +4,7 @@ import { DB } from "../../../db.js";
 import type { ObservationRecord } from "$lib/types.js";
 
 export const POST: RequestHandler = async ({ locals, request }) => {
-    const user = locals.api_user;
-    if (!user) return new Response(null, { status: 403 });
-    if (!user.roles.includes("observer")) new Response(null, { status: 403 });
+    if (!locals.observer) return new Response(null, { status: 403 });
 
     const entries = (await request.json()) as ObservationRecord[];
 
@@ -16,15 +14,9 @@ export const POST: RequestHandler = async ({ locals, request }) => {
             entry.start_year != undefined &&
             entry.start_month != undefined &&
             entry.start_date != undefined &&
-            (entry.end_year == undefined ||
-                entry.end_month == undefined ||
-                entry.end_date == undefined)
+            (entry.end_year == undefined || entry.end_month == undefined || entry.end_date == undefined)
         ) {
-            const normal_end = new Date(
-                entry.start_year,
-                entry.start_month - 1,
-                entry.start_date + 28,
-            );
+            const normal_end = new Date(entry.start_year, entry.start_month - 1, entry.start_date + 28);
 
             entry.end_year = normal_end.getFullYear();
             entry.end_month = normal_end.getMonth() + 1;

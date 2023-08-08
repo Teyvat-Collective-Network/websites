@@ -5,6 +5,7 @@
     import { dark_mode } from "./stores";
     import { selectall, selectall_nullable } from "./html";
     import type { LocalsData, LocalsDataAPIUser, LocalsDataUser } from "./types";
+    import Icon from "./Icon.svelte";
 
     export let dark: boolean;
     export let data: LocalsData;
@@ -38,8 +39,7 @@
     });
 
     let index = 0;
-    $: open &&
-        (index = selectall<HTMLAnchorElement>("#contents > a").findIndex((e) => e.href === href));
+    $: open && (index = selectall<HTMLAnchorElement>("#contents > a").findIndex((e) => e.href === href));
     $: selectall_nullable<HTMLAnchorElement>("#contents > a:not(.hidden)")?.[index]?.focus();
 
     let info_open: boolean = false;
@@ -63,12 +63,7 @@
     }}
 />
 
-<svg
-    viewBox="0 0 100 100"
-    class={open ? "open" : ""}
-    on:click={() => (open = !open)}
-    on:keydown={() => (open = !open)}
->
+<svg viewBox="0 0 100 100" class={open ? "open" : ""} on:click={() => (open = !open)} on:keydown={() => (open = !open)}>
     <rect id="top" x="10" y="10" width="80" height="10" />
     <rect id="mid" x="10" y="45" width="80" height="10" />
     <rect id="bot" x="10" y="80" width="80" height="10" />
@@ -87,7 +82,7 @@
                 document.cookie = `mode=${dark ? "dark" : "light"};max-age=31536000;samesite=none`;
             }}
         >
-            <i class="material-icons">{dark ? "light_mode" : "dark_mode"}</i>
+            <Icon icon={dark ? "light_mode" : "dark_mode"} />
             Switch to {dark ? "Light" : "Dark"} Mode
         </a>
         <a href="/" class="t1">Home Page</a>
@@ -99,13 +94,11 @@
         <a href="/contact" class="t1">Contact Us</a>
         <a href={"javascript:void(0)"} class="t1" on:click={() => (info_open = !info_open)}>
             Info Pages
-            <i class="material-icons">{info_open ? "keyboard_arrow_down" : "chevron_right"}</i>
+            <Icon icon={info_open ? "keyboard_arrow_down" : "chevron_right"} />
         </a>
         <a href="/info/constitution" class="t2 {info_open ? '' : 'hidden'}">TCN Constitution</a>
         <a href="/info/quickstart" class="t2 {info_open ? '' : 'hidden'}">Quickstart</a>
-        <a href="/info/partner-list" class="t3 {info_open ? '' : 'hidden'}"
-            >Partner List &amp; Autosync</a
-        >
+        <a href="/info/partner-list" class="t3 {info_open ? '' : 'hidden'}">Partner List &amp; Autosync</a>
         <a href="/info/banshares" class="t3 {info_open ? '' : 'hidden'}">Banshares</a>
         <a href="/info/global" class="t3 {info_open ? '' : 'hidden'}">Global Chat</a>
         <a href="/info/staff-link" class="t3 {info_open ? '' : 'hidden'}">Staff Link</a>
@@ -114,20 +107,12 @@
         <a href="/info/miscellaneous" class="t2 {info_open ? '' : 'hidden'}">Miscellaneous</a>
         <a href="/info/exit-procedure" class="t3 {info_open ? '' : 'hidden'}">Exit Procedure</a>
         <a href="/info/glossary" class="t3 {info_open ? '' : 'hidden'}">Glossary</a>
-        <a href="/info/documentation" class="t2 {info_open ? '' : 'hidden'}"
-            >Website Documentation</a
-        >
+        <a href="/info/documentation" class="t2 {info_open ? '' : 'hidden'}">Website Documentation</a>
         {#if user}
             {#if api_user?.guilds?.length}
-                <a
-                    href={"javascript:void(0)"}
-                    class="t1"
-                    on:click={() => (staff_open = !staff_open)}
-                >
+                <a href={"javascript:void(0)"} class="t1" on:click={() => (staff_open = !staff_open)}>
                     Staff Area
-                    <i class="material-icons"
-                        >{staff_open ? "keyboard_arrow_down" : "chevron_right"}</i
-                    >
+                    <Icon icon={staff_open ? "keyboard_arrow_down" : "chevron_right"} />
                 </a>
                 <a href="/banshare" class="t2 {staff_open ? '' : 'hidden'}">Submit a Banshare</a>
                 <a href="/info/voting" class="t2 {staff_open ? '' : 'hidden'}">Voting Help</a>
@@ -136,26 +121,19 @@
                 {/if}
                 <a href="/docs" class="t2 {staff_open ? '' : 'hidden'}">Documents</a>
                 <a href="/forms" class="t2 {staff_open ? '' : 'hidden'}">Forms</a>
-                <a href="/historical-records" class="t2 {staff_open ? '' : 'hidden'}"
-                    >Historical Records</a
-                >
+                <a href="/historical-records" class="t2 {staff_open ? '' : 'hidden'}">Historical Records</a>
                 {#if data.observer}
-                    <a href="/admin/data-manager" class="t2 {staff_open ? '' : 'hidden'}"
-                        >Data Manager</a
-                    >
+                    <a href="/admin/data-manager" class="t2 {staff_open ? '' : 'hidden'}">Data Manager</a>
                 {/if}
             {/if}
-            <a
-                href="{PUBLIC_TCN_AUTH}/logout?redirect={encodeURIComponent(PUBLIC_DOMAIN)}"
-                class="t1"
-            >
+            <a href="{PUBLIC_TCN_AUTH}/logout?redirect={encodeURIComponent(PUBLIC_DOMAIN)}" class="t1">
                 Log Out
-                <i class="material-icons">logout</i>
+                <Icon icon="logout" />
             </a>
         {:else}
             <a href="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(PUBLIC_DOMAIN)}" class="t1">
                 Log In
-                <i class="material-icons">login</i>
+                <Icon icon="login" />
             </a>
         {/if}
     </div>
@@ -194,8 +172,7 @@
 
     rect {
         fill: var(--accent-more);
-        transition: transform 250ms cubic-bezier(0, 1, 0.6, 1.4),
-            opacity 250ms cubic-bezier(0, 1, 0.6, 1.4);
+        transition: transform 250ms cubic-bezier(0, 1, 0.6, 1.4), opacity 250ms cubic-bezier(0, 1, 0.6, 1.4);
     }
 
     #top {

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import Icon from "$lib/Icon.svelte";
     import ListButtons from "$lib/ListButtons.svelte";
     import { API } from "$lib/api";
     import type { Announcement } from "$lib/types";
@@ -28,7 +29,7 @@
     {#each data.announcements as item, index}
         <div class="panel">
             <h3 class="row" style="gap: 10px">
-                <i class="material-icons">{item.icon}</i>
+                <Icon icon={item.icon} />
                 {item.title}
             </h3>
             <label>
@@ -38,11 +39,7 @@
             <br />
             <div class="inputs">
                 <span>
-                    <a
-                        href="https://fonts.google.com/icons?icon.set=Material+Icons"
-                        target="_blank"
-                        rel="noreferrer"
-                    >
+                    <a href="https://fonts.google.com/icons?icon.set=Material+Icons" target="_blank" rel="noreferrer">
                         Icon
                     </a>
                 </span>
@@ -67,10 +64,10 @@
                     { icon: "campaign", title: "Announcement", body: "**Markdown** is supported." },
                 ])}
         >
-            <i class="material-icons">add</i> Add Announcement
+            <Icon icon="add" /> Add Announcement
         </button>
         <button style="background-color: transparent; color: var(--blue-text)" on:click={save}>
-            <i class="material-icons">save</i> Save
+            <Icon icon="save" /> Save
         </button>
     </div>
 </div>

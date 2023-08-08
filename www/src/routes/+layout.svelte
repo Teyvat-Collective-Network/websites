@@ -24,7 +24,7 @@
         const cache: Record<string, string | 1> = {};
         const real = new Set<string>();
 
-        if (select(".guild")) {
+        if (select_nullable(".guild")) {
             for (const entry of await TCN.guilds()) {
                 cache[entry.id] = entry.name;
                 real.add(entry.id);
@@ -51,7 +51,7 @@
             }
         }
 
-        if (document.querySelector(".user")) {
+        if (select_nullable(".user")) {
             (await API.get_all_tags()).forEach(
                 (x) =>
                     (cache[x.id] = x.fake
@@ -99,9 +99,9 @@
 
 <script lang="ts">
     import { page } from "$app/stores";
-    import { PUBLIC_HQ, PUBLIC_HUB, PUBLIC_TCN_API } from "$env/static/public";
+    import { PUBLIC_HQ, PUBLIC_HUB } from "$env/static/public";
     import { API, TCN } from "$lib/api";
-    import { select, selectall } from "$lib/html";
+    import { select, select_nullable, selectall } from "$lib/html";
     import type { BaseElement } from "$lib/types";
     import { onMount } from "svelte";
 

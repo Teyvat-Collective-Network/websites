@@ -13,6 +13,7 @@
     import Callout from "$lib/Callout.svelte";
     import ConfirmLeave from "$lib/ConfirmLeave.svelte";
     import DatetimePicker from "$lib/DatetimePicker.svelte";
+    import Icon from "$lib/Icon.svelte";
     import ListButtons from "$lib/ListButtons.svelte";
     import Redirect from "$lib/Redirect.svelte";
     import type { Form, LocalsData } from "$lib/types";
@@ -70,9 +71,7 @@
     }
 
     function find_question(id: number) {
-        return data.form.pages
-            .flatMap((page) => page.questions)
-            .find((question) => question.id === id);
+        return data.form.pages.flatMap((page) => page.questions).find((question) => question.id === id);
     }
 
     let webhook_input_show = false;
@@ -93,9 +92,7 @@
 <div class="container">
     <div id="main">
         {#if !data.user}
-            <Redirect
-                to="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/forms`)}"
-            />
+            <Redirect to="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/forms`)}" />
         {:else if !data.council}
             <Callout style="red">
                 <p>You are not authorized to use the TCN Forms feature.</p>
@@ -114,13 +111,7 @@
             <div class="panel">
                 <h3>Form</h3>
                 <h5>Name</h5>
-                <input
-                    type="text"
-                    bind:value={data.form.name}
-                    required
-                    placeholder="Max Length: 100"
-                    maxlength={100}
-                />
+                <input type="text" bind:value={data.form.name} required placeholder="Max Length: 100" maxlength={100} />
                 <p>
                     <label>
                         <input type="checkbox" bind:checked={data.form.collect_names} />
@@ -131,9 +122,8 @@
                     <label>
                         <input type="checkbox" bind:checked={data.form.external} />
                         <span>
-                            Use External Validation/Conditions (<a
-                                href="/info/documentation/forms"
-                                target="_blank">docs</a
+                            Use External Validation/Conditions (<a href="/info/documentation/forms" target="_blank"
+                                >docs</a
                             >)
                         </span>
                     </label>
@@ -153,10 +143,9 @@
                     {:else}
                         <Callout style="warn">
                             <p>
-                                Access to this URL is done from the client-side and the user
-                                receives the entire form when they load the page, so do not hide
-                                sensitive content behind validation. The answers will be validated
-                                again on the server-side before the submission is confirmed, so you
+                                Access to this URL is done from the client-side and the user receives the entire form
+                                when they load the page, so do not hide sensitive content behind validation. The answers
+                                will be validated again on the server-side before the submission is confirmed, so you
                                 are guaranteed to receive valid submissions.
                             </p>
                         </Callout>
@@ -170,12 +159,7 @@
                             <ListButtons bind:array={data.form.pages} {index} />
                         </h4>
                         <h5>Name</h5>
-                        <input
-                            type="text"
-                            bind:value={page.name}
-                            placeholder="Max Length: 100"
-                            maxlength={100}
-                        />
+                        <input type="text" bind:value={page.name} placeholder="Max Length: 100" maxlength={100} />
                         <h5>Description</h5>
                         <input
                             type="text"
@@ -190,9 +174,7 @@
                                     <label>
                                         <input type="checkbox" bind:checked={page.use_condition} />
                                         <span>
-                                            Show Conditionally (<a href="/info/documentation/forms"
-                                                >docs</a
-                                            >)
+                                            Show Conditionally (<a href="/info/documentation/forms">docs</a>)
                                         </span>
                                     </label>
                                 </p>
@@ -208,10 +190,7 @@
                                                     {#if ["number", "mcq", "date"].includes(question.type)}
                                                         <option value={question.id}>
                                                             {question.question.length > 80
-                                                                ? `${question.question.substring(
-                                                                      0,
-                                                                      77,
-                                                                  )}...`
+                                                                ? `${question.question.substring(0, 77)}...`
                                                                 : question.question}
                                                         </option>
                                                     {/if}
@@ -227,10 +206,7 @@
                                     <p class="row" style="gap: 20px; flex-wrap: wrap">
                                         {#each council_positions as [key, display]}
                                             <label>
-                                                <input
-                                                    type="checkbox"
-                                                    bind:checked={page.condition[key]}
-                                                />
+                                                <input type="checkbox" bind:checked={page.condition[key]} />
                                                 if {display ?? key}
                                             </label>
                                         {/each}
@@ -282,9 +258,7 @@
                                                 <label>
                                                     <input
                                                         type="checkbox"
-                                                        bind:checked={page.condition.options[
-                                                            option
-                                                        ]}
+                                                        bind:checked={page.condition.options[option]}
                                                     />
                                                     {option}
                                                 </label>
@@ -300,9 +274,7 @@
                                                 <option value="ge">after or on</option>
                                                 <option value="gt">after</option>
                                                 <option value="bw">between (includes ends)</option>
-                                                <option value="nb"
-                                                    >not between (excludes ends)</option
-                                                >
+                                                <option value="nb">not between (excludes ends)</option>
                                             </select>
                                             <span
                                                 style="padding: 10px; border-radius: 5px; background-color: var(--background-1)"
@@ -381,14 +353,9 @@
                                     </label>
                                     {#if data.form.external}
                                         <label>
-                                            <input
-                                                type="checkbox"
-                                                bind:checked={question.use_validation}
-                                            />
+                                            <input type="checkbox" bind:checked={question.use_validation} />
                                             <span>
-                                                Use Validation (<a href="/info/documentation/docs"
-                                                    >docs</a
-                                                >)
+                                                Use Validation (<a href="/info/documentation/docs">docs</a>)
                                             </span>
                                         </label>
                                     {/if}
@@ -400,9 +367,7 @@
                                                 Input&nbsp;Validation
                                                 <select bind:value={question.short_format}>
                                                     <option value="none">No Validation</option>
-                                                    <option value="email"
-                                                        >Require Email Address</option
-                                                    >
+                                                    <option value="email">Require Email Address</option>
                                                     <option value="url">Require URL</option>
                                                     <option value="user">Require User ID</option>
                                                 </select>
@@ -412,10 +377,7 @@
                                             <p>
                                                 <label>
                                                     Custom&nbsp;Error&nbsp;Text
-                                                    <input
-                                                        type="text"
-                                                        bind:value={question.text_format_error}
-                                                    />
+                                                    <input type="text" bind:value={question.text_format_error} />
                                                 </label>
                                             </p>
                                         {/if}
@@ -423,20 +385,14 @@
                                     {#if question.type === "number"}
                                         <p>
                                             <label>
-                                                <input
-                                                    type="checkbox"
-                                                    bind:checked={question.float}
-                                                />
+                                                <input type="checkbox" bind:checked={question.float} />
                                                 Allow Non-Integer Input
                                             </label>
                                         </p>
                                         <p>
                                             <label>
                                                 Custom&nbsp;Error&nbsp;Text
-                                                <input
-                                                    type="text"
-                                                    bind:value={question.integer_error}
-                                                />
+                                                <input type="text" bind:value={question.integer_error} />
                                             </label>
                                         </p>
                                     {/if}
@@ -446,55 +402,33 @@
                                             {#each question.options as option, oi}
                                                 <tr>
                                                     <td>Option {oi + 1}</td>
-                                                    <td
-                                                        ><input
-                                                            type="text"
-                                                            bind:value={option}
-                                                        /></td
-                                                    >
-                                                    <ListButtons
-                                                        bind:array={question.options}
-                                                        index={oi}
-                                                        table
-                                                    />
+                                                    <td><input type="text" bind:value={option} /></td>
+                                                    <ListButtons bind:array={question.options} index={oi} table />
                                                 </tr>
                                             {/each}
                                         </table>
                                         <p>
-                                            <button
-                                                on:click={() =>
-                                                    (question.options = [...question.options, ""])}
-                                            >
+                                            <button on:click={() => (question.options = [...question.options, ""])}>
                                                 Add Option
                                             </button>
                                         </p>
                                         <p>
                                             <label>
-                                                <input
-                                                    type="checkbox"
-                                                    bind:checked={question.dropdown}
-                                                />
-                                                Show As Dropdown (only works if min and max choices are
-                                                both 1)
+                                                <input type="checkbox" bind:checked={question.dropdown} />
+                                                Show As Dropdown (only works if min and max choices are both 1)
                                             </label>
                                         </p>
                                     {/if}
                                     {#if question.type === "date"}
                                         <p>
                                             <label>
-                                                <input
-                                                    type="checkbox"
-                                                    bind:checked={question.show_date}
-                                                />
+                                                <input type="checkbox" bind:checked={question.show_date} />
                                                 Show Date
                                             </label>
                                         </p>
                                         <p>
                                             <label>
-                                                <input
-                                                    type="checkbox"
-                                                    bind:checked={question.show_time}
-                                                />
+                                                <input type="checkbox" bind:checked={question.show_time} />
                                                 Show Time
                                             </label>
                                         </p>
@@ -502,21 +436,14 @@
                                             <p>
                                                 <select bind:value={question.relative_time}>
                                                     <option value="all">Allow any time</option>
-                                                    <option value="past"
-                                                        >Require time to be in past</option
-                                                    >
-                                                    <option value="future"
-                                                        >Require time to be in future</option
-                                                    >
+                                                    <option value="past">Require time to be in past</option>
+                                                    <option value="future">Require time to be in future</option>
                                                 </select>
                                             </p>
                                             <p>
                                                 <label>
                                                     Custom&nbsp;Error&nbsp;Text
-                                                    <input
-                                                        type="text"
-                                                        bind:value={question.time_error}
-                                                    />
+                                                    <input type="text" bind:value={question.time_error} />
                                                 </label>
                                             </p>
                                         {/if}
@@ -638,9 +565,7 @@
                                     class="row"
                                     on:click={() => (webhook_input_show = !webhook_input_show)}
                                 >
-                                    <i class="material-icons">
-                                        visibility{#if webhook_input_show}_off{/if}
-                                    </i>
+                                    <Icon icon={wbehook_input_show ? "visibility_off" : "visibility"} />
                                 </a>
                             </label>
                         </p>
@@ -648,10 +573,7 @@
                             {#if data.form.webhook.match(webhook_regex)}
                                 <p>
                                     <label>
-                                        <input
-                                            type="checkbox"
-                                            bind:checked={data.form.only_post_link}
-                                        />
+                                        <input type="checkbox" bind:checked={data.form.only_post_link} />
                                         Only Post Link (don't include any answers)
                                     </label>
                                 </p>
@@ -703,12 +625,8 @@
                                 <Callout style="info">
                                     <p>
                                         This is not a Discord webhook URL.
-                                        <b>
-                                            Make sure you are sending the submission data to the
-                                            right place.
-                                        </b>
-                                        The webhook will be sent raw submission data instead of Discord
-                                        message data.
+                                        <b> Make sure you are sending the submission data to the right place. </b>
+                                        The webhook will be sent raw submission data instead of Discord message data.
                                         <a href="/info/documentation/forms">[documentation]</a>
                                     </p>
                                 </Callout>
@@ -728,23 +646,19 @@
                 <div class="panel">
                     <h3>Access</h3>
                     <p>
-                        Control access here. Only you can edit permissions. Only editors can view
-                        submissions. Only you and observers can delete this form. Observers will
-                        always have view access but cannot submit unless explicitly allowed.
+                        Control access here. Only you can edit permissions. Only editors can view submissions. Only you
+                        and observers can delete this form. Observers will always have view access but cannot submit
+                        unless explicitly allowed.
                     </p>
                     {#if data.form.external}
                         <Callout style="info">
                             <p>
                                 You can also control access via the external form API; check
-                                <a href="/info/documentation/forms" target="_blank">the docs</a> for
-                                more information. Access controls you set here will apply first, so if
-                                you want to entirely control it externally, set it to allow logged in
-                                users.
+                                <a href="/info/documentation/forms" target="_blank">the docs</a> for more information. Access
+                                controls you set here will apply first, so if you want to entirely control it externally,
+                                set it to allow logged in users.
                             </p>
-                            <p>
-                                If you make this form public, you will not be able to control access
-                                externally.
-                            </p>
+                            <p>If you make this form public, you will not be able to control access externally.</p>
                         </Callout>
                         <br />
                         <label>
@@ -777,19 +691,14 @@
                         Make Public
                     </label>
                     <h5>Allowlist</h5>
-                    <p>
-                        Input a space or comma separated list of user IDs to grant view and submit
-                        access.
-                    </p>
+                    <p>Input a space or comma separated list of user IDs to grant view and submit access.</p>
                     <input type="text" bind:value={data.form.allowlist} />
                 </div>
             {/if}
             <div class="panel">
                 <h3>Appearance</h3>
                 <h5>Embed Data</h5>
-                <p>
-                    This controls the embed that appears when you paste your form link into Discord.
-                </p>
+                <p>This controls the embed that appears when you paste your form link into Discord.</p>
                 <p><b>Embed Title</b></p>
                 <input
                     type="text"
@@ -820,9 +729,7 @@
             <div class="panel row" style="gap: 1em">
                 <button on:click={save}>Save (Ctrl+S)</button>
                 {#if data.id !== "new" && data.form.author === data.user.id}
-                    <button on:click={del} style="background-color: var(--red-button)">
-                        Delete
-                    </button>
+                    <button on:click={del} style="background-color: var(--red-button)"> Delete </button>
                     <a href="/form/{data.id}">View</a>
                 {/if}
             </div>

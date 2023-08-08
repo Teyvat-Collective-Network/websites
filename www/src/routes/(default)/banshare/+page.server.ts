@@ -1,13 +1,15 @@
-import { ALERT, CHANNEL, NON_URGENT, URGENT } from "$env/static/private";
 import { fail, type Actions } from "@sveltejs/kit";
 import { escape } from "svelte/internal";
-import bot, { sync_dashboard } from "../../../bot.js";
+import bot from "../../../core/bot.js";
 import { create_gist } from "../../../gists.js";
 import { escapeMarkdown } from "discord.js";
-import { components } from "$lib/banshares/components.js";
 import type { BanshareFormData, TCNUser } from "$lib/types.js";
 import { TCN } from "$lib/api.js";
 import { DB } from "../../../db.js";
+import { controls } from "../../../bots/banshare-bot/utils/components.js";
+import sync_dashboard from "../../../bots/banshare-bot/processes/sync_dashboard.js";
+import { channels, roles } from "../../../core/resources.js";
+import { tag } from "$lib/util.js";
 
 function compare(a: string, b: string): number {
     if (!a.match(/^\d+$/))
@@ -84,18 +86,7 @@ export const actions: Actions = {
         const server_name = (await TCN.guild(server)).name;
 
         if (!bot.user)
-            return abort(
-                500,
-                "Banshare bot is not ready to handle your request yet. Please wait for a few seconds.",
-            );
-
-        const channel = bot.channels.cache.get(CHANNEL as string);
-
-        if (!channel?.isTextBased())
-            return abort(
-                500,
-                "Banshare bot is not configured correctly: output channel is not a valid text-based channel.",
-            );
+            return abort(500, "Banshare bot is not ready to handle your request yet. Please wait for a few seconds.");
 
         let id_list: string[] = [];
         const tags: string[] = [];
@@ -107,22 +98,14 @@ export const actions: Actions = {
 
             for (const id of id_list)
                 if (!id.match(/^[1-9][0-9]{16,19}$/))
-                    return abort(
-                        400,
-                        `Invalid ID: <code>${escape(id)}</code> is not a valid Discord ID.`,
-                    );
+                    return abort(400, `Invalid ID: <code>${escape(id)}</code> is not a valid Discord ID.`);
 
             if (action === "Submit")
                 for (const id of id_list)
                     try {
                         tags.push((await bot.users.fetch(id)).tag);
                     } catch {
-                        return abort(
-                            400,
-                            `Invalid ID: <code>${escape(
-                                id,
-                            )}</code> did not correspond to a valid user.`,
-                        );
+                        return abort(400, `Invalid ID: <code>${escape(id)}</code> did not correspond to a valid user.`);
                     }
 
             ids_output = id_list.join(" ");
@@ -138,16 +121,8 @@ export const actions: Actions = {
                         ...(tags.length > 0 ? [{ name: "Username(s)", value: tags }] : []),
                         { name: "Reason", value: reason },
                         { name: "Evidence", value: evidence },
-                        {
-                            name: "Submitted by",
-                            value: `${user.username}${
-                                user.discriminator === "0" ? "" : `#${user.discriminator}`
-                            } (\`${user.id}\`) from ${server_name}`,
-                        },
-                        {
-                            name: "Severity",
-                            value: severity[0].toUpperCase() + severity.slice(1),
-                        },
+                        { name: "Submitted by", value: `${tag(user)} (\`${user.id}\`) from ${server_name}` },
+                        { name: "Severity", value: severity[0].toUpperCase() + severity.slice(1) },
                     ],
                 },
             ],
@@ -167,11 +142,7 @@ export const actions: Actions = {
 
             try {
                 send_data = format(
-                    `<${await create_gist(
-                        `banshare-ids-${iso}`,
-                        `IDs for the banshare on ${iso}`,
-                        ids_output,
-                    )}>`,
+                    `<${await create_gist(`banshare-ids-${iso}`, `IDs for the banshare on ${iso}`, ids_output)}>`,
                     "",
                 );
             } catch {
@@ -179,7 +150,7 @@ export const actions: Actions = {
             }
         }
 
-        const post = await channel.send({ ...send_data, components: components(false, severity) });
+        const post = await channels.banshare_main.send({ ...send_data, components: controls(false, severity) });
 
         await DB.Banshares.submit({
             message: post.id,
@@ -193,19 +164,15 @@ export const actions: Actions = {
             urgent,
         });
 
-        if (ALERT) {
-            const alert = bot.channels.cache.get(ALERT);
-            if (alert?.isTextBased())
-                try {
-                    await alert.send(
-                        `${
-                            (urgent ? URGENT : NON_URGENT) ?? ""
-                        } A banshare was just posted in ${channel} for review${
-                            urgent ? " (**urgent**)" : ""
-                        }. If you wish to alter the severity, use the buttons below the banshare **before** publishing.`,
-                    );
-                } catch {}
-        }
+        try {
+            await channels.exec.send(
+                `${(urgent ? roles.urgent : roles.non_urgent) ?? ""} A banshare was just posted in ${
+                    channels.banshare_main
+                } for review${
+                    urgent ? " (**urgent**)" : ""
+                }. If you wish to alter the severity, use the buttons below the banshare **before** publishing.`,
+            );
+        } catch {}
 
         try {
             await sync_dashboard();

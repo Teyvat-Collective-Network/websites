@@ -2,7 +2,9 @@
     import { PUBLIC_DOMAIN, PUBLIC_TCN_AUTH } from "$env/static/public";
     import Callout from "$lib/Callout.svelte";
     import FormAnswer from "$lib/FormAnswer.svelte";
+    import Icon from "$lib/Icon.svelte";
     import Redirect from "$lib/Redirect.svelte";
+    import User from "$lib/UserMention.svelte";
     import type { Form, FormQuestion, FormSubmission, LocalsData } from "$lib/types";
 
     export let data: LocalsData & {
@@ -24,9 +26,7 @@
 <div class="container">
     <div id="main">
         {#if !data.user}
-            <Redirect
-                to="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/forms`)}"
-            />
+            <Redirect to="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/forms`)}" />
         {:else if data.missing}
             <Callout style="red">
                 <p>There is no form with ID <code>{data.id}</code>, or it has been deleted.</p>
@@ -42,28 +42,21 @@
         {:else}
             {#if data.form.deleted}
                 <Callout style="red">
-                    <p>
-                        This form has been deleted. You are able to see it only because you are an
-                        observer.
-                    </p>
+                    <p>This form has been deleted. You are able to see it only because you are an observer.</p>
                 </Callout>
                 <br />
             {/if}
             <p><b style="color: var(--text-secondary)">Viewing Submissions For:</b></p>
             <h3 class="row" style="gap: 10px">
                 {data.form.name}
-                <a href="/forms/edit/{data.form.id}"><i class="material-icons">edit</i></a>
-                <a href="/form/{data.form.id}" target="_blank" rel="noreferrer">
-                    <i class="material-icons">visibility</i>
-                </a>
+                <a href="/forms/edit/{data.form.id}"><Icon icon="edit" /></a>
+                <a href="/form/{data.form.id}" target="_blank" rel="noreferrer"><Icon icon="visibility" /></a>
             </h3>
             <p class="row" style="gap: 10px">
                 {#each ["summary", "individual"] as m}
                     <button
                         on:click={() => (mode = m)}
-                        style={mode === m
-                            ? "background-color: var(--accent)"
-                            : "background-color: var(--background-2)"}
+                        style={mode === m ? "background-color: var(--accent)" : "background-color: var(--background-2)"}
                         disabled={mode === m}
                     >
                         {m}
@@ -80,18 +73,15 @@
                                     <div class="answer-box row">
                                         <span style="flex-grow: 1">
                                             <span class="mention user" data-id={submission.user}>
-                                                <i class="material-icons">pending</i> &nbsp; Loading
-                                                User...
+                                                <Icon icon="pending" /> &nbsp; Loading User...
                                             </span>
                                         </span>
                                         <a
                                             href={"javascript:void(0)"}
                                             class="row"
-                                            on:click={() => (
-                                                (si = index + 1), (mode = "individual")
-                                            )}
+                                            on:click={() => ((si = index + 1), (mode = "individual"))}
                                         >
-                                            <i class="material-icons">chevron_right</i>
+                                            <Icon icon="chevron_right" />
                                         </a>
                                     </div>
                                 {/if}
@@ -104,9 +94,7 @@
                         <h4>{question.question}</h4>
                         <div class="scroll">
                             {#each data.submissions as submission, index}
-                                {@const answer = submission.answers.find(
-                                    (answer) => answer.id === question.id,
-                                )}
+                                {@const answer = submission.answers.find((answer) => answer.id === question.id)}
 
                                 {#if answer}
                                     <div class="answer-box row">
@@ -116,11 +104,9 @@
                                         <a
                                             href={"javascript:void(0)"}
                                             class="row"
-                                            on:click={() => (
-                                                (si = index + 1), (mode = "individual")
-                                            )}
+                                            on:click={() => ((si = index + 1), (mode = "individual"))}
                                         >
-                                            <i class="material-icons">chevron_right</i>
+                                            <Icon icon="chevron_right" />
                                         </a>
                                     </div>
                                 {/if}
@@ -137,7 +123,7 @@
                         on:click={() => (si = ids[ids.indexOf(si) - 1] ?? si)}
                         style={si === 1 ? "color: transparent; cursor: default" : ""}
                     >
-                        <i class="material-icons">chevron_left</i>
+                        <Icon icon="chevron_left" />
                     </a>
                     <input type="number" bind:value={si} min={1} max={ids.at(-1)} />
                     <a
@@ -146,7 +132,7 @@
                         on:click={() => (si = ids[ids.indexOf(si) + 1] ?? si)}
                         style={si === ids.at(-1) ? "color: transparent; cursor: default" : ""}
                     >
-                        <i class="material-icons">chevron_right</i>
+                        <Icon icon="chevron_right" />
                     </a>
                 </div>
 
@@ -157,9 +143,7 @@
                         {#if submission.user}
                             <div class="panel">
                                 <h4>User</h4>
-                                <span class="mention user" data-id={submission.user}>
-                                    <i class="material-icons">pending</i> &nbsp; Loading User...
-                                </span>
+                                <User id={submission.user} />
                             </div>
                         {/if}
                         {#each submission.answers as answer}
@@ -170,18 +154,16 @@
                                 <h4>{answer.question}</h4>
                                 {#if real && real !== answer.question}
                                     <p>
-                                        <b style="color: var(--blue-text)">Edited:</b> This question
-                                        is now: {real}
+                                        <b style="color: var(--blue-text)">Edited:</b> This question is now: {real}
                                     </p>
                                 {/if}
                                 {#if del}
                                     <p>
-                                        <b style="color: var(--red-text)">Deleted:</b> This question
-                                        is now deleted.
+                                        <b style="color: var(--red-text)">Deleted:</b> This question is now deleted.
                                         {#if del !== answer.question}
                                             <br />
-                                            <b style="color: var(--blue-text)">Edited:</b> Before
-                                            deletion, the last version of this question was: {del}
+                                            <b style="color: var(--blue-text)">Edited:</b> Before deletion, the last
+                                            version of this question was: {del}
                                         {/if}
                                     </p>
                                 {/if}

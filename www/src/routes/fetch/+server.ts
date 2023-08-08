@@ -1,6 +1,6 @@
 import { escape } from "svelte/internal";
 import { aborted } from "../../abort.js";
-import bot from "../../bot.js";
+import bot from "../../core/bot.js";
 import type { RequestHandler } from "@sveltejs/kit";
 
 export const POST: RequestHandler = async ({ request, url }) => {

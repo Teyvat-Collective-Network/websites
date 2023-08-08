@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Icon from "$lib/Icon.svelte";
     import Testimonial from "$lib/Testimonial.svelte";
     import type { LocalsData, TCNGuild, Testimonial as TestimonialType } from "$lib/types";
 
@@ -17,20 +18,20 @@
             </div>
             <div id="box-2">
                 <p>
-                    The mission of the TCN is to unite all mains servers across Teyvat and provide
-                    support and promote collaboration between partners.
+                    The mission of the TCN is to unite all mains servers across Teyvat and provide support and promote
+                    collaboration between partners.
                 </p>
             </div>
             <div id="box-3">
                 <p>
-                    The TCN is a network of {data?.partners?.length} high-quality Genshin Impact Discord
-                    servers that are dedicated to fostering Mains-style fan communities.
+                    The TCN is a network of {data?.partners?.length} high-quality Genshin Impact Discord servers that are
+                    dedicated to fostering Mains-style fan communities.
                 </p>
             </div>
             <div id="box-4">
                 <p>
-                    Do you own a Discord server dedicated to a playable Genshin Impact character and
-                    want to join the TCN? Apply here!
+                    Do you own a Discord server dedicated to a playable Genshin Impact character and want to join the
+                    TCN? Apply here!
                 </p>
                 <a href="/join" class="button">Apply To Join</a>
             </div>
@@ -39,7 +40,7 @@
         <h4 class="row" style="gap: 10px">
             Testimonials
             {#if data.observer}
-                <a href="/admin/testimonials"><i class="material-icons">edit</i></a>
+                <a href="/admin/testimonials"><Icon icon="edit" /></a>
             {/if}
         </h4>
         <div id="testimonials">

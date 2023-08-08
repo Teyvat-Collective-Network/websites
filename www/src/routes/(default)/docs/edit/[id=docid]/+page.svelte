@@ -5,6 +5,7 @@
     import ConfirmLeave from "$lib/ConfirmLeave.svelte";
     import Redirect from "$lib/Redirect.svelte";
     import type { Doc, LocalsData } from "$lib/types";
+    import { tag } from "$lib/util";
     import { Textarea } from "@daedalus-discord/webkit";
 
     export let data: LocalsData & {
@@ -72,9 +73,7 @@
 <div class="container">
     <div id="main">
         {#if !data.user}
-            <Redirect
-                to="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/docs`)}"
-            />
+            <Redirect to="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/docs`)}" />
         {:else if !data.council}
             <Callout style="red">
                 <p>You are not authorized to use the TCN Documents feature.</p>
@@ -93,13 +92,7 @@
             <div class="panel">
                 <h3>Document</h3>
                 <h5>Name</h5>
-                <input
-                    type="text"
-                    bind:value={data.doc.name}
-                    required
-                    maxlength={100}
-                    placeholder="Max Length: 100"
-                />
+                <input type="text" bind:value={data.doc.name} required maxlength={100} placeholder="Max Length: 100" />
                 <h5>Content</h5>
                 <Textarea bind:value={data.doc.content} />
             </div>
@@ -107,8 +100,8 @@
                 <div class="panel">
                     <h3>Access</h3>
                     <p>
-                        Control view access here. Only you can edit permissions. Only you and
-                        observers can delete this document. Observers will always have view access.
+                        Control view access here. Only you can edit permissions. Only you and observers can delete this
+                        document. Observers will always have view access.
                     </p>
                     <label>
                         <input type="checkbox" bind:checked={data.doc.allow_council} />
@@ -148,10 +141,7 @@
                     </label>
                 {/if}
                 <h5>Embed Data</h5>
-                <p>
-                    This controls the embed that appears when you paste your document link into
-                    Discord.
-                </p>
+                <p>This controls the embed that appears when you paste your document link into Discord.</p>
                 <p><b>Embed Title</b></p>
                 <input
                     type="text"
@@ -165,11 +155,7 @@
                     placeholder={data.doc.allow_everyone
                         ? data.doc.anon
                             ? ""
-                            : `Author: ${data.user.username}${
-                                  data.user.discriminator === "0"
-                                      ? ""
-                                      : `#${data.user.discriminator}`
-                              }`
+                            : `Author: ${tag(data.user)}`
                         : "Sign in to view this document."}
                 />
                 <p><b>Embed Color</b></p>
@@ -190,9 +176,7 @@
             <div class="panel row" style="gap: 1em">
                 <button on:click={save}>Save (Ctrl+S)</button>
                 {#if data.id !== "new" && data.doc.author === data.user.id}
-                    <button on:click={del} style="background-color: var(--red-button)">
-                        Delete
-                    </button>
+                    <button on:click={del} style="background-color: var(--red-button)"> Delete </button>
                     <a href="/doc/{data.id}">View</a>
                 {/if}
             </div>

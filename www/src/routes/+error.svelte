@@ -4,6 +4,7 @@
     import Menu from "$lib/Menu.svelte";
     import Navbar from "$lib/Navbar.svelte";
     import type { LocalsData } from "$lib/types";
+    import UserMention from "$lib/UserMention.svelte";
 
     export let data: LocalsData;
 </script>
@@ -27,11 +28,7 @@
 
         <link rel="shortcut icon" type="image/png" href="/favicon.png" />
 
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="https://fonts.googleapis.com/icon?family=Material+Icons"
-        />
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
         <link rel="stylesheet" type="text/css" href="/styles/{data.dark ? 'dark' : 'light'}.css" />
         <link rel="stylesheet" type="text/css" href="/styles/stylesheet.css" />
 
@@ -68,12 +65,9 @@
                     <p><a href="/">&lt; Return to Home Page</a></p>
                     {#if $page.status === 404}
                         <p>
-                            If you arrived at this page from a link on this website, please report
-                            it as an error to
-                            <span class="mention user" data-id="251082987360223233">
-                                <i class="material-icons">pending</i> &nbsp; the developer
-                            </span>. Otherwise, please check the spelling of the URL (including
-                            capitalization) and try again.
+                            If you arrived at this page from a link on this website, please report it as an error to
+                            <UserMention id="251082987360223233" />. Otherwise, please check the spelling of the URL
+                            (including capitalization) and try again.
                         </p>
                     {/if}
                 </div>
@@ -83,11 +77,6 @@
 </html>
 
 <style lang="scss">
-    .mention:not(.user) {
-        position: relative;
-        top: 0;
-    }
-
     #slot {
         margin-bottom: 2em;
     }

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import Icon from "$lib/Icon.svelte";
     import ListButtons from "$lib/ListButtons.svelte";
     import { API } from "$lib/api";
     import type { Testimonial } from "$lib/types";
@@ -42,12 +43,9 @@
                 <a
                     href={"javascript:void(0)"}
                     style="background-color: transparent; color: var(--green-text)"
-                    on:click={() => (
-                        data.testimonials.splice(index, 0, structuredClone(testimonial)),
-                        (data = data)
-                    )}
+                    on:click={() => (data.testimonials.splice(index, 0, structuredClone(testimonial)), (data = data))}
                 >
-                    <i class="material-icons">content_copy</i>
+                    <Icon icon="content_copy" />
                 </a>
             </div>
         </div>
@@ -55,13 +53,12 @@
     <div class="row" style="gap: 10px">
         <button
             style="background-color: var(--green-button)"
-            on:click={() =>
-                (data.testimonials = [...data.testimonials, { image: "", name: "", content: "" }])}
+            on:click={() => (data.testimonials = [...data.testimonials, { image: "", name: "", content: "" }])}
         >
-            <i class="material-icons">add</i> Add Testimonial
+            <Icon icon="add" /> Add Testimonial
         </button>
         <button style="background-color: transparent; color: var(--blue-text)" on:click={save}>
-            <i class="material-icons">save</i> Save
+            <Icon icon="save" /> Save
         </button>
     </div>
 </div>

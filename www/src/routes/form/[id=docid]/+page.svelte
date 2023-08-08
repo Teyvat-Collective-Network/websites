@@ -12,6 +12,8 @@
     import { update } from "../../+layout.svelte";
     import ConfirmLeave from "$lib/ConfirmLeave.svelte";
     import LoggedInAs from "$lib/LoggedInAs.svelte";
+    import { selectall } from "$lib/html";
+    import Icon from "$lib/Icon.svelte";
 
     export let data: any;
 
@@ -39,7 +41,7 @@
     }
 
     function replace_links() {
-        for (const element of document.querySelectorAll(".desc a") as any) {
+        for (const element of selectall<HTMLAnchorElement>(".desc a")) {
             element.target = "_blank";
             element.rel = "noreferrer";
         }
@@ -65,23 +67,14 @@
 
             if (["short", "long"].includes(q.type))
                 if (q.value)
-                    if (
-                        q.type === "short" &&
-                        q.short_format === "email" &&
-                        !q.value.match(email_regex)
-                    )
+                    if (q.type === "short" && q.short_format === "email" && !q.value.match(email_regex))
                         q.failed = q.text_format_error || "Input must be an email address.";
-                    else if (
-                        q.type === "short" &&
-                        q.short_format === "url" &&
-                        !q.value.match(url_regex)
-                    )
+                    else if (q.type === "short" && q.short_format === "url" && !q.value.match(url_regex))
                         q.failed = q.text_format_error || "Input must be a URL.";
                     else if (
                         q.type === "short" &&
                         q.short_format === "user" &&
-                        (!q.value.match(/^\d{17,20}$/) ||
-                            !(await fetch(`/api/get-tag/${q.value}`)).ok)
+                        (!q.value.match(/^\d{17,20}$/) || !(await fetch(`/api/get-tag/${q.value}`)).ok)
                     )
                         q.failed = q.text_format_error || "Input must be a valid user ID.";
                     else if (
@@ -90,20 +83,14 @@
                         q.value.length < q.min
                     )
                         q.failed =
-                            q.low_error ||
-                            `Input must be at least ${q.min} character${
-                                q.min === 1 ? "" : "s"
-                            } long.`;
+                            q.low_error || `Input must be at least ${q.min} character${q.min === 1 ? "" : "s"} long.`;
                     else if (
                         (q.type !== "short" || q.short_format === "none") &&
                         q.max != undefined &&
                         q.value.length > q.max
                     )
                         q.failed =
-                            q.high_error ||
-                            `Input must be at most ${q.max} character${
-                                q.max === 1 ? "" : "s"
-                            } long.`;
+                            q.high_error || `Input must be at most ${q.max} character${q.max === 1 ? "" : "s"} long.`;
                     else q.failed = false;
                 else q.failed = q.required && "This question is required.";
             if (q.type === "number")
@@ -112,8 +99,7 @@
                         q.failed = q.low_error || `Input must be at least ${q.min}.`;
                     else if (q.max != undefined && q.value > q.max)
                         q.failed = q.high_error || `Input must be at most ${q.max}.`;
-                    else if (!q.float && q.value % 1 !== 0)
-                        q.failed = q.integer_error || "Input must be an integer.";
+                    else if (!q.float && q.value % 1 !== 0) q.failed = q.integer_error || "Input must be an integer.";
                     else q.failed = false;
                 else q.failed = q.required && "This question is required.";
             if (q.type === "mcq")
@@ -123,13 +109,9 @@
                 else {
                     const length = Object.values(q.selected).filter((x) => x).length;
                     if (q.min != undefined && length < q.min)
-                        q.failed =
-                            q.low_error ||
-                            `Select at least ${q.min} option${q.min === 1 ? "" : "s"}.`;
+                        q.failed = q.low_error || `Select at least ${q.min} option${q.min === 1 ? "" : "s"}.`;
                     else if (q.max != undefined && length > q.max)
-                        q.failed =
-                            q.high_error ||
-                            `Select at most ${q.max} option${q.max === 1 ? "" : "s"}.`;
+                        q.failed = q.high_error || `Select at most ${q.max} option${q.max === 1 ? "" : "s"}.`;
                     else q.failed = length === 0 && q.required && "This question is required.";
                 }
             if (q.type === "date")
@@ -141,9 +123,7 @@
                             q.date.setSeconds(0);
                         }
 
-                        q.failed =
-                            q.date > new Date() &&
-                            (q.time_error || "The selected time must be in the past.");
+                        q.failed = q.date > new Date() && (q.time_error || "The selected time must be in the past.");
                     } else if (q.show_date && q.relative_time === "future") {
                         if (!q.show_time) {
                             q.date.setHours(23);
@@ -151,9 +131,7 @@
                             q.date.setSeconds(59);
                         }
 
-                        q.failed =
-                            q.date < new Date() &&
-                            (q.time_error || "The selected time must be in the future.");
+                        q.failed = q.date < new Date() && (q.time_error || "The selected time must be in the future.");
                     } else q.failed = false;
                 else q.failed = q.required && "This question is required.";
 
@@ -293,9 +271,7 @@
 
             if (question.max === 1) {
                 if (question.value != undefined) selected.add(question.value);
-            } else
-                for (const [k, v] of Object.entries(question.selected))
-                    if (v) selected.add(question.options[k]);
+            } else for (const [k, v] of Object.entries(question.selected)) if (v) selected.add(question.options[k]);
 
             const keys = Object.entries(pc.options).filter(([, y]) => y);
             const f = keys[pc.mcq_anyall === "any" ? "some" : "every"].bind(keys);
@@ -353,14 +329,11 @@
             if (!data.form.pages[page_index].use_condition) break;
 
             try {
-                const request = await fetch(
-                    `${data.form.external_url}/condition/${page_index + 1}`,
-                    {
-                        method: "post",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ user: data.user?.id ?? null, answers }),
-                    },
-                );
+                const request = await fetch(`${data.form.external_url}/condition/${page_index + 1}`, {
+                    method: "post",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user: data.user?.id ?? null, answers }),
+                });
 
                 if (!request.ok) throw 0;
 
@@ -396,9 +369,7 @@
             const q = page.questions[qi];
             q.failed = "";
 
-            const fail = (message: string = "This question is required.") => (
-                (q.failed = message), (pass = false)
-            );
+            const fail = (message: string = "This question is required.") => ((q.failed = message), (pass = false));
 
             if (q.required) {
                 if (q.type === "short" || q.type === "long" || q.type === "date") {
@@ -454,7 +425,7 @@
     on:click={() => scrollTo({ top: 0 })}
     style="opacity: {scroll ? 1 : 0}"
 >
-    <i class="material-icons">expand_less</i>
+    <Icon icon="expand_less" />
 </a>
 
 <html lang="en">
@@ -478,11 +449,7 @@
 
         <link rel="shortcut icon" type="image/png" href="/favicon.png" />
 
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="https://fonts.googleapis.com/icon?family=Material+Icons"
-        />
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
         <link rel="stylesheet" type="text/css" href="/styles/{data.dark ? 'dark' : 'light'}.css" />
         <link rel="stylesheet" type="text/css" href="/styles/stylesheet.css" />
 
@@ -518,8 +485,7 @@
                     {#if data.missing}
                         <Callout style="red">
                             <p>
-                                There is no form with ID <code>{data.id}</code>, or it has been
-                                deleted.
+                                There is no form with ID <code>{data.id}</code>, or it has been deleted.
                             </p>
                         </Callout>
                         <br />
@@ -532,8 +498,7 @@
                         {#if data.form.deleted}
                             <Callout style="red">
                                 <p>
-                                    This form has been deleted. You are able to see it only because
-                                    you are an observer.
+                                    This form has been deleted. You are able to see it only because you are an observer.
                                 </p>
                             </Callout>
                             <br />
@@ -541,16 +506,16 @@
                         {#if !data.access}
                             <Callout style="red">
                                 <p>
-                                    You are not allowed to submit to this form, but you are able to
-                                    see it because you are an observer.
+                                    You are not allowed to submit to this form, but you are able to see it because you
+                                    are an observer.
                                 </p>
                             </Callout>
                             <br />
                         {/if}
                         <Callout style="info">
                             <p>
-                                This form is user-generated content and is not endorsed by the
-                                Teyvat Collective Network. Please report abuse to any of our
+                                This form is user-generated content and is not endorsed by the Teyvat Collective
+                                Network. Please report abuse to any of our
                                 <a href="/contact">observers</a>.
                             </p>
                         </Callout>
@@ -558,26 +523,20 @@
                         <h3>
                             {data.form.name}
                             {#if data.form.author === data.user?.id || (data.form.editable_observers && data.observer) || (data.form.editable_council && data.council)}&nbsp;<a
-                                    href="/forms/edit/{data.form.id}"
-                                    ><i class="material-icons">edit</i></a
+                                    href="/forms/edit/{data.form.id}"><Icon icon="edit" /></a
                                 >{/if}
                             {#if data.form.author.id === data.user?.id || data.observer}&nbsp;<a
                                     href={"javascript:void(0)"}
                                     on:click={del}
-                                    style="color: var(--red-text)"
-                                    ><i class="material-icons">delete</i></a
+                                    style="color: var(--red-text)"><Icon icon="delete" /></a
                                 >{/if}
                         </h3>
                         <p>
                             <b>
                                 {#if data.form.collect_names}
-                                    <LoggedInAs
-                                        user={data.user}
-                                        redirect="{PUBLIC_DOMAIN}/form/{data.form.id}"
-                                    />
+                                    <LoggedInAs user={data.user} redirect="{PUBLIC_DOMAIN}/form/{data.form.id}" />
                                 {:else}
-                                    This form is anonymous and will not include your username/ID on
-                                    submission.
+                                    This form is anonymous and will not include your username/ID on submission.
                                 {/if}
                             </b>
                         </p>
@@ -585,9 +544,7 @@
                         <p class="row" style="gap: 10px">
                             <button on:click={reload}>Reload Data / Back To Start</button>
                             {#if reload_success}
-                                <i class="material-icons" style="color: var(--green-text)">
-                                    check
-                                </i>
+                                <Icon icon="check" style="color: var(--green-text)" />
                             {/if}
                         </p>
                         {#if data.form.external}
@@ -608,10 +565,9 @@
                                         <span class="markdown">{@html page.description}</span>
                                     {:else}
                                         <p>
-                                            You have completed this form. You can go back to edit
-                                            your answers or click the submit button to submit your
-                                            responses. You will not be able to edit or view your
-                                            responses afterwards.
+                                            You have completed this form. You can go back to edit your answers or click
+                                            the submit button to submit your responses. You will not be able to edit or
+                                            view your responses afterwards.
                                         </p>
                                     {/if}
                                     {#each page?.questions ?? [] as q}
@@ -624,9 +580,7 @@
                                             <h5>
                                                 {q.question}
                                                 {#if q.required}
-                                                    <span style="color: var(--text-secondary)">
-                                                        [required]
-                                                    </span>
+                                                    <span style="color: var(--text-secondary)"> [required] </span>
                                                 {/if}
                                             </h5>
                                             <span class="markdown">
@@ -667,28 +621,19 @@
                                                                 answers[q.id].length >= q.max}
 
                                                             <div>
-                                                                <span
-                                                                    style="position: relative; display: inline-block"
-                                                                >
+                                                                <span style="position: relative; display: inline-block">
                                                                     {#if disabled}
                                                                         <hr
                                                                             style="position: absolute; left: -10px; right: -10px; top: 20%; z-index: 1; border: 1px solid var(--text-secondary)"
                                                                         />
                                                                     {/if}
-                                                                    <label
-                                                                        style="position: relative"
-                                                                    >
+                                                                    <label style="position: relative">
                                                                         <input
                                                                             type="checkbox"
-                                                                            bind:checked={q
-                                                                                .selected[index]}
+                                                                            bind:checked={q.selected[index]}
                                                                             style="background-color: var(--background-3)"
                                                                             {disabled}
-                                                                            on:change={() =>
-                                                                                update_checkbox(
-                                                                                    q,
-                                                                                    index,
-                                                                                )}
+                                                                            on:change={() => update_checkbox(q, index)}
                                                                         />
                                                                         {option}
                                                                     </label>
@@ -722,9 +667,7 @@
                                         {#if page_index < data.form.pages.length}
                                             <button on:click={() => next()}>Next</button>
                                         {:else}
-                                            <button on:click={() => submit()} disabled={wait}>
-                                                Submit!
-                                            </button>
+                                            <button on:click={() => submit()} disabled={wait}> Submit! </button>
                                         {/if}
                                     </p>
                                 </div>
@@ -736,10 +679,9 @@
                                     <span class="markdown">{@html page.description}</span>
                                 {:else}
                                     <p>
-                                        You have completed this form. You can go back to edit your
-                                        answers or click the submit button to submit your responses.
-                                        You will not be able to edit or view your responses
-                                        afterwards.
+                                        You have completed this form. You can go back to edit your answers or click the
+                                        submit button to submit your responses. You will not be able to edit or view
+                                        your responses afterwards.
                                     </p>
                                 {/if}
                                 {#each page?.questions ?? [] as q, qi}
@@ -752,9 +694,7 @@
                                         <h5>
                                             {q.question}
                                             {#if q.required}
-                                                <span style="color: var(--text-secondary)">
-                                                    [required]
-                                                </span>
+                                                <span style="color: var(--text-secondary)"> [required] </span>
                                             {/if}
                                         </h5>
                                         <span class="markdown">
@@ -768,18 +708,9 @@
                                                 maxlength={q.short_format === "none" ? q.max : null}
                                             />
                                         {:else if q.type === "long"}
-                                            <Textarea
-                                                bind:value={q.value}
-                                                minlength={q.min}
-                                                maxlength={q.max}
-                                            />
+                                            <Textarea bind:value={q.value} minlength={q.min} maxlength={q.max} />
                                         {:else if q.type === "number"}
-                                            <input
-                                                type="number"
-                                                bind:value={q.value}
-                                                min={q.min}
-                                                max={q.max}
-                                            />
+                                            <input type="number" bind:value={q.value} min={q.min} max={q.max} />
                                         {:else if q.type === "mcq"}
                                             {#if q.dropdown}
                                                 <select bind:value={q.value}>
@@ -805,14 +736,10 @@
                                                         {@const disabled =
                                                             !q.selected[index] &&
                                                             q.max != undefined &&
-                                                            Object.values(q.selected).filter(
-                                                                (x) => x,
-                                                            ).length >= q.max}
+                                                            Object.values(q.selected).filter((x) => x).length >= q.max}
 
                                                         <div>
-                                                            <span
-                                                                style="position: relative; display: inline-block"
-                                                            >
+                                                            <span style="position: relative; display: inline-block">
                                                                 {#if disabled}
                                                                     <hr
                                                                         style="position: absolute; left: -10px; right: -10px; top: 20%; z-index: 1; border: 1px solid var(--text-secondary)"
@@ -821,9 +748,7 @@
                                                                 <label style="position: relative">
                                                                     <input
                                                                         type="checkbox"
-                                                                        bind:checked={q.selected[
-                                                                            index
-                                                                        ]}
+                                                                        bind:checked={q.selected[index]}
                                                                         style="background-color: var(--background-3)"
                                                                         {disabled}
                                                                     />
@@ -867,9 +792,7 @@
                                             Next
                                         </button>
                                     {:else}
-                                        <button on:click={() => submit()} disabled={wait}>
-                                            Submit!
-                                        </button>
+                                        <button on:click={() => submit()} disabled={wait}> Submit! </button>
                                     {/if}
                                 </p>
                             </div>

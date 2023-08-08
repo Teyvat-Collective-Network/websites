@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Icon from "$lib/Icon.svelte";
     import Partner from "$lib/Partner.svelte";
     import type { TCNGuild } from "$lib/types";
 
@@ -20,11 +21,11 @@
     }
 </script>
 
-<div class="container">
+<div id="partners" class="container">
     <div id="main">
         <h1>Our Partners</h1>
         <div id="searchbar" class="wide">
-            <i class="material-icons">search</i>
+            <Icon icon="search" />
             <input type="text" bind:value={query} placeholder="Filter Servers" />
         </div>
         <div class="external wide {fuzzy('genshin wizard', query) ? '' : 'hidden'}">
@@ -37,36 +38,24 @@
             <div>
                 <h3>Genshin Wizard</h3>
                 <p>
-                    The TCN is partnered with Genshin Wizard, a multi-purpose Genshin Impact utility
-                    bot. Check out their website below!
+                    The TCN is partnered with Genshin Wizard, a multi-purpose Genshin Impact utility bot. Check out
+                    their website below!
                 </p>
-                <a href="https://genshinwizard.com" class="button" target="_blank" rel="noreferrer"
-                    >Website</a
-                >
+                <a href="https://genshinwizard.com" class="button" target="_blank" rel="noreferrer">Website</a>
             </div>
         </div>
         <div class="external wide {fuzzy('genshin impact tavern', query) ? '' : 'hidden'}">
-            <img
-                src="https://i.imgur.com/pwzRnxW.png"
-                alt="Genshin Impact Tavern Icon"
-                width="192"
-                height="192"
-            />
+            <img src="https://i.imgur.com/pwzRnxW.png" alt="Genshin Impact Tavern Icon" width="192" height="192" />
             <div>
                 <h3>Genshin Impact Tavern</h3>
                 <p>
-                    The TCN is partnered with Genshin Impact Tavern, a multifaceted Discord
-                    Community Server for Genshin Impact! Check out their RPG-like experience through
-                    a custom bot, which lets you earn Mora that can be used to redeem official
-                    merchandise, their Cat's Tail Gathering TCG tournament, and more! <i
+                    The TCN is partnered with Genshin Impact Tavern, a multifaceted Discord Community Server for Genshin
+                    Impact! Check out their RPG-like experience through a custom bot, which lets you earn Mora that can
+                    be used to redeem official merchandise, their Cat's Tail Gathering TCG tournament, and more! <i
                         >Genshin Impact Tavern is an officially endorsed server.</i
                     >
                 </p>
-                <a
-                    href="https://discord.gg/genshinimpacttavern"
-                    class="button"
-                    target="_blank"
-                    rel="noreferrer">Join</a
+                <a href="https://discord.gg/genshinimpacttavern" class="button" target="_blank" rel="noreferrer">Join</a
                 >
             </div>
         </div>
@@ -142,7 +131,7 @@
     }
 
     :global {
-        a.button {
+        #partners a.button {
             font-weight: 400;
             padding: 0.5em 1.5em !important;
         }

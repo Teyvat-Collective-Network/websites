@@ -1,5 +1,6 @@
 <script lang="ts">
     import { PUBLIC_DOMAIN } from "$env/static/public";
+    import Icon from "$lib/Icon.svelte";
     import Menu from "$lib/Menu.svelte";
     import Navbar from "$lib/Navbar.svelte";
     import type { LocalsData } from "$lib/types";
@@ -18,7 +19,7 @@
     on:click={() => scrollTo({ top: 0 })}
     style="opacity: {scroll ? 1 : 0}"
 >
-    <i class="material-icons">expand_less</i>
+    <Icon icon="expand_less" />
 </a>
 
 <html lang="en">
@@ -40,11 +41,7 @@
 
         <link rel="shortcut icon" type="image/png" href="/favicon.png" />
 
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="https://fonts.googleapis.com/icon?family=Material+Icons"
-        />
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
         <link rel="stylesheet" type="text/css" href="/styles/{data.dark ? 'dark' : 'light'}.css" />
         <link rel="stylesheet" type="text/css" href="/styles/stylesheet.css" />
 

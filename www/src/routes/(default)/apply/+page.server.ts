@@ -1,14 +1,9 @@
-import {
-    APPLICANTS_CHANNEL,
-    NEW_APPLICANT_ALERT_ROLE,
-    NEW_APPLICANT_TAG,
-    OBSERVER_CHANNEL,
-    OFFICIAL_BUSINESS,
-} from "$env/static/private";
+import { NEW_APPLICANT_ALERT_ROLE, NEW_APPLICANT_TAG } from "$env/static/private";
 import { fail, type Actions } from "@sveltejs/kit";
-import { ChannelType, type Invite } from "discord.js";
-import bot from "../../../bot.js";
+import type { Invite } from "discord.js";
+import bot from "../../../core/bot.js";
 import type { ApplyFormData } from "$lib/types.js";
+import { channels } from "../../../core/resources.js";
 
 export const actions: Actions = {
     default: async ({ request, locals }) => {
@@ -58,31 +53,18 @@ export const actions: Actions = {
             });
 
         if (!mascot) return abort(400, "Missing mascot character.");
-        if (!["owner", "admin", "mod", "other"].includes(role))
-            return abort(400, "Invalid role selection.");
-        if (role === "other" && !roleother)
-            return abort(400, 'Role must be specified if you selected "other".');
-        if (role !== "owner" && !ownerid)
-            return abort(400, "Owner must be specified if you are not the owner.");
+        if (!["owner", "admin", "mod", "other"].includes(role)) return abort(400, "Invalid role selection.");
+        if (role === "other" && !roleother) return abort(400, 'Role must be specified if you selected "other".');
+        if (role !== "owner" && !ownerid) return abort(400, "Owner must be specified if you are not the owner.");
         if (role !== "owner" && user.id === ownerid)
             return abort(400, 'If you are the owner, please set your role to "owner".');
-        if (
-            !invite?.match(
-                /^(https:\/\/)?discord(?:(?:app)?\.com\/invite|\.gg(?:\/invite)?)\/[\w-]{2,255}$/i,
-            )
-        )
+        if (!invite?.match(/^(https:\/\/)?discord(?:(?:app)?\.com\/invite|\.gg(?:\/invite)?)\/[\w-]{2,255}$/i))
             return abort(400, "Missing invite.");
-        if (!["private", "public", "no"].includes(nsfw))
-            return abort(400, "Invalid NSFW selection.");
+        if (!["private", "public", "no"].includes(nsfw)) return abort(400, "Invalid NSFW selection.");
         if (!shortgoals) return abort(400, "Missing short-term goals.");
         if (!longgoals) return abort(400, "Missing long-term goals.");
         if (!history) return abort(400, "Missing server history.");
-        if (
-            !observerchannelconsent ||
-            !observerauditconsent ||
-            !partnerlistconsent ||
-            !eventsconsent
-        )
+        if (!observerchannelconsent || !observerauditconsent || !partnerlistconsent || !eventsconsent)
             return abort(400, "Missing consent.");
         if (
             (experience?.length ?? 0) > 1024 ||
@@ -111,28 +93,14 @@ export const actions: Actions = {
             }
         }
 
-        const observer_channel = bot.channels.cache.get(OBSERVER_CHANNEL);
-        const applicants_channel = bot.channels.cache.get(APPLICANTS_CHANNEL);
-        const official_business = bot.channels.cache.get(OFFICIAL_BUSINESS);
-
-        if (
-            !observer_channel?.isTextBased() ||
-            applicants_channel?.type !== ChannelType.GuildForum ||
-            !official_business?.isTextBased()
-        )
-            return abort(500, "Incomplete setup; please contact an observer.");
-
         try {
-            const display_name = invite_data
-                .guild!.name.toLowerCase()
-                .includes(mascot.toLowerCase())
+            const display_name = invite_data.guild!.name.toLowerCase().includes(mascot.toLowerCase())
                 ? invite_data.guild!.name
                 : `${invite_data.guild!.name} (${mascot} Mains)`;
 
-            const submitter =
-                role === "owner" ? `<@${user.id}>` : `<@${user.id}> (on behalf of ${owner})`;
+            const submitter = role === "owner" ? `<@${user.id}>` : `<@${user.id}> (on behalf of ${owner})`;
 
-            const thread = await applicants_channel.threads.create({
+            const thread = await channels.applicants.threads.create({
                 name: `${mascot} Mains`,
                 message: {
                     embeds: [
@@ -140,9 +108,7 @@ export const actions: Actions = {
                             title: "**New Application**",
                             description: `**${submitter}** applied for **${display_name}**. Their role in the server is: ${
                                 role !== "other" ? role : roleother
-                            }. The server has ${
-                                invite_data.memberCount
-                            } members and was created at <t:${Math.floor(
+                            }. The server has ${invite_data.memberCount} members and was created at <t:${Math.floor(
                                 invite_data.guild!.createdTimestamp / 1000,
                             )}:f>.`,
                             color: 0x2b2d31,
@@ -181,8 +147,8 @@ export const actions: Actions = {
                 ],
             });
 
-            await official_business.send(
-                `<@&${NEW_APPLICANT_ALERT_ROLE}> **${submitter}** applied for **${display_name}**. Please check out the application in ${applicants_channel} here: <${thread.url}>.`,
+            await channels.official_business.send(
+                `<@&${NEW_APPLICANT_ALERT_ROLE}> **${submitter}** applied for **${display_name}**. Please check out the application in ${channels.applicants} here: <${thread.url}>.`,
             );
         } catch {
             return abort(500, "Posting your application failed; please contact an observer.");
