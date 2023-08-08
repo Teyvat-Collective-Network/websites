@@ -6,6 +6,8 @@ import "./bots/banshare-bot/index.js";
 import "./bots/hq-utils/index.js";
 import "./bots/polls/index.js";
 
+import "./migrate.js";
+
 process.on("uncaughtException", (error) => console.error("[TOP-LEVEL]", error));
 
 export const handle: Handle = async ({ event, resolve }) => {

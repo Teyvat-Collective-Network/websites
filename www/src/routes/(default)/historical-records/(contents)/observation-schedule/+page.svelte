@@ -59,21 +59,15 @@
                     {/if}
                 </td>
                 <td>
-                    {#if start && entry.start_year != undefined && entry.start_month != undefined && entry.start_date != undefined}
-                        <TimeMention
-                            date={new Date(entry.start_year, entry.start_month - 1, entry.start_date)}
-                            show_time={false}
-                        />
+                    {#if start && entry.start}
+                        <TimeMention date={entry.start} show_time={false} />
                     {:else}
                         <hr />
                     {/if}
                 </td>
                 <td>
-                    {#if end && entry.end_year != undefined && entry.end_month != undefined && entry.end_date != undefined}
-                        <TimeMention
-                            date={new Date(entry.end_year, entry.end_month - 1, entry.end_date)}
-                            show_time={false}
-                        />
+                    {#if end && entry.end}
+                        <TimeMention date={entry.end} show_time={false} />
                     {:else}
                         <hr />
                     {/if}

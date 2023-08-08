@@ -37,7 +37,7 @@
             <tr>
                 <td><code>{index + 1}</code></td>
                 <td>
-                    <TimeMention date={new Date(entry.year, entry.month - 1, entry.date)} show_time={false} />
+                    <TimeMention date={entry.date} show_time={false} />
                 </td>
                 <td>
                     {#if entry.guild}

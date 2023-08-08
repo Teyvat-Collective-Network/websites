@@ -19,6 +19,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import ConfirmLeave from "$lib/ConfirmLeave.svelte";
+    import DatetimePicker from "$lib/DatetimePicker.svelte";
     import ListButtons from "$lib/ListButtons.svelte";
     import { API } from "$lib/api";
     import type { ObservationRecord } from "$lib/types";
@@ -26,22 +27,10 @@
     export let data: { entries: ObservationRecord[] };
 
     async function save() {
-        const copy = data.entries.filter(
-            (entry) =>
-                entry.start_year != undefined &&
-                entry.start_month != undefined &&
-                entry.start_date != undefined,
-        ) as (ObservationRecord &
-            Pick<Required<ObservationRecord>, "start_year" | "start_month" | "start_date">)[];
+        const copy = data.entries.map((entry) => entry.start).filter((x) => x);
 
         for (let x = 0; x < copy.length - 1; x++)
-            if (
-                copy[x].start_year > copy[x + 1].start_year ||
-                (copy[x].start_year === copy[x + 1].start_year &&
-                    (copy[x].start_month > copy[x + 1].start_month ||
-                        (copy[x].start_month === copy[x + 1].start_month &&
-                            copy[x].start_date > copy[x + 1].start_date)))
-            ) {
+            if (copy[x]! > copy[x + 1]!) {
                 alert("Entries should be sorted by start date!");
                 return;
             }
@@ -72,33 +61,18 @@
                     <th />
                     <th>Server</th>
                     <th>Observer</th>
-                    <th colspan="3">Start</th>
-                    <th colspan="3">End</th>
+                    <th>Start</th>
+                    <th>End</th>
                     <th>Status</th>
                     <th>Notes</th>
                 </tr>
                 {#each data.entries as entry, index}
                     {@const [_, start, end] = results[entry.result] ?? ["", true, true]}
-                    {@const normal_end =
-                        entry.start_year == undefined ||
-                        entry.start_month == undefined ||
-                        entry.start_date == undefined
-                            ? undefined
-                            : new Date(
-                                  entry.start_year,
-                                  entry.start_month - 1,
-                                  entry.start_date + 28,
-                              )}
 
                     <tr>
                         <td><code>{index + 1}</code></td>
                         <td>
-                            <input
-                                type="text"
-                                placeholder="Server ID"
-                                bind:value={entry.guild}
-                                style="width: 200px"
-                            />
+                            <input type="text" placeholder="Server ID" bind:value={entry.guild} style="width: 200px" />
                         </td>
                         <td>
                             <input
@@ -108,66 +82,24 @@
                                 style="width: 200px"
                             />
                         </td>
-                        {#if start}
-                            <td>
-                                <input
-                                    type="number"
-                                    placeholder="Year"
-                                    bind:value={entry.start_year}
-                                    style="width: 80px"
-                                />
-                            </td>
-                            <td>
-                                <input
-                                    type="number"
-                                    placeholder="Month"
-                                    bind:value={entry.start_month}
-                                    style="width: 80px"
-                                />
-                            </td>
-                            <td>
-                                <input
-                                    type="number"
-                                    placeholder="Date"
-                                    bind:value={entry.start_date}
-                                    style="width: 80px"
-                                />
-                            </td>
-                        {:else}
-                            <td colspan="3"><hr /></td>
-                        {/if}
-                        {#if end}
-                            <td>
-                                <input
-                                    type="number"
-                                    placeholder={normal_end
-                                        ? `${normal_end.getFullYear()}`
-                                        : "Year"}
-                                    bind:value={entry.end_year}
-                                    style="width: 80px"
-                                />
-                            </td>
-                            <td>
-                                <input
-                                    type="number"
-                                    placeholder={normal_end
-                                        ? `${normal_end.getMonth() + 1}`
-                                        : "Month"}
-                                    bind:value={entry.end_month}
-                                    style="width: 80px"
-                                />
-                            </td>
-                            <td>
-                                <input
-                                    type="number"
-                                    placeholder={normal_end ? `${normal_end.getDate()}` : "Date"}
-                                    bind:value={entry.end_date}
-                                    style="width: 80px"
-                                />
-                            </td>
-                        {:else}
-                            <td colspan="3"><hr /></td>
-                        {/if}
+                        <td>
+                            {#if start}
+                                <div style="padding-left: 5px">
+                                    <DatetimePicker bind:value={entry.start} show_date nowrap nobuttons />
+                                </div>
+                            {:else}
+                                <hr />
+                            {/if}
+                        </td>
+                        <td>
+                            {#if end}
+                                <div style="padding-left: 5px">
+                                    <DatetimePicker bind:value={entry.end} show_date nowrap nobuttons />
+                                </div>
+                            {:else}
+                                <hr />
+                            {/if}
+                        </td>
                         <td>
                             <select bind:value={entry.result}>
                                 {#each Object.entries(results) as [key, value]}
@@ -176,12 +108,7 @@
                             </select>
                         </td>
                         <td>
-                            <input
-                                type="text"
-                                placeholder="Notes"
-                                bind:value={entry.notes}
-                                style="width: 500px"
-                            />
+                            <input type="text" placeholder="Notes" bind:value={entry.notes} style="width: 500px" />
                         </td>
                         <ListButtons bind:array={data.entries} {index} table delete_last />
                     </tr>
@@ -191,11 +118,7 @@
         <br />
         <div class="row" style="gap: 10px">
             <button
-                on:click={() =>
-                    (data.entries = [
-                        ...data.entries,
-                        { guild: "", observer: "", result: "inducted" },
-                    ])}
+                on:click={() => (data.entries = [...data.entries, { guild: "", observer: "", result: "inducted" }])}
             >
                 Add Entry
             </button>

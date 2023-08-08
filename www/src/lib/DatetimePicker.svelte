@@ -22,6 +22,9 @@
     export let show_date: boolean = false;
     export let show_time: boolean = false;
 
+    export let nowrap: boolean = false;
+    export let nobuttons: boolean = false;
+
     if (typeof value === "string") value = new Date(value);
 
     let year: number | undefined = value?.getFullYear();
@@ -67,9 +70,9 @@
 
 <svelte:window bind:innerWidth={width} on:click={() => (expand_date = expand_time = false)} />
 
-<div class="row" style="gap: 10px; flex-wrap: wrap">
+<div class="row" style="gap: 10px; {nowrap ? '' : 'flex-wrap: wrap'}">
     {#if show_date}
-        {#if width >= 1200}
+        {#if width >= 1200 && !nobuttons}
             <span style="position: relative" class="inline-row">
                 <a
                     href={"javascript:void(0)"}
@@ -291,7 +294,7 @@
         {/if}
     {/if}
     {#if show_time}
-        {#if width >= 1200}
+        {#if width >= 1200 && !nobuttons}
             <span style="position: relative" class="inline-row">
                 <a
                     href={"javascript:void(0)"}
@@ -470,22 +473,24 @@
             />
         </label>
     {/if}
-    <a
-        href={"javascript:void(0)"}
-        class="inline-row"
-        on:click={() => {
-            const now = new Date();
-            year = now.getFullYear();
-            month = now.getMonth();
-            date = now.getDate();
-            hour = now.getHours();
-            minute = now.getMinutes();
-            second = now.getSeconds();
-        }}
-        style="gap: 10px"
-    >
-        <Icon icon="update" />
-    </a>
+    {#if !nobuttons}
+        <a
+            href={"javascript:void(0)"}
+            class="inline-row"
+            on:click={() => {
+                const now = new Date();
+                year = now.getFullYear();
+                month = now.getMonth();
+                date = now.getDate();
+                hour = now.getHours();
+                minute = now.getMinutes();
+                second = now.getSeconds();
+            }}
+            style="gap: 10px"
+        >
+            <Icon icon="update" /> now
+        </a>
+    {/if}
 </div>
 
 <style lang="scss">

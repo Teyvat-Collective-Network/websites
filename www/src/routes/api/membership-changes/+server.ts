@@ -6,7 +6,9 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     if (!locals.observer) return new Response(null, { status: 403 });
 
     const entries = (await request.json()) as MembershipChange[];
-    entries.sort((x, y) => x.year - y.year || x.month - y.month || x.date - y.date);
+
+    entries.forEach((x) => (x.date = new Date(x.date)));
+    entries.sort((x, y) => x.date.getTime() - y.date.getTime());
 
     await DB.HistoricalRecords.set_membership_changes(entries);
     return new Response();

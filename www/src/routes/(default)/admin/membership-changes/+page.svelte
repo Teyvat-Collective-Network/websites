@@ -27,6 +27,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import ConfirmLeave from "$lib/ConfirmLeave.svelte";
+    import DatetimePicker from "$lib/DatetimePicker.svelte";
     import ListButton from "$lib/ListButton.svelte";
     import { API } from "$lib/api";
     import type { MembershipChange } from "$lib/types";
@@ -58,41 +59,16 @@
             <table>
                 {#each data.entries as entry, index}
                     {@const last = index === 0 ? null : data.entries[index - 1]}
-                    {@const next =
-                        index === data.entries.length - 1 ? null : data.entries[index + 1]}
+                    {@const next = index === data.entries.length - 1 ? null : data.entries[index + 1]}
                     <tr>
                         <td><code>{index + 1}</code></td>
                         <td>
-                            <input
-                                type="number"
-                                placeholder="Year"
-                                bind:value={entry.year}
-                                style="width: 80px"
-                            />
+                            <div style="padding: 0 5px">
+                                <DatetimePicker bind:value={entry.date} show_date nowrap nobuttons />
+                            </div>
                         </td>
                         <td>
-                            <input
-                                type="number"
-                                placeholder="Month"
-                                bind:value={entry.month}
-                                style="width: 80px"
-                            />
-                        </td>
-                        <td>
-                            <input
-                                type="number"
-                                placeholder="Date"
-                                bind:value={entry.date}
-                                style="width: 80px"
-                            />
-                        </td>
-                        <td>
-                            <input
-                                type="text"
-                                placeholder="Server ID"
-                                bind:value={entry.guild}
-                                style="width: 200px"
-                            />
+                            <input type="text" placeholder="Server ID" bind:value={entry.guild} style="width: 200px" />
                         </td>
                         <td>
                             <select bind:value={entry.action}>
@@ -120,20 +96,15 @@
                             {/if}
                         </td>
                         <td>
-                            <input
-                                type="text"
-                                placeholder="Notes"
-                                bind:value={entry.notes}
-                                style="width: 500px"
-                            />
+                            <input type="text" placeholder="Notes" bind:value={entry.notes} style="width: 500px" />
                         </td>
                         <td>
-                            {#if last && (last.year > entry.year || (last.year === entry.year && (last.month > entry.month || (last.month === entry.month && last.date >= entry.date))))}
+                            {#if last && last.date > entry.date}
                                 <ListButton bind:array={data.entries} {index} up />
                             {/if}
                         </td>
                         <td>
-                            {#if next && (entry.year > next.year || (entry.year === next.year && (entry.month > next.month || (entry.month === next.month && entry.date >= next.date))))}
+                            {#if next && entry.date > next.date}
                                 <ListButton bind:array={data.entries} {index} down />
                             {/if}
                         </td>
@@ -150,15 +121,7 @@
                 on:click={() =>
                     (data.entries = [
                         ...data.entries,
-                        {
-                            year: new Date().getFullYear(),
-                            month: new Date().getMonth() + 1,
-                            date: new Date().getDate(),
-                            action: "induct",
-                            guild: "",
-                            primary: "",
-                            secondary: "",
-                        },
+                        { date: new Date(), action: "induct", guild: "", primary: "", secondary: "" },
                     ])}
             >
                 Add Entry
