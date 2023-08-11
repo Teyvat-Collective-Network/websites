@@ -1,12 +1,15 @@
-import { ALERT, CHANNEL, NON_URGENT, URGENT } from "$env/static/private";
-import { PUBLIC_TCN_API } from "$env/static/public";
 import { fail, type Actions } from "@sveltejs/kit";
 import { escape } from "svelte/internal";
-import { components } from "../../../lib.js";
-import bot, { sync_dashboard } from "../../../bot.js";
-import { banshares } from "../../../db.js";
+import bot from "../../../core/bot.js";
 import { create_gist } from "../../../gists.js";
 import { escapeMarkdown } from "discord.js";
+import type { BanshareFormData, TCNUser } from "$lib/types.js";
+import { TCN } from "$lib/api.js";
+import { DB } from "../../../db.js";
+import { controls } from "../../../bots/banshare-bot/utils/components.js";
+import sync_dashboard from "../../../bots/banshare-bot/processes/sync_dashboard.js";
+import { channels, roles } from "../../../core/resources.js";
+import { tag } from "$lib/util.js";
 
 function compare(a: string, b: string): number {
     if (!a.match(/^\d+$/))
@@ -19,9 +22,9 @@ function compare(a: string, b: string): number {
 }
 
 export const actions: Actions = {
-    default: async ({ request, locals, fetch }) => {
+    default: async ({ request, locals }) => {
         const data = await request.formData();
-        const user = (locals as any).user;
+        const user = locals.user;
 
         if (!user) return fail(500, { error: "Not Authenticated" });
 
@@ -34,14 +37,7 @@ export const actions: Actions = {
 
         const action = (data.get("submit") as string) ?? "Submit";
 
-        const values = {
-            ids,
-            reason,
-            evidence,
-            server,
-            severity,
-            urgent,
-        };
+        const values: BanshareFormData = { ids, reason, evidence, server, severity, urgent };
 
         const abort = (code: number, message: string) =>
             fail(code, {
@@ -66,42 +62,24 @@ export const actions: Actions = {
                 "Maximum evidence length is 1200. If you need more space, please create and link a document and include some basic information about it in the evidence field.",
             );
 
-        const tcn_request = await fetch(`${PUBLIC_TCN_API}/users/${user.id}`);
+        let api_user: TCNUser;
 
-        if (!tcn_request.ok)
+        try {
+            api_user = await TCN.user(user.id);
+        } catch {
             return abort(
                 400,
                 "You do not appear to be a staff member of any TCN servers. Contact your server owner or a TCN observer if you believe this is a mistake.",
             );
+        }
 
-        const tcn_data = await tcn_request.json();
-
-        if (!tcn_data.guilds.includes(server))
+        if (!api_user.guilds.includes(server))
             return abort(400, "You are not a staff member on the server you selected.");
 
-        const server_request = await fetch(`${PUBLIC_TCN_API}/guilds/${server}`);
-
-        if (!server_request.ok)
-            return abort(
-                400,
-                "The server you selected does not appear to be in the TCN. (This message should never appear...)",
-            );
-
-        const server_name = (await server_request.json()).name;
+        const server_name = (await TCN.guild(server)).name;
 
         if (!bot.user)
-            return abort(
-                500,
-                "Banshare bot is not ready to handle your request yet. Please wait for a few seconds.",
-            );
-
-        const channel = bot.channels.cache.get(CHANNEL as string);
-
-        if (!channel?.isTextBased())
-            return abort(
-                500,
-                "Banshare bot is not configured correctly: output channel is not a valid text-based channel.",
-            );
+            return abort(500, "Banshare bot is not ready to handle your request yet. Please wait for a few seconds.");
 
         let id_list: string[] = [];
         const tags: string[] = [];
@@ -113,22 +91,14 @@ export const actions: Actions = {
 
             for (const id of id_list)
                 if (!id.match(/^[1-9][0-9]{16,19}$/))
-                    return abort(
-                        400,
-                        `Invalid ID: <code>${escape(id)}</code> is not a valid Discord ID.`,
-                    );
+                    return abort(400, `Invalid ID: <code>${escape(id)}</code> is not a valid Discord ID.`);
 
             if (action === "Submit")
                 for (const id of id_list)
                     try {
                         tags.push((await bot.users.fetch(id)).tag);
                     } catch {
-                        return abort(
-                            400,
-                            `Invalid ID: <code>${escape(
-                                id,
-                            )}</code> did not correspond to a valid user.`,
-                        );
+                        return abort(400, `Invalid ID: <code>${escape(id)}</code> did not correspond to a valid user.`);
                     }
 
             ids_output = id_list.join(" ");
@@ -144,16 +114,8 @@ export const actions: Actions = {
                         ...(tags.length > 0 ? [{ name: "Username(s)", value: tags }] : []),
                         { name: "Reason", value: reason },
                         { name: "Evidence", value: evidence },
-                        {
-                            name: "Submitted by",
-                            value: `${user.username}${
-                                user.discriminator === "0" ? "" : `#${user.discriminator}`
-                            } (\`${user.id}\`) from ${server_name}`,
-                        },
-                        {
-                            name: "Severity",
-                            value: severity[0].toUpperCase() + severity.slice(1),
-                        },
+                        { name: "Submitted by", value: `${tag(user)} (\`${user.id}\`) from ${server_name}` },
+                        { name: "Severity", value: severity[0].toUpperCase() + severity.slice(1) },
                     ],
                 },
             ],
@@ -173,11 +135,7 @@ export const actions: Actions = {
 
             try {
                 send_data = format(
-                    `<${await create_gist(
-                        `banshare-ids-${iso}`,
-                        `IDs for the banshare on ${iso}`,
-                        ids_output,
-                    )}>`,
+                    `<${await create_gist(`banshare-ids-${iso}`, `IDs for the banshare on ${iso}`, ids_output)}>`,
                     "",
                 );
             } catch {
@@ -185,9 +143,9 @@ export const actions: Actions = {
             }
         }
 
-        const post = await channel.send({ ...send_data, components: components(false, severity) });
+        const post = await channels.banshare_main.send({ ...send_data, components: controls(false, severity) });
 
-        await banshares.banshares.insertOne({
+        await DB.Banshares.submit({
             message: post.id,
             url: post.url,
             user: user.id,
@@ -199,19 +157,15 @@ export const actions: Actions = {
             urgent,
         });
 
-        if (ALERT) {
-            const alert = bot.channels.cache.get(ALERT);
-            if (alert?.isTextBased())
-                try {
-                    await alert.send(
-                        `${
-                            (urgent ? URGENT : NON_URGENT) ?? ""
-                        } A banshare was just posted in ${channel} for review${
-                            urgent ? " (**urgent**)" : ""
-                        }. If you wish to alter the severity, use the buttons below the banshare **before** publishing.`,
-                    );
-                } catch {}
-        }
+        try {
+            await channels.exec.send(
+                `${(urgent ? roles.urgent : roles.non_urgent) ?? ""} A banshare was just posted in ${
+                    channels.banshare_main
+                } for review${
+                    urgent ? " (**urgent**)" : ""
+                }. If you wish to alter the severity, use the buttons below the banshare **before** publishing.`,
+            );
+        } catch {}
 
         try {
             await sync_dashboard();

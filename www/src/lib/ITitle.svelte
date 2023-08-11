@@ -1,4 +1,6 @@
 <script lang="ts">
+    import Icon from "./Icon.svelte";
+
     export let e: string;
     export let icon: string = "";
     export let text: string;
@@ -6,7 +8,7 @@
 </script>
 
 <svelte:element this={e} class="item">
-    <i class="material-icons" style="color: {icon_color}">{icon}</i>
+    <Icon {icon} style="color: {icon_color}" />
     {text}
 </svelte:element>
 

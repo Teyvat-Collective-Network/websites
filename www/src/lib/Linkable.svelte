@@ -1,11 +1,13 @@
 <script lang="ts">
+    import Icon from "./Icon.svelte";
+
     export let e: string;
     export let id: string;
     export let value: string;
 </script>
 
 <svelte:element this={e} {id}>
-    <a href="#{id}"><i class="material-icons">link</i></a>
+    <a href="#{id}"><Icon icon="link" /></a>
     <span>{@html value}</span>
 </svelte:element>
 

@@ -5,27 +5,31 @@
     import { onMount } from "svelte";
     import { page } from "$app/stores";
     import ListButton from "$lib/ListButton.svelte";
+    import { API } from "$lib/api";
+    import type { LocalsData, Poll, UserTagEntry } from "$lib/types";
 
-    export let data: any;
-    export let form: any;
+    export let data: LocalsData & { missing?: boolean; form?: Poll };
+    export let form: Poll & { error?: string; success?: string };
 
-    form ??= data.form ?? {};
-    form.options ??= ["", ""];
-    form.min ??= 1;
-    form.max ??= 1;
-    form.candidates ??= [];
-    form.seats ??= 1;
-    form.live ??= false;
-    form.restricted ??= true;
-    form.dm ??= true;
-    form.quorum ??= 60;
+    const x = form ?? data.form ?? {};
+    x.options ??= ["", ""];
+    x.min ??= 1;
+    x.max ??= 1;
+    x.candidates ??= [];
+    x.seats ??= 1;
+    x.live ??= false;
+    x.restricted ??= true;
+    x.dm ??= true;
+    x.quorum ??= 60;
 
-    let users: any[];
+    form = x;
+
+    let users: UserTagEntry[];
 
     onMount(() =>
-        fetch("/api/council")
-            .then((x) => x.json())
-            .then((x) => (users = x)),
+        API.get_council()
+            .then((x) => (users = x))
+            .catch(),
     );
 </script>
 
@@ -58,19 +62,9 @@
 
         <p>
             {#if form.mode === "induction"}
-                <input
-                    type="text"
-                    name="server"
-                    placeholder="Server Name"
-                    bind:value={form.server}
-                />
+                <input type="text" name="server" placeholder="Server Name" bind:value={form.server} />
             {:else if form.mode === "election"}
-                <input
-                    type="number"
-                    name="wave"
-                    placeholder="Election Wave"
-                    bind:value={form.wave}
-                />
+                <input type="number" name="wave" placeholder="Election Wave" bind:value={form.wave} />
             {:else}
                 <Textarea
                     name="question"
@@ -85,8 +79,7 @@
                 <label>
                     <input type="checkbox" name="preinduct" bind:checked={form.preinduct} />
                     <span>
-                        <b>Pre-induct</b> (enable if the character has not been officially confirmed
-                        by Hoyoverse)
+                        <b>Pre-induct</b> (enable if the character has not been officially confirmed by Hoyoverse)
                     </span>
                 </label>
             </p>
@@ -114,9 +107,7 @@
             </div>
             {#if form.options.length < 10}
                 <br />
-                <button type="button" on:click={() => (form.options = [...form.options, ""])}>
-                    Add Option
-                </button>
+                <button type="button" on:click={() => (form.options &&= [...form.options, ""])}> Add Option </button>
             {/if}
         {/if}
 
@@ -144,7 +135,7 @@
             </div>
             {#if form.candidates.length < 20}
                 <br />
-                <button type="button" on:click={() => (form.candidates = [...form.candidates, ""])}>
+                <button type="button" on:click={() => (form.candidates &&= [...form.candidates, ""])}>
                     Add Candidate
                 </button>
             {/if}
@@ -177,8 +168,8 @@
             <span>
                 <b>DM 24 hours before end</b> (required for standard votes)
                 {#if form.id}
-                    (note that if you are editing a poll that already sent a DM, enabling this
-                    option may send another DM)
+                    (note that if you are editing a poll that already sent a DM, enabling this option may send another
+                    DM)
                 {/if}
             </span>
         </label>
@@ -196,8 +187,8 @@
         {#if form.id}
             <button>Edit / Post</button>
             <p>
-                If the poll still exists, it will be edited. If the poll was deleted (or could not
-                be found), this will repost it.
+                If the poll still exists, it will be edited. If the poll was deleted (or could not be found), this will
+                repost it.
             </p>
         {:else}
             <button>Post</button>

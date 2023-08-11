@@ -1,18 +1,18 @@
-<script lang="ts" context="module">
-    declare const hljs: any;
-</script>
-
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import { PUBLIC_DOMAIN } from "$env/static/public";
     import Callout from "$lib/Callout.svelte";
+    import Icon from "$lib/Icon.svelte";
     import Menu from "$lib/Menu.svelte";
     import Navbar from "$lib/Navbar.svelte";
+    import UserMention from "$lib/UserMention.svelte";
+    import { selectall } from "$lib/html";
+    import type { Doc, LocalsData } from "$lib/types";
     import { highlight } from "$lib/util";
     import { onMount } from "svelte";
 
-    export let data: any;
+    export let data: LocalsData & { missing?: boolean; unauthorized?: boolean; id?: string; doc: Doc };
 
     const offset = new Date().getTimezoneOffset();
 
@@ -41,7 +41,7 @@
 
     onMount(() => {
         function replace_links() {
-            for (const element of document.querySelectorAll("#content a") as any) {
+            for (const element of selectall<HTMLAnchorElement>("#content a")) {
                 if (
                     element.href?.startsWith(`${$page.url.origin}${$page.url.pathname}#`) ||
                     element.href?.startsWith("#")
@@ -69,7 +69,7 @@
     on:click={() => scrollTo({ top: 0 })}
     style="opacity: {scroll ? 1 : 0}"
 >
-    <i class="material-icons">expand_less</i>
+    <Icon icon="expand_less" />
 </a>
 
 <html lang="en">
@@ -93,11 +93,7 @@
 
         <link rel="shortcut icon" type="image/png" href="/favicon.png" />
 
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="https://fonts.googleapis.com/icon?family=Material+Icons"
-        />
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
         <link rel="stylesheet" type="text/css" href="/styles/{data.dark ? 'dark' : 'light'}.css" />
         <link rel="stylesheet" type="text/css" href="/styles/stylesheet.css" />
 
@@ -133,8 +129,7 @@
                     {#if data.missing}
                         <Callout style="red">
                             <p>
-                                There is no document with ID <code>{data.id}</code>, or it has been
-                                deleted.
+                                There is no document with ID <code>{data.id}</code>, or it has been deleted.
                             </p>
                         </Callout>
                         <br />
@@ -147,8 +142,8 @@
                         {#if data.doc.deleted}
                             <Callout style="red">
                                 <p>
-                                    This document has been deleted. You are able to see it only
-                                    because you are an observer.
+                                    This document has been deleted. You are able to see it only because you are an
+                                    observer.
                                 </p>
                             </Callout>
                             <br />
@@ -158,12 +153,11 @@
                                 {#if data.doc.official}
                                     This is an official document as designated by the observer team.
                                     {#if data.observer}
-                                        <a href="/docs/demote/{data.doc.id}">[remove designation]</a
-                                        >
+                                        <a href="/docs/demote/{data.doc.id}">[remove designation]</a>
                                     {/if}
                                 {:else}
-                                    This document is user-generated content and is not endorsed by
-                                    the Teyvat Collective Network. Please report abuse to any of our
+                                    This document is user-generated content and is not endorsed by the Teyvat Collective
+                                    Network. Please report abuse to any of our
                                     <a href="/contact">observers</a>.
                                 {/if}
                             </p>
@@ -176,44 +170,28 @@
                         {:else}
                             <Callout style="red">
                                 <p>
-                                    This document is not publicly visible. Do not share it with
-                                    people unless permitted by the author.
+                                    This document is not publicly visible. Do not share it with people unless permitted
+                                    by the author.
                                 </p>
                             </Callout>
                         {/if}
                         <h3>
                             {data.doc.name}
-                            {#if (data.doc.author && data.doc.author.id === data.user?.id) || (data.doc.editable_observers && data.observer) || (data.doc.editable_council && data.council)}&nbsp;<a
-                                    href="/docs/edit/{data.doc.id}"
-                                    ><i class="material-icons">edit</i></a
+                            {#if (data.doc.author && data.doc.author === data.user?.id) || (data.doc.editable_observers && data.observer) || (data.doc.editable_council && data.council)}&nbsp;<a
+                                    href="/docs/edit/{data.doc.id}"><Icon icon="edit" /></a
                                 >{/if}
-                            {#if data.doc.author.id === data.user?.id || data.observer}&nbsp;<a
+                            {#if (data.doc.author && data.doc.author === data.user?.id) || data.observer}&nbsp;<a
                                     href={"javascript:void(0)"}
                                     on:click={del}
-                                    style="color: var(--red-text)"
-                                    ><i class="material-icons">delete</i></a
+                                    style="color: var(--red-text)"><Icon icon="delete" /></a
                                 >{/if}
                         </h3>
                         {#if data.doc.author}
                             <p>
                                 Written by
-                                <span class="mention" data-id={data.doc.author.id}>
-                                    {#if data.doc.author.missing}
-                                        <div class="material-icons">pin</div>
-                                        &nbsp;
-                                        <code class="plain" style="padding: 0"
-                                            >{data.doc.author.id}</code
-                                        >
-                                    {:else}
-                                        <i class="material-icons">alternate_email</i>
-                                        <b>{data.doc.author.username}</b
-                                        >{#if data.doc.author.discriminator !== "0"}#{data.doc
-                                                .author.discriminator}{/if}
-                                    {/if}
-                                </span>{#if data.doc.anon}
-                                    <b>(anonymously)</b
-                                    >{/if}{#if data.doc.editable_observers || data.doc.editable_council}
-                                    (editable by {data.doc.editable_council
+                                <UserMention id={data.doc.author} />{#if data.doc.anon}<b>(anonymously)</b
+                                    >{/if}{#if data.doc.editable_observers || data.doc.editable_council}(editable by {data
+                                        .doc.editable_council
                                         ? "the TCN Council"
                                         : "TCN observers"}){/if}.
                             </p>
@@ -222,13 +200,13 @@
                         {/if}
                         <p>
                             Click on any user mention to copy the ID. <span class="mention">
-                                <i class="material-icons">pin</i> &nbsp; ###
+                                <Icon icon="pin" /> &nbsp; ###
                             </span>
                             indicates an invalid user ID. Role mentions (<span class="mention"
-                                ><i class="material-icons">group</i> &nbsp; role name</span
-                            >) may also be clickable to copy an ID. Channel mentions may be
-                            clickable to open them in your Discord client (they will appear as
-                            links). Click on times (not dates) to copy the timestamp.
+                                ><Icon icon="group" /> &nbsp; role name</span
+                            >) may also be clickable to copy an ID. Channel mentions may be clickable to open them in
+                            your Discord client (they will appear as links). Click on times (not dates) to copy the
+                            timestamp.
                         </p>
                         <p>
                             Times are being displayed in your detected timezone,
@@ -253,14 +231,9 @@
 </html>
 
 <svelte:head>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"
-    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
 
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css" />
 </svelte:head>
 
 <style lang="scss">

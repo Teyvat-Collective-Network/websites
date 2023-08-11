@@ -1,7 +1,8 @@
 <script lang="ts">
+    import Icon from "./Icon.svelte";
     import { swap, without } from "./util";
 
-    export let array: any[];
+    export let array: unknown[];
     export let index: number;
     export let del: boolean = false;
     export let up: boolean | null = null;
@@ -15,10 +16,9 @@
     <a
         href={"javascript:void(0)"}
         class="row"
-        on:click={() =>
-            (array = del ? without(array, index) : swap(array, index, index + (up ? -1 : 1)))}
+        on:click={() => (array = del ? without(array, index) : swap(array, index, index + (up ? -1 : 1)))}
         style={del ? "color: var(--red-text)" : ""}
     >
-        <i class="material-icons">{del ? "delete" : up ? "expand_less" : "expand_more"}</i>
+        <Icon icon={del ? "delete" : up ? "expand_less" : "expand_more"} />
     </a>
 {/if}

@@ -2,16 +2,15 @@
     import { PUBLIC_DOMAIN, PUBLIC_TCN_AUTH } from "$env/static/public";
     import Callout from "$lib/Callout.svelte";
     import Redirect from "$lib/Redirect.svelte";
+    import type { Form, LocalsData } from "$lib/types";
 
-    export let data: any;
+    export let data: LocalsData & { forms: Form[] };
 </script>
 
 <div class="container">
     <div id="main">
         {#if !data.user}
-            <Redirect
-                to="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/forms`)}"
-            />
+            <Redirect to="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/forms`)}" />
         {:else if !data.council}
             <Callout style="red">
                 <p>You are not authorized to use the TCN Forms feature!</p>
@@ -19,8 +18,8 @@
         {:else}
             <h1>Forms</h1>
             <p>
-                Council members can create forms here, which feature Discord authentication, easy
-                Discord webhook output, answer-based flow, and input validation.
+                Council members can create forms here, which feature Discord authentication, easy Discord webhook
+                output, answer-based flow, and input validation.
             </p>
             <h2>Your Forms</h2>
             {#if data.forms?.length}
@@ -28,9 +27,7 @@
                     {#each data.forms ?? [] as { id, name }}
                         <li>
                             <a href="/forms/edit/{id}" style="color: var(--blue-text)">[edit]</a>
-                            <a href="/forms/submissions/{id}" style="color: var(--green-text)">
-                                [view submissions]
-                            </a>
+                            <a href="/forms/submissions/{id}" style="color: var(--green-text)"> [view submissions] </a>
                             <a href="/form/{id}">{name}</a>
                         </li>
                     {/each}

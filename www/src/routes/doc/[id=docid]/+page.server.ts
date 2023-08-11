@@ -1,13 +1,12 @@
 import type { ServerLoad } from "@sveltejs/kit";
-import db from "../../../db.js";
 import { fix, markdown_postprocess } from "$lib/util.js";
-import bot from "../../../bot.js";
+import { DB } from "../../../db.js";
 
 export const load: ServerLoad = async ({ params, locals }) => {
-    const { id } = params;
-    const doc = await db.docs.findOne({ id });
+    const id = params.id!;
+    const doc = await DB.Docs.get(id);
 
-    if (!doc || (doc.deleted && !(locals as any).observer))
+    if (!doc || (doc.deleted && !locals.observer))
         return {
             missing: true,
             id,
@@ -28,30 +27,18 @@ export const load: ServerLoad = async ({ params, locals }) => {
         thumbnail: doc.thumbnail,
     };
 
-    const reader = (locals as any).user;
+    const reader = locals.user;
 
     if (
         doc.allow_everyone ||
-        (locals as any).observer ||
+        locals.observer ||
         reader?.id === doc.author ||
-        ((locals as any).council && doc.allow_council) ||
+        (locals.council && doc.allow_council) ||
         (reader && (doc.allow_logged_in || doc.allowlist.match(new RegExp(`\b${reader.id}\b`))))
     ) {
-        if (doc.anon && reader?.id !== doc.author && !(locals as any).observer) delete doc.author;
-        else
-            try {
-                const user = await bot.users.fetch(doc.author);
-                doc.author = {
-                    username: user.username,
-                    discriminator: user.discriminator,
-                    id: doc.author,
-                };
-            } catch {
-                doc.author = { missing: true, id: doc.author };
-            }
+        if (doc.anon && reader?.id !== doc.author && !locals.observer) delete doc.author;
 
-        doc.parsed = markdown_postprocess(doc.parsed, reader);
-
+        doc.parsed = markdown_postprocess(doc.parsed!, reader);
         return { doc: fix(doc) };
     }
 

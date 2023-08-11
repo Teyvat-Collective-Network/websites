@@ -19,25 +19,23 @@
             <br />
             <Callout style="info">
                 <p>
-                    The massban feature on <a href="/info/other-bots/daedalus">Daedalus</a> is much more
-                    comprehensive, and that bot supports better permission controls and more features.
+                    The massban feature on <a href="/info/other-bots/daedalus">Daedalus</a> is much more comprehensive, and
+                    that bot supports better permission controls and more features.
                 </p>
             </Callout>
             <p>
-                By default, Banhammer can only be used by administrators, but this can be changed.
-                Only administrators can manage the permissions.
+                By default, Banhammer can only be used by administrators, but this can be changed. Only administrators
+                can manage the permissions.
             </p>
             <ul>
                 <li>
                     <code>bh!massban [days] &lt;url&gt; [reason]</code> - massban a list of users
                     <ul>
                         <li>
-                            <b>days</b> indicates the number of days of messages to purge (0-7, default
-                            0)
+                            <b>days</b> indicates the number of days of messages to purge (0-7, default 0)
                         </li>
                         <li>
-                            <b>url</b> must point to a raw text file (e.g. a Pastebin or Gist raw file)
-                            listing the IDs
+                            <b>url</b> must point to a raw text file (e.g. a Pastebin or Gist raw file) listing the IDs
                         </li>
                         <li><b>reason</b> will be put in the audit logs (optional)</li>
                     </ul>
@@ -47,8 +45,8 @@
                     <code>bh!massban</code>
                 </li>
                 <li>
-                    <code>bh!deny &lt;role&gt;</code> - remove this role from the allowlist (but
-                    does not block it, so users with another allowed role can still use
+                    <code>bh!deny &lt;role&gt;</code> - remove this role from the allowlist (but does not block it, so
+                    users with another allowed role can still use
                     <code>bh!massban</code>)
                 </li>
                 <li><code>bh!list</code> - list allowed roles</li>

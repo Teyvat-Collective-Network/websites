@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { LoadingSpinner } from "@daedalus-discord/webkit";
+    import User from "$lib/UserMention.svelte";
+    import type { Poll, PollVote } from "$lib/types";
 
-    export let data: any;
+    export let data: { polls: Poll[]; votes: PollVote[]; ids: string[] };
 
     const votes = new Set();
     for (const vote of data.votes) votes.add(`${vote.poll}/${vote.user}`);
@@ -35,22 +36,13 @@
             {#each data.ids as id}
                 <tr>
                     <td class="row">
-                        <span class="mention user" data-id={id}>
-                            <i class="material-icons">pending</i> Loading User...
-                        </span>
+                        <User {id} />
                     </td>
 
                     {#each data.polls as poll}
-                        {@const status = poll.required?.includes(id)
-                            ? votes.has(`${poll.id}/${id}`)
-                                ? 0
-                                : 1
-                            : 2}
+                        {@const status = poll.required?.includes(id) ? (votes.has(`${poll.id}/${id}`) ? 0 : 1) : 2}
 
-                        <td
-                            style="cursor: default"
-                            title={["voted", "missing vote", "not eligible"][status]}
-                        >
+                        <td style="cursor: default" title={["voted", "missing vote", "not eligible"][status]}>
                             <center>
                                 {["✅", "❌", "-"][status]}
                             </center>

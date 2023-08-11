@@ -1,9 +1,14 @@
 <script lang="ts">
+    import GuildMention from "$lib/GuildMention.svelte";
+    import Icon from "$lib/Icon.svelte";
+    import TimeMention from "$lib/TimeMention.svelte";
+    import User from "$lib/UserMention.svelte";
+    import type { LocalsData, ObservationRecord } from "$lib/types";
     import { results } from "../../../admin/observation-schedule/+page.svelte";
 
-    export let data: any;
+    export let data: LocalsData & { entries: (ObservationRecord & { has_mention?: boolean })[] };
 
-    data.entries.forEach((entry: any) => {
+    data.entries.forEach((entry) => {
         if (!entry.notes) return;
 
         const regex = /\[@(\d+)\]/;
@@ -23,7 +28,7 @@
 <h3 class="row" style="gap: 10px">
     Observation Schedule
     {#if data.observer}
-        <a href="/admin/observation-schedule"><i class="material-icons">edit</i></a>
+        <a href="/admin/observation-schedule"><Icon icon="edit" /></a>
     {/if}
 </h3>
 <div id="scroll">
@@ -39,50 +44,30 @@
         </tr>
 
         {#each data.entries as entry, index}
-            {@const [result, start, end, dark, light] = results[entry.result] ?? [
-                "",
-                true,
-                true,
-                "",
-                "",
-            ]}
+            {@const [result, start, end, dark, light] = results[entry.result] ?? ["", true, true, "", ""]}
 
             <tr>
                 <td><code>{index + 1}</code></td>
                 <td>
-                    <span class="mention guild" data-id={entry.guild}>
-                        <i class="material-icons">pending</i> &nbsp; Loading Server...
-                    </span>
+                    <GuildMention id={entry.guild} />
                 </td>
                 <td>
                     {#if entry.observer}
-                        <span class="mention user" data-id={entry.observer}>
-                            <i class="material-icons">pending</i> &nbsp; Loading User...
-                        </span>
+                        <User id={entry.observer} />
                     {:else}
                         <hr />
                     {/if}
                 </td>
                 <td>
-                    {#if start && entry.start_year != undefined && entry.start_month != undefined && entry.start_date != undefined}
-                        <span class="mention">
-                            <i class="material-icons">schedule</i> &nbsp;
-                            {entry.start_year}-{entry.start_month
-                                ?.toString()
-                                .padStart(2, "0")}-{entry.start_date?.toString().padStart(2, "0")}
-                        </span>
+                    {#if start && entry.start}
+                        <TimeMention date={entry.start} show_time={false} />
                     {:else}
                         <hr />
                     {/if}
                 </td>
                 <td>
-                    {#if end && entry.end_year != undefined && entry.end_month != undefined && entry.end_date != undefined}
-                        <span class="mention">
-                            <i class="material-icons">schedule</i> &nbsp;
-                            {entry.end_year}-{entry.end_month
-                                ?.toString()
-                                .padStart(2, "0")}-{entry.end_date?.toString().padStart(2, "0")}
-                        </span>
+                    {#if end && entry.end}
+                        <TimeMention date={entry.end} show_time={false} />
                     {:else}
                         <hr />
                     {/if}

@@ -1,18 +1,18 @@
 import type { ServerLoad } from "@sveltejs/kit";
-import db from "../../../../../db.js";
 import { fix } from "$lib/util.js";
+import { DB } from "../../../../../db.js";
 
 export const load: ServerLoad = async ({ locals, params }) => {
-    if (!(locals as any).user) return {};
+    if (!locals.user) return {};
     if (params.id === "new") return { id: "new" };
 
-    const form = await db.forms.findOne({ id: params.id });
+    const form = await DB.Forms.get(params.id!);
     if (!form || form.deleted) return { missing: true, id: params.id };
 
     if (
-        form.author !== (locals as any).user.id &&
-        !(form.editable_observers && (locals as any).observer) &&
-        !(form.editable_council && (locals as any).council)
+        form.author !== locals.user.id &&
+        !(form.editable_observers && locals.observer) &&
+        !(form.editable_council && locals.council)
     )
         return { unauthorized: true };
 

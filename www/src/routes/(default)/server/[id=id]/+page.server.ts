@@ -1,23 +1,29 @@
-import { PUBLIC_TCN_API } from "$env/static/public";
-import { hq_bot } from "../../../../bot.js";
+import { TCN } from "$lib/api.js";
+import type { TCNGuild } from "$lib/types.js";
+import { tag } from "$lib/util.js";
+import bot from "../../../../core/bot.js";
 import type { Load } from "@sveltejs/kit";
 
 export const load: Load = async ({ params }) => {
-    const request = await fetch(`${PUBLIC_TCN_API}/guilds/${params.id}`);
-    if (!request.ok) return { id: params.id, missing: true };
-
-    const data = await request.json();
-
     try {
-        const user = await hq_bot.users.fetch(data.owner);
-        data.owner_tag = user.discriminator === "0" ? `@${user.username}` : user.tag;
-    } catch {}
+        const guild: TCNGuild & {
+            owner_tag?: string;
+            advisor_tag?: string;
+        } = await TCN.guild(params.id!);
 
-    if (data.advisor)
         try {
-            const user = await hq_bot.users.fetch(data.advisor);
-            data.advisor_tag = user.discriminator === "0" ? `@${user.username}` : user.tag;
+            const user = await bot.users.fetch(guild.owner);
+            guild.owner_tag = tag(user);
         } catch {}
 
-    return data;
+        if (guild.advisor)
+            try {
+                const user = await bot.users.fetch(guild.advisor);
+                guild.advisor_tag = tag(user);
+            } catch {}
+
+        return guild;
+    } catch {
+        return { id: params.id, missing: true };
+    }
 };

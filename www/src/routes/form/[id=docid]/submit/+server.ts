@@ -1,12 +1,12 @@
 import type { RequestHandler } from "@sveltejs/kit";
-import db, { autoinc } from "../../../../db.js";
 import { email_regex, timeinfo, timestamp, url_regex, webhook_regex } from "$lib/util.js";
-import { hq_bot } from "../../../../bot.js";
+import bot from "../../../../core/bot.js";
 import { PUBLIC_DOMAIN } from "$env/static/public";
 import type { User } from "discord.js";
+import { DB } from "../../../../db.js";
 export const POST: RequestHandler = async ({ request, params, locals, fetch }) => {
-    const data = await db.forms.findOne({ id: params.id });
-    const reader = (locals as any).user;
+    const data = await DB.Forms.get(params.id!);
+    const reader = locals.user;
 
     const dquestions: any = {};
     const answers = [];
@@ -16,10 +16,9 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
         if (
             !data.allow_everyone &&
             reader?.id !== data.author &&
-            (!(locals as any).observer || !data.allow_observers) &&
-            (!(locals as any).council || !data.allow_council) &&
-            (!reader ||
-                (!data.allow_logged_in && !data.allowlist.match(new RegExp(`\b${reader.id}\b`))))
+            (!locals.observer || !data.allow_observers) &&
+            (!locals.council || !data.allow_council) &&
+            (!reader || (!data.allow_logged_in && !data.allowlist.match(new RegExp(`\b${reader.id}\b`))))
         )
             throw 0;
         if (!data.allow_everyone && data.external && data.external_access)
@@ -37,8 +36,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
 
         if (data.pages.length !== form.pages.length) throw 0;
 
-        for (const question of data.pages.flatMap((page: any) => page.questions))
-            dquestions[question.id] = question;
+        for (const question of data.pages.flatMap((page: any) => page.questions)) dquestions[question.id] = question;
 
         for (let page_index = 0; page_index < data.pages.length; page_index++) {
             const dpage = data.pages[page_index];
@@ -49,17 +47,14 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
             if (data.external) {
                 if (dpage.use_condition)
                     try {
-                        const request = await fetch(
-                            `${data.external_url}/condition/${page_index + 1}`,
-                            {
-                                method: "post",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    user: reader?.id ?? null,
-                                    answers: form.answers,
-                                }),
-                            },
-                        );
+                        const request = await fetch(`${data.external_url}/condition/${page_index + 1}`, {
+                            method: "post",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                user: reader?.id ?? null,
+                                answers: form.answers,
+                            }),
+                        });
 
                         if (!request.ok) throw 1;
 
@@ -69,11 +64,11 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                         throw typeof error === "number" ? error : 1;
                     }
             } else if (dpage.condition?.source === -1) {
-                if (data.observer) {
+                if (locals.observer) {
                     if (!dpage.condition.council_observer) continue;
-                } else if (data.owner) {
+                } else if (locals.owner) {
                     if (!dpage.condition.council_owner) continue;
-                } else if (data.advisor) {
+                } else if (locals.advisor) {
                     if (!dpage.condition.council_advisor) continue;
                 } else if (!dpage.condition.council_other) continue;
             } else if (dpage.condition?.source) {
@@ -88,7 +83,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                             if (!pc.number_default) continue;
                         } else {
                             const a = ans.answer;
-                            const b = pc.number_value;
+                            const b = pc.number_value!;
 
                             switch (pc.number_op) {
                                 case "gt":
@@ -112,9 +107,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                             }
                         }
                     } else if (dq.type === "mcq") {
-                        const selected = new Set<string>(
-                            "answer" in ans ? ans.answer.map((x: any) => x.text) : [],
-                        );
+                        const selected = new Set<string>("answer" in ans ? ans.answer.map((x: any) => x.text) : []);
 
                         const keys = Object.entries(pc.options).filter(([, y]) => y);
                         const f = keys[pc.mcq_anyall === "any" ? "some" : "every"].bind(keys);
@@ -125,8 +118,8 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                             if (!pc.date_default) continue;
                         } else {
                             const a = ans.answer;
-                            const b = new Date(pc.first_date);
-                            const c = new Date(pc.second_date);
+                            const b = new Date(pc.first_date!);
+                            const c = new Date(pc.second_date!);
 
                             if (!dq.show_date)
                                 for (const d of [a, b, c]) {
@@ -197,17 +190,14 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
 
                     if (dq.use_validation)
                         try {
-                            const request = await fetch(
-                                `${data.external_url}/validation/${dq.id}`,
-                                {
-                                    method: "post",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({
-                                        user: reader?.id ?? null,
-                                        answer: answer,
-                                    }),
-                                },
-                            );
+                            const request = await fetch(`${data.external_url}/validation/${dq.id}`, {
+                                method: "post",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    user: reader?.id ?? null,
+                                    answer: answer,
+                                }),
+                            });
 
                             if (!request.ok) throw 1;
 
@@ -233,31 +223,20 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                                 : dq.type === "date"
                                 ? answer
                                 : null,
-                            ...(dq.type === "date"
-                                ? { show_date: dq.show_date, show_time: dq.show_time }
-                                : {}),
+                            ...(dq.type === "date" ? { show_date: dq.show_date, show_time: dq.show_time } : {}),
                         });
                     else answers.push({ id: dq.id, question: dq.question });
                 } else {
                     if (["short", "long"].includes(dq.type))
                         if (q.value)
-                            if (
-                                dq.type === "short" &&
-                                dq.short_format === "email" &&
-                                !q.value.match(email_regex)
-                            )
+                            if (dq.type === "short" && dq.short_format === "email" && !q.value.match(email_regex))
                                 throw 0;
-                            else if (
-                                dq.type === "short" &&
-                                dq.short_format === "url" &&
-                                !q.value.match(url_regex)
-                            )
+                            else if (dq.type === "short" && dq.short_format === "url" && !q.value.match(url_regex))
                                 throw 0;
                             else if (
                                 dq.type === "short" &&
                                 dq.short_format === "user" &&
-                                (!q.value.match(/^\d{17,20}$/) ||
-                                    !(await fetch(`/api/get-tag/${q.value}`)).ok)
+                                (!q.value.match(/^\d{17,20}$/) || !(await fetch(`/api/get-tag/${q.value}`)).ok)
                             )
                                 throw 0;
                             else if (
@@ -272,8 +251,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                                 q.value.length > dq.max
                             )
                                 throw 0;
-                            else if (dq.type === "short")
-                                q.value = q.value.replace(/\r\f|\n/g, " ");
+                            else if (dq.type === "short") q.value = q.value.replace(/\r\f|\n/g, " ");
                             else;
                         else if (dq.required) throw 0;
                         else empty = true;
@@ -336,12 +314,8 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                                 : dq.type === "date"
                                 ? q.date
                                 : null,
-                            ...(dq.type === "date"
-                                ? { show_date: dq.show_date, show_time: dq.show_time }
-                                : {}),
-                            ...(dq.type === "short" && dq.short_format === "user"
-                                ? { user: true }
-                                : {}),
+                            ...(dq.type === "date" ? { show_date: dq.show_date, show_time: dq.show_time } : {}),
+                            ...(dq.type === "short" && dq.short_format === "user" ? { user: true } : {}),
                         });
                     else answers.push({ id: dq.id, question: dq.question });
                 }
@@ -365,24 +339,23 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
         return new Response("An unexpected error occurred.", { status: 500 });
     }
 
-    const sid = await autoinc(`forms/${data.id}`);
+    const sid = await DB.autoinc(`forms/${data.id}`);
     const submission: any = { id: data.id, sid, answers, user: null };
 
     let author: User | null = null;
 
     if (data.collect_names) {
         try {
-            author = await hq_bot.users.fetch((submission.user = reader.id));
+            author = await bot.users.fetch((submission.user = reader.id));
         } catch {}
     }
 
-    await db.form_submissions.insertOne(submission);
+    await DB.Forms.submit(submission);
 
     if (data.post_to_webhook && data.webhook) {
         const questions: Record<number, any> = {};
 
-        for (const page of data.pages)
-            for (const question of page.questions) questions[question.id] = question;
+        for (const page of data.pages) for (const question of page.questions) questions[question.id] = question;
 
         if (data.webhook.match(webhook_regex))
             try {
@@ -445,10 +418,10 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
 
                     if (question.type === "short" && question.short_format === "user") {
                         try {
-                            const user = await hq_bot.users.fetch(display);
-                            display = `${user} (${
-                                user.tag.endsWith("#0") ? `@${user.username}` : user.tag
-                            } \`${user.id}\`)`;
+                            const user = await bot.users.fetch(display);
+                            display = `${user} (${user.tag.endsWith("#0") ? `@${user.username}` : user.tag} \`${
+                                user.id
+                            }\`)`;
                         } catch {
                             display = `Missing User: \`${display}\``;
                         }
@@ -488,9 +461,9 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                 if (!data.only_post_link && embeds.length > 1)
                     embeds.forEach(
                         (embed, index) =>
-                            (embed.footer.text += `${embed.footer.text ? " | " : ""}Embed ${
-                                index + 1
-                            } / ${embeds.length}`),
+                            (embed.footer.text += `${embed.footer.text ? " | " : ""}Embed ${index + 1} / ${
+                                embeds.length
+                            }`),
                     );
 
                 let first = true;
@@ -500,26 +473,20 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
 
                     if (data.is_forum)
                         if (first) {
-                            if (data.naming_scheme === -1)
-                                request.thread_name = data.forum_post_name;
+                            if (data.naming_scheme === -1) request.thread_name = data.forum_post_name;
                             else if (data.naming_scheme === 0)
-                                request.thread_name = author
-                                    ? author.tag.replace(/#0$/, "")
-                                    : "Missing User";
+                                request.thread_name = author ? author.tag.replace(/#0$/, "") : "Missing User";
                             else
                                 request.thread_name = submission.answers.find(
                                     (x: any) => x.id === data.naming_scheme,
                                 ).answer;
                         }
 
-                    const req = await fetch(
-                        `${data.webhook}${data.is_forum && first ? "?wait=true" : ""}`,
-                        {
-                            method: "post",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(request),
-                        },
-                    );
+                    const req = await fetch(`${data.webhook}${data.is_forum && first ? "?wait=true" : ""}`, {
+                        method: "post",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(request),
+                    });
 
                     if (data.is_forum && first) {
                         const res = await req.json();
@@ -550,9 +517,7 @@ export const POST: RequestHandler = async ({ request, params, locals, fetch }) =
                     headers["X-Signature-Hash"] = Buffer.from(
                         await crypto.subtle.digest(
                             "SHA-512",
-                            new TextEncoder().encode(
-                                `${timestamp}:${nonce}:${data.secret}:${body}`,
-                            ),
+                            new TextEncoder().encode(`${timestamp}:${nonce}:${data.secret}:${body}`),
                         ),
                     ).toString("hex");
                 }

@@ -1,17 +1,24 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import Icon from "$lib/Icon.svelte";
     import ListButtons from "$lib/ListButtons.svelte";
+    import { API } from "$lib/api";
+    import type { Announcement } from "$lib/types";
     import { Textarea } from "@daedalus-discord/webkit";
 
-    export let data: { announcements: any[] };
+    export let data: { announcements: Announcement[] };
 
-    let button: any;
+    function save() {
+        API.post_featured(data.announcements)
+            .then(() => goto("/featured"))
+            .catch(() => alert("An error occurred!"));
+    }
 </script>
 
 <svelte:window
     on:keydown={(e) => {
         if (e.key === "s" && e.ctrlKey) {
-            button.click();
+            save();
             e.preventDefault();
         }
     }}
@@ -22,7 +29,7 @@
     {#each data.announcements as item, index}
         <div class="panel">
             <h3 class="row" style="gap: 10px">
-                <i class="material-icons">{item.icon}</i>
+                <Icon icon={item.icon} />
                 {item.title}
             </h3>
             <label>
@@ -32,11 +39,7 @@
             <br />
             <div class="inputs">
                 <span>
-                    <a
-                        href="https://fonts.google.com/icons?icon.set=Material+Icons"
-                        target="_blank"
-                        rel="noreferrer"
-                    >
+                    <a href="https://fonts.google.com/icons?icon.set=Material+Icons" target="_blank" rel="noreferrer">
                         Icon
                     </a>
                 </span>
@@ -58,28 +61,13 @@
             on:click={() =>
                 (data.announcements = [
                     ...data.announcements,
-                    {
-                        icon: "campaign",
-                        title: "Announcement",
-                        body: "**Markdown** is supported.",
-                    },
+                    { icon: "campaign", title: "Announcement", body: "**Markdown** is supported." },
                 ])}
         >
-            <i class="material-icons">add</i> Add Announcement
+            <Icon icon="add" /> Add Announcement
         </button>
-        <button
-            bind:this={button}
-            style="background-color: transparent; color: var(--blue-text)"
-            on:click={() =>
-                fetch("/api/featured", {
-                    method: "post",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data.announcements),
-                }).then((res) =>
-                    res.ok ? goto("/featured") : alert(`An error occurred! (${res.status})`),
-                )}
-        >
-            <i class="material-icons">save</i> Save
+        <button style="background-color: transparent; color: var(--blue-text)" on:click={save}>
+            <Icon icon="save" /> Save
         </button>
     </div>
 </div>

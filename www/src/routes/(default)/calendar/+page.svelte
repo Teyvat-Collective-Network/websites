@@ -1,25 +1,14 @@
 <script context="module" lang="ts">
     const weekdays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-    const months = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-    ];
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 </script>
 
 <script lang="ts">
     import Invite from "$lib/Invite.svelte";
     import { Modal } from "@daedalus-discord/webkit";
     import { dark_mode } from "$lib/stores";
+    import type { CalendarEvent, LocalsData } from "$lib/types";
+    import Icon from "$lib/Icon.svelte";
 
     const open: Record<string, boolean> = {};
     let sx: number = 0;
@@ -39,9 +28,8 @@
         return k;
     });
 
-    export let data: any;
-
-    const f = (e: any) => (sx = e.target.scrollLeft);
+    export let data: LocalsData & { events: CalendarEvent[][] };
+    const scroll = (e: UIEvent & { currentTarget: { scrollLeft: number } }) => (sx = e.currentTarget.scrollLeft);
 </script>
 
 <div class="container">
@@ -49,14 +37,14 @@
         <h3 class="row" style="gap: 10px">
             Events &amp; Other Dates
             {#if data.observer}
-                <a href="/admin/calendar"><i class="material-icons">edit</i></a>
+                <a href="/admin/calendar"><Icon icon="edit" /></a>
             {/if}
             {#if data.council}
-                <a href="/add-event"><i class="material-icons">add</i></a>
+                <a href="/add-event"><Icon icon="add" /></a>
             {/if}
         </h3>
 
-        <div id="calendar-box" on:scroll={f}>
+        <div id="calendar-box" on:scroll={scroll}>
             <div id="calendar">
                 {#each data.events as track, ti}
                     <div class="track">
@@ -66,14 +54,13 @@
                             {@const y = (event.end - event.start) / 86400000}
                             <button
                                 class="unset event"
-                                style="left: {x * 55}px; width: {55 * y -
-                                    15}px; background-color: #{$dark_mode
+                                style="left: {x * 55}px; width: {55 * y - 15}px; background-color: #{$dark_mode
                                     ? event.dark
                                     : event.light}"
                                 on:click={() => (open[id] = true)}
                             >
                                 <div style="padding-left: calc({sx}px - {x * 55 + 20}px)">
-                                    {event.name}
+                                    {event.title}
                                 </div>
                             </button>
 
@@ -83,7 +70,7 @@
                                 background_color="var(--background-1)"
                                 overlay_color="rgb(var(--pure-rgb), 80%)"
                             >
-                                <h2>{event.name}</h2>
+                                <h2>{event.title}</h2>
                                 {@html event.body}
 
                                 {#if event.invite_data?.length}
@@ -92,7 +79,7 @@
                                         {#each event.invite_data as invite}
                                             <Invite
                                                 code={invite.code}
-                                                icon={invite.icon}
+                                                icon={invite.icon ?? ""}
                                                 title={invite.name}
                                                 banner={invite.banner}
                                             />
@@ -118,10 +105,7 @@
                     </div>
                 {/each}
 
-                <div
-                    class="vline timeline"
-                    style="left: {179 + ((x.getTime() - base.getTime()) / 86400000) * 55}px"
-                >
+                <div class="vline timeline" style="left: {179 + ((x.getTime() - base.getTime()) / 86400000) * 55}px">
                     <span class="plain current">
                         {x.getHours()}:{x.getMinutes().toString().padStart(2, "0")}:{x
                             .getSeconds()

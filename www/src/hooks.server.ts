@@ -2,11 +2,16 @@ import { TOKEN } from "$env/static/private";
 import { PUBLIC_DIS_API, PUBLIC_STAGING, PUBLIC_TCN_AUTH } from "$env/static/public";
 import type { Handle } from "@sveltejs/kit";
 
-import "./lib/polls.js";
-import "./hq_utils.js";
+import "./bots/banshare-bot/index.js";
+import "./bots/hq-utils/index.js";
+import "./bots/polls/index.js";
+
+import "./migrate.js";
+
+process.on("uncaughtException", (error) => console.error("[TOP-LEVEL]", error));
 
 export const handle: Handle = async ({ event, resolve }) => {
-    const locals = event.locals as any;
+    const locals = event.locals;
 
     locals.dark = event.cookies.get("mode") !== "light";
 

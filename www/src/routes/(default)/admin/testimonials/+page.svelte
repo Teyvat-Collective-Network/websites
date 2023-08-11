@@ -1,17 +1,24 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import Icon from "$lib/Icon.svelte";
     import ListButtons from "$lib/ListButtons.svelte";
+    import { API } from "$lib/api";
+    import type { Testimonial } from "$lib/types";
     import { Textarea } from "@daedalus-discord/webkit";
 
-    export let data: { testimonials: { image: string; name: string; content: string }[] };
+    export let data: { testimonials: Testimonial[] };
 
-    let button: any;
+    function save() {
+        API.post_testimonials(data.testimonials)
+            .then(() => goto("/"))
+            .catch(() => alert("An error occurred!"));
+    }
 </script>
 
 <svelte:window
     on:keydown={(e) => {
         if (e.key === "s" && e.ctrlKey) {
-            button.click();
+            save();
             e.preventDefault();
         }
     }}
@@ -36,12 +43,9 @@
                 <a
                     href={"javascript:void(0)"}
                     style="background-color: transparent; color: var(--green-text)"
-                    on:click={() => (
-                        data.testimonials.splice(index, 0, structuredClone(testimonial)),
-                        (data = data)
-                    )}
+                    on:click={() => (data.testimonials.splice(index, 0, structuredClone(testimonial)), (data = data))}
                 >
-                    <i class="material-icons">content_copy</i>
+                    <Icon icon="content_copy" />
                 </a>
             </div>
         </div>
@@ -49,22 +53,12 @@
     <div class="row" style="gap: 10px">
         <button
             style="background-color: var(--green-button)"
-            on:click={() =>
-                (data.testimonials = [...data.testimonials, { image: "", name: "", content: "" }])}
+            on:click={() => (data.testimonials = [...data.testimonials, { image: "", name: "", content: "" }])}
         >
-            <i class="material-icons">add</i> Add Testimonial
+            <Icon icon="add" /> Add Testimonial
         </button>
-        <button
-            bind:this={button}
-            style="background-color: transparent; color: var(--blue-text)"
-            on:click={() =>
-                fetch("/api/testimonials", {
-                    method: "post",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data.testimonials),
-                }).then((res) => (res.ok ? goto("/") : alert("An error occurred!")))}
-        >
-            <i class="material-icons">save</i> Save
+        <button style="background-color: transparent; color: var(--blue-text)" on:click={save}>
+            <Icon icon="save" /> Save
         </button>
     </div>
 </div>

@@ -19,14 +19,12 @@ export const GET: RequestHandler = () =>
                             {
                                 type: ApplicationCommandOptionType.Subcommand,
                                 name: "here",
-                                description:
-                                    "set the banshare output channel to the current channel",
+                                description: "set the banshare output channel to the current channel",
                             },
                             {
                                 type: ApplicationCommandOptionType.Subcommand,
                                 name: "none",
-                                description:
-                                    "unset the banshare output channel and stop receiving banshares",
+                                description: "unset the banshare output channel and stop receiving banshares",
                             },
                         ],
                     },
@@ -120,9 +118,9 @@ export const GET: RequestHandler = () =>
                                 name: "enable",
                                 description: "whether or not to receive DM scam banshares",
                                 required: true,
-                            }
-                        ]
-                    }
+                            },
+                        ],
+                    },
                 ],
             },
             {
@@ -131,6 +129,6 @@ export const GET: RequestHandler = () =>
                 description: "publish an arbitrary message through the banshare channels",
                 defaultMemberPermissions: "0",
                 dmPermission: false,
-            }
-        ])
+            },
+        ]),
     );

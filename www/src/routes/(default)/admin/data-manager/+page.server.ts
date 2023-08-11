@@ -1,12 +1,16 @@
 import type { ServerLoad } from "@sveltejs/kit";
-import db from "../../../../db.js";
 import { fix } from "$lib/util.js";
+import { DB } from "../../../../db.js";
 
 export const load: ServerLoad = async () => {
-    const cache: Record<string, any[]> = {};
+    const data = await DB.InternalData.get();
 
-    for (const key of ["guild_map", "user_map", "elements", "weapons", "regions", "characters"])
-        cache[key] = fix(await db[key].find().toArray());
+    data.guild_map = fix(data.guild_map);
+    data.user_map = fix(data.user_map);
+    data.elements = fix(data.elements);
+    data.weapons = fix(data.weapons);
+    data.regions = fix(data.regions);
+    data.characters = fix(data.characters);
 
-    return cache;
+    return data;
 };

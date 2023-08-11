@@ -1,13 +1,16 @@
 <script lang="ts">
+    import Icon from "$lib/Icon.svelte";
+    import User from "$lib/UserMention.svelte";
+    import type { ElectionRecord, LocalsData } from "$lib/types";
     import { statuses } from "../../../admin/election-history/+page.svelte";
 
-    export let data: any;
+    export let data: LocalsData & { entries: ElectionRecord[] };
 </script>
 
 <h3 class="row" style="gap: 10px">
     Election History
     {#if data.observer}
-        <a href="/admin/election-history"><i class="material-icons">edit</i></a>
+        <a href="/admin/election-history"><Icon icon="edit" /></a>
     {/if}
 </h3>
 {#each data.entries as entry, index}
@@ -30,9 +33,7 @@
 
                 <tr>
                     <td>
-                        <span class="mention user" data-id={id}>
-                            <i class="material-icons">pending</i> &nbsp; Loading User...
-                        </span>
+                        <User {id} />
                     </td>
                     <td>
                         <b class="dark" style="color: {dark}">{text}</b>

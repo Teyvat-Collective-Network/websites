@@ -1,27 +1,26 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import Icon from "$lib/Icon.svelte";
     import ListButton from "$lib/ListButton.svelte";
+    import { API } from "$lib/api";
+    import type { CalendarEvent } from "$lib/types";
     import Textarea from "@daedalus-discord/webkit/Textarea.svelte";
 
     export let data: {
-        events: {
-            start: number;
-            end: number;
-            name: string;
-            body: string;
-            invites: string;
-            light: string;
-            dark: string;
-        }[][];
+        events: CalendarEvent[][];
     };
 
-    let button: any;
+    function save() {
+        API.post_calendar(data.events)
+            .then(() => goto("/calendar"))
+            .catch((e) => (console.error(e), alert("An error occurred!")));
+    }
 </script>
 
 <svelte:window
     on:keydown={(e) => {
         if (e.key === "s" && e.ctrlKey) {
-            button.click();
+            save();
             e.preventDefault();
         }
     }}
@@ -35,20 +34,16 @@
         </h3>
         {#each track as event, ei}
             <div class="card">
-                <h5>{event.name}</h5>
+                <h5>{event.title}</h5>
                 <div class="inputs">
                     Start (Timestamp):
                     <input type="number" bind:value={event.start} />
                     End (Timestamp):
                     <input type="number" bind:value={event.end} />
-                    Name:
-                    <input type="text" bind:value={event.name} />
+                    Title:
+                    <input type="text" bind:value={event.title} />
                     Invites:
-                    <input
-                        type="text"
-                        bind:value={event.invites}
-                        placeholder="Space-separated codes"
-                    />
+                    <input type="text" bind:value={event.invites} placeholder="Space-separated codes" />
                     Light BG: <input type="text" bind:value={event.light} />
                     Dark BG: <input type="text" bind:value={event.dark} />
                 </div>
@@ -71,7 +66,7 @@
                     {
                         start: Math.floor(new Date().getTime() / 1000) * 1000,
                         end: Math.floor(new Date().getTime() / 1000) * 1000 + 86400000,
-                        name: "New Event",
+                        title: "New Event",
                         body: "<b>HTML</b> is supported",
                         invites: "",
                         light: "aaaaaa",
@@ -79,32 +74,20 @@
                     },
                 ])}
         >
-            <i class="material-icons">add</i> Add Event
+            <Icon icon="add" /> Add Event
         </button>
     {/each}
 
     <br /><br />
 
-    <button
-        style="background-color: var(--blue-callout)"
-        on:click={() => (data.events = [...data.events, []])}
-    >
-        <i class="material-icons">add</i> Add Calendar Row
+    <button style="background-color: var(--blue-callout)" on:click={() => (data.events = [...data.events, []])}>
+        <Icon icon="add" /> Add Calendar Row
     </button>
 
     <br />
 
-    <button
-        bind:this={button}
-        style="background-color: transparent; color: var(--blue-text)"
-        on:click={() =>
-            fetch("/api/calendar", {
-                method: "post",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data.events),
-            }).then((res) => (res.ok ? goto("/calendar") : alert("An error occurred!")))}
-    >
-        <i class="material-icons">save</i> Save
+    <button style="background-color: transparent; color: var(--blue-text)" on:click={save}>
+        <Icon icon="save" /> Save
     </button>
 </div>
 

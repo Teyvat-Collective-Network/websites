@@ -1,7 +1,7 @@
 import type { ServerLoad } from "@sveltejs/kit";
-import db from "../../../../db.js";
 import { fix } from "$lib/util.js";
+import { DB } from "../../../../db.js";
 
 export const load: ServerLoad = async () => {
-    return { entries: fix(await db.election_history.find().toArray()) };
+    return { entries: fix(await DB.HistoricalRecords.get_election_history()) };
 };

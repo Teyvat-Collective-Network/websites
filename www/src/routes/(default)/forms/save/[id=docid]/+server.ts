@@ -1,28 +1,28 @@
 import type { RequestHandler } from "@sveltejs/kit";
-import db from "../../../../../db.js";
-import DOMPurify from "dompurify";
-import { JSDOM } from "jsdom";
 import { marked } from "marked";
 import { url_regex, webhook_regex } from "$lib/util.js";
+import type { Form, FormQuestion } from "$lib/types.js";
+import { DB } from "../../../../../db.js";
+import sanitize from "$lib/sanitize.js";
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {
-    const form = (await request.json()).form;
-    let id = params.id;
+    const form = (await request.json()).form as Partial<Form> & Pick<Form, "pages">;
+    let id = params.id!;
 
-    const data = id !== "new" ? await db.forms.findOne({ id }) : null;
+    const data = id !== "new" ? await DB.Forms.get(id) : null;
 
     try {
-        if (!(locals as any).council) throw "You are not authorized to use the TCN Forms feature.";
+        if (!locals.council) throw "You are not authorized to use the TCN Forms feature.";
         if (id !== "new") {
             if (!data || data.deleted) throw "This form no longer exists.";
             else if (
-                data.author !== (locals as any).user.id &&
-                !(data.editable_observers && (locals as any).observer) &&
-                !(data.editable_council && (locals as any).council)
+                data.author !== locals.user.id &&
+                !(data.editable_observers && locals.observer) &&
+                !(data.editable_council && locals.council)
             )
                 throw "You are not authorized to edit this form.";
 
-            if (data.author !== (locals as any).user.id) {
+            if (data.author !== locals.user.id) {
                 delete form.allow_observers;
                 delete form.allow_council;
                 delete form.allow_logged_in;
@@ -42,12 +42,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         if (form.name.length > 100) throw "Name cannot exceed 100 characters.";
         if (form.collect_names && form.allow_everyone)
             throw "You cannot collect names while the form is available to everyone including logged-out users.";
-        if (
-            !form.collect_names &&
-            form.post_to_webhook &&
-            form.is_forum &&
-            form.naming_scheme === 0
-        )
+        if (!form.collect_names && form.post_to_webhook && form.is_forum && form.naming_scheme === 0)
             throw "You cannot use the 'Use Submitter Name' forum post naming scheme when you are not collecting names.";
 
         if (form.external) {
@@ -57,11 +52,10 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         }
 
         if (form.pages.length === 0) throw "At least one page is required.";
-        const questions: any = {};
+        const questions: Record<number, FormQuestion> = {};
         for (let index = 0; index < form.pages.length; index++) {
             const page = form.pages[index];
-            if (page.name.length > 100)
-                throw `Name cannot exceed 100 characters for page ${index + 1}.`;
+            if (page.name.length > 100) throw `Name cannot exceed 100 characters for page ${index + 1}.`;
             if (page.description.length > 2048)
                 throw `Description cannot exceed 2048 characters for page ${index + 1}.`;
 
@@ -77,26 +71,23 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                             index + 1
                         } must be a number, multiple-choice, or date question.`;
                     if (condition.type === "number")
-                        if (
-                            !["gt", "ge", "eq", "le", "lt", "ne"].includes(page.condition.number_op)
-                        )
+                        if (!["gt", "ge", "eq", "le", "lt", "ne"].includes(page.condition.number_op ?? ""))
                             throw `Invalid comparator for condition for page ${index + 1}.`;
                         else if (page.condition.number_value == undefined)
                             throw `Missing comparator value for condition for page ${index + 1}.`;
                         else;
                     else if (condition.type === "mcq")
-                        if (!["any", "all"].includes(page.condition.mcq_anyall))
+                        if (!["any", "all"].includes(page.condition.mcq_anyall ?? ""))
                             throw `Invalid any/all for condition for page ${index + 1}.`;
-                        else if (!["yes", "no"].includes(page.condition.mcq_mode))
+                        else if (!["yes", "no"].includes(page.condition.mcq_mode ?? ""))
                             throw `Invalid yes/no mode for condition for page ${index + 1}.`;
                         else;
                     else if (condition.type === "date")
-                        if (!["le", "lt", "ge", "gt", "bw", "nb"].includes(page.condition.date_op))
+                        if (!["le", "lt", "ge", "gt", "bw", "nb"].includes(page.condition.date_op ?? ""))
                             throw `Invalid comparator for condition for page ${index + 1}.`;
                         else if (
                             !page.condition.first_date ||
-                            (["bw", "nb"].includes(page.condition.date_op) &&
-                                !page.condition.second_date)
+                            (["bw", "nb"].includes(page.condition.date_op ?? "") && !page.condition.second_date)
                         )
                             throw `Missing date for condition for page ${index + 1}.`;
                 }
@@ -104,43 +95,30 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             for (let qi = 0; qi < page.questions.length; qi++) {
                 const question = page.questions[qi];
                 questions[question.id] = question;
-                if (!question.question)
-                    throw `No question provided for page ${index + 1} question ${qi + 1}.`;
+                if (!question.question) throw `No question provided for page ${index + 1} question ${qi + 1}.`;
                 if (question.question.length > 256)
-                    throw `Question cannot exceed 256 characters for page ${index + 1} question ${
-                        qi + 1
-                    }.`;
+                    throw `Question cannot exceed 256 characters for page ${index + 1} question ${qi + 1}.`;
                 if (question.description.length > 1024)
-                    throw `Description cannot exceed 1024 characters for page ${
-                        index + 1
-                    } question ${qi + 1}.`;
+                    throw `Description cannot exceed 1024 characters for page ${index + 1} question ${qi + 1}.`;
                 if (!["short", "long", "number", "mcq", "date"].includes(question.type))
-                    throw `Invalid type "${question.type}" for page ${index + 1} question ${
-                        qi + 1
-                    }.`;
+                    throw `Invalid type "${question.type}" for page ${index + 1} question ${qi + 1}.`;
                 if (question.type === "mcq") {
                     question.selected = {};
 
                     if (question.options.length < 1)
-                        throw `At least one option is required for page ${
-                            index + 1
-                        } multiple choice question ${qi + 1}.`;
+                        throw `At least one option is required for page ${index + 1} multiple choice question ${
+                            qi + 1
+                        }.`;
                     if (question.options.some((x: string) => !x))
-                        throw `All options must be non-empty for page ${
-                            index + 1
-                        } multiple choice question ${qi + 1}.`;
-                    if (
-                        !form.external &&
-                        question.dropdown &&
-                        (question.min !== 1 || question.max !== 1)
-                    )
+                        throw `All options must be non-empty for page ${index + 1} multiple choice question ${qi + 1}.`;
+                    if (!form.external && question.dropdown && (question.min !== 1 || question.max !== 1))
                         throw `Dropdown display is only allowed if min = max = 1 for page ${
                             index + 1
                         } multiple choice question ${qi + 1}.`;
                     if (
                         !form.external &&
                         ((question.min != undefined && question.options.length < question.min) ||
-                            (question.min != undefined && question.options.length < question.max))
+                            (question.max != undefined && question.options.length < question.max))
                     )
                         throw `Minimum and maximum required options must be at most the number of options for page ${
                             index + 1
@@ -148,9 +126,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                 }
                 if (question.type === "date")
                     if (!question.show_date && !question.show_time)
-                        throw `Either the date or time must be shown for page ${
-                            index + 1
-                        } date question ${qi + 1}.`;
+                        throw `Either the date or time must be shown for page ${index + 1} date question ${qi + 1}.`;
                 if (
                     !form.external &&
                     ["short", "long", "number", "mcq"].includes(question.type) &&
@@ -158,9 +134,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                     question.max != undefined &&
                     question.min > question.max
                 )
-                    throw `Min must be less than or equal to max for page ${index + 1} question ${
-                        qi + 1
-                    }.`;
+                    throw `Min must be less than or equal to max for page ${index + 1} question ${qi + 1}.`;
             }
         }
 
@@ -168,13 +142,11 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             if (!form.webhook) throw "Missing webhook URL.";
             if (!form.webhook.match(url_regex)) throw "Invalid webhook URL.";
             if (form.webhook.match(/^https:\/\/(.+?\.)?discord\.com/)) {
-                if (!form.webhook.match(webhook_regex))
-                    throw "Webhook URL is a Discord URL but not a valid webhook.";
+                if (!form.webhook.match(webhook_regex)) throw "Webhook URL is a Discord URL but not a valid webhook.";
 
                 const req = await fetch(form.webhook);
 
-                if (req.status === 404)
-                    throw "Webhook does not exist (format is valid, but could not be found).";
+                if (req.status === 404) throw "Webhook does not exist (format is valid, but could not be found).";
                 if (req.status === 401) throw "Webhook URL token is invalid (unauthorized).";
             }
         }
@@ -190,16 +162,13 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             while (true) {
                 id = new Array(32)
                     .fill(0)
-                    .map(
-                        (x) =>
-                            "0123456789abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 36)],
-                    )
+                    .map((x) => "0123456789abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 36)])
                     .join("");
-                if (!(await db.forms.findOne({ id }))) break;
+                if (!(await DB.Forms.get(id))) break;
             }
         } else {
             const ids = new Set<number>();
-            form.pages.forEach((p: any) => p.questions.forEach((q: any) => ids.add(q.id)));
+            form.pages.forEach((p) => p.questions.forEach((q) => ids.add(q.id)));
 
             for (const page of data!.pages)
                 for (const question of page.questions)
@@ -210,31 +179,20 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         }
 
         try {
-            const window: any = new JSDOM("").window;
-            const purify = DOMPurify(window);
-
             for (const page of form.pages) {
-                page.parsed_description = purify.sanitize(marked.parse(page.description));
+                page.parsed_description = sanitize(marked.parse(page.description));
 
-                for (const question of page.questions) {
-                    question.parsed_description = purify.sanitize(
-                        marked.parse(question.description),
-                    );
-                }
+                for (const question of page.questions)
+                    question.parsed_description = sanitize(marked.parse(question.description));
             }
         } catch (error) {
             console.error(error);
             throw "An error occurred parsing your form's markdown.";
         }
-    } catch (error: any) {
+    } catch (error) {
         return new Response(JSON.stringify({ error }));
     }
 
-    await db.forms.findOneAndUpdate(
-        { id },
-        { $set: { ...form, author: (locals as any).user.id } },
-        { upsert: true },
-    );
-
+    await DB.Forms.save(id, { ...form, author: locals.user.id });
     return new Response(JSON.stringify({ id }));
 };

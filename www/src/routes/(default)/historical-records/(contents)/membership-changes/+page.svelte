@@ -1,9 +1,14 @@
 <script lang="ts">
+    import GuildMention from "$lib/GuildMention.svelte";
+    import Icon from "$lib/Icon.svelte";
+    import TimeMention from "$lib/TimeMention.svelte";
+    import User from "$lib/UserMention.svelte";
+    import type { LocalsData, MembershipChange } from "$lib/types";
     import { actions } from "../../../admin/membership-changes/+page.svelte";
 
-    export let data: any;
+    export let data: LocalsData & { entries: (MembershipChange & { has_mention?: boolean })[] };
 
-    data.entries.forEach((entry: any) => {
+    data.entries.forEach((entry) => {
         if (!entry.notes) return;
 
         const regex = /\[@(\d+)\]/;
@@ -23,7 +28,7 @@
 <h3 class="row" style="gap: 10px">
     Membership Changes
     {#if data.observer}
-        <a href="/admin/membership-changes"><i class="material-icons">edit</i></a>
+        <a href="/admin/membership-changes"><Icon icon="edit" /></a>
     {/if}
 </h3>
 <div id="scroll">
@@ -32,26 +37,25 @@
             <tr>
                 <td><code>{index + 1}</code></td>
                 <td>
-                    <span class="mention">
-                        <i class="material-icons">schedule</i> &nbsp;
-                        {entry.year}-{entry.month.toString().padStart(2, "0")}-{entry.date
-                            .toString()
-                            .padStart(2, "0")}
-                    </span>
+                    <TimeMention date={entry.date} show_time={false} />
                 </td>
                 <td>
-                    <span class="mention guild" data-id={entry.guild}>
-                        <i class="material-icons">pending</i> &nbsp; Loading Server...
-                    </span>
+                    {#if entry.guild}
+                        <GuildMention id={entry.guild} />
+                    {:else}
+                        [not specified]
+                    {/if}
                 </td>
                 <td><b>{actions[entry.action][0]}</b></td>
                 <td class="label">
                     <span class="mini">{actions[entry.action][1]}</span>
                 </td>
                 <td class="label-right">
-                    <span class="mention user" data-id={entry.primary}>
-                        <i class="material-icons">pending</i> &nbsp; Loading User...
-                    </span>
+                    {#if entry.primary}
+                        <User id={entry.primary} />
+                    {:else}
+                        [not specified]
+                    {/if}
                 </td>
                 {#if actions[entry.action][2]}
                     <td class="label">
@@ -59,9 +63,7 @@
                     </td>
                     <td class="label-right">
                         {#if entry.secondary}
-                            <span class="mention user" data-id={entry.secondary}>
-                                <i class="material-icons">pending</i> &nbsp; Loading User...
-                            </span>
+                            <User id={entry.secondary} />
                         {:else}
                             [not specified]
                         {/if}

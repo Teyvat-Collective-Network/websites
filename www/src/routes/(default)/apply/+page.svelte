@@ -6,43 +6,37 @@
     import Invite from "$lib/Invite.svelte";
     import LoggedInAs from "$lib/LoggedInAs.svelte";
     import { debounce } from "$lib/util.js";
+    import type { ApplyFormData, InviteData, LocalsData } from "$lib/types";
+    import { API } from "$lib/api";
+    import { select } from "$lib/html";
 
-    export let data: any;
-    export let form: any;
+    export let data: LocalsData;
+    export let form: ApplyFormData;
 
     let role: string;
     let invite: string = form?.invite ?? "";
-    let invite_data: any;
+    let invite_data: InviteData | null;
 
-    const suppress = (e: any) => e.key === "Enter" && e.preventDefault();
+    const suppress = (e: KeyboardEvent) => e.key === "Enter" && e.preventDefault();
 
     async function check_invite() {
         invite = invite.trim();
 
-        if (
-            !invite?.match(
-                /^(https:\/\/)?discord(?:(?:app)?\.com\/invite|\.gg(?:\/invite)?)\/[\w-]{2,255}$/i,
-            )
-        )
-            return (invite_data = undefined);
+        if (!invite?.match(/^(https:\/\/)?discord(?:(?:app)?\.com\/invite|\.gg(?:\/invite)?)\/[\w-]{2,255}$/i))
+            return (invite_data = null);
 
-        const request = await fetch(
-            `/fetch-invite?code=${encodeURIComponent(invite.slice(invite.lastIndexOf("/") + 1))}`,
-        );
-
-        if (!request.ok) return (invite_data = null);
-        invite_data = await request.json();
+        try {
+            invite_data = await API.get_fetch_invite(invite.slice(invite.lastIndexOf("/") + 1));
+        } catch {
+            invite_data = null;
+        }
     }
 
     onMount(() => check_invite());
 
     function submit(e: Event) {
-        if (
-            !invite_data ||
-            invite_data.guild.vanityURLCode === invite_data.code ||
-            invite_data.expires
-        ) {
-            document.querySelector("[name=invite]")?.scrollIntoView();
+        if (!invite_data?.guild || invite_data.guild.vanityURLCode === invite_data.code || invite_data.expires) {
+            select("[name=invite]")?.scrollIntoView();
             e.preventDefault();
         }
     }
@@ -53,11 +47,8 @@
         <h2>TCN Application Form</h2>
         {#if !data.user}
             <div class="panel">
-                Please <a
-                    href="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/apply`)}"
-                >
-                    log in
-                </a> to apply.
+                Please <a href="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/apply`)}"> log in </a> to
+                apply.
             </div>
         {:else}
             {#if form?.error}
@@ -73,15 +64,14 @@
             {/if}
             <Callout style="info">
                 <p>
-                    If you haven't already, read out <a href="/join">info page</a> on what the
-                    process for joining the TCN is and what to expect. If you have any questions,
-                    comments, or concerns, please reach out to us. See our
+                    If you haven't already, read out <a href="/join">info page</a> on what the process for joining the
+                    TCN is and what to expect. If you have any questions, comments, or concerns, please reach out to us.
+                    See our
                     <a href="/contact">contact information</a>
                     page.
                 </p>
                 <p>
-                    Please make sure your DMs are open so that we can reach out to you to respond to
-                    your application.
+                    Please make sure your DMs are open so that we can reach out to you to respond to your application.
                 </p>
             </Callout>
             <br />
@@ -98,33 +88,18 @@
                     I agree to give the observer view access to <b>all channels</b> for 28 days.
                 </label>
                 <label>
-                    <input
-                        type="checkbox"
-                        name="observerauditconsent"
-                        required
-                        checked={form?.observerauditconsent}
-                    />
+                    <input type="checkbox" name="observerauditconsent" required checked={form?.observerauditconsent} />
                     I agree to give the observer access to the audit logs for 28 days.
                 </label>
                 <label>
-                    <input
-                        type="checkbox"
-                        name="partnerlistconsent"
-                        required
-                        checked={form?.partnerlistconsent}
-                    />
+                    <input type="checkbox" name="partnerlistconsent" required checked={form?.partnerlistconsent} />
                     I agree to display the TCN partner list publicly and keep it up-to-date.
                     <a href="/info/partner-list" target="_blank">[learn more]</a>
                 </label>
                 <label>
-                    <input
-                        type="checkbox"
-                        name="eventsconsent"
-                        required
-                        checked={form?.eventsconsent}
-                    />
-                    I agree to follow the network events channel publicly to cross-promote TCN server
-                    events and post crucial TCN announcements.
+                    <input type="checkbox" name="eventsconsent" required checked={form?.eventsconsent} />
+                    I agree to follow the network events channel publicly to cross-promote TCN server events and post crucial
+                    TCN announcements.
                 </label>
             </div>
             <div class="panel">
@@ -188,7 +163,7 @@
                 />
                 <br />
                 {#if invite_data}
-                    {#if invite_data.guild.vanityURLCode === invite_data.code}
+                    {#if invite_data.guild?.vanityURLCode === invite_data.code}
                         <br />
                         <Callout style="red">
                             <p>Vanity URLs are not allowed!</p>
@@ -198,9 +173,8 @@
                         <br />
                         <Callout style="red">
                             <p>
-                                This invite expires on {new Date(
-                                    invite_data.expires,
-                                ).toLocaleString()}! Please provide a permanent invite.
+                                This invite expires on {new Date(invite_data.expires).toLocaleString()}! Please provide
+                                a permanent invite.
                             </p>
                         </Callout>
                     {/if}
@@ -208,8 +182,8 @@
                         <br />
                         <Callout style="red">
                             <p>
-                                Please provide an invite that does not point to a stage instance,
-                                application, or user stream.
+                                Please provide an invite that does not point to a stage instance, application, or user
+                                stream.
                             </p>
                         </Callout>
                     {/if}
@@ -217,19 +191,20 @@
                         <br />
                         <Callout style="warn">
                             <p>
-                                We <b>recommend</b> that your server has 300 members before you apply.
-                                This is not a strict requirement, but a suggested threshold so that we
-                                can be confident your community is developed and stable enough for long-term
-                                success.
+                                We <b>recommend</b> that your server has 300 members before you apply. This is not a strict
+                                requirement, but a suggested threshold so that we can be confident your community is developed
+                                and stable enough for long-term success.
                             </p>
                         </Callout>
                     {/if}
                     <Invite
-                        banner={invite_data.guild.splash
+                        banner={invite_data.guild?.splash
                             ? `https://cdn.discordapp.com/splashes/${invite_data.guild.id}/${invite_data.guild.splash}?size=1024`
                             : null}
-                        icon={`https://cdn.discordapp.com/icons/${invite_data.guild.id}/${invite_data.guild.icon}?size=256`}
-                        title={invite_data.guild.name}
+                        icon={invite_data.guild
+                            ? `https://cdn.discordapp.com/icons/${invite_data.guild.id}/${invite_data.guild.icon}?size=256`
+                            : ""}
+                        title={invite_data.guild?.name ?? "Not A Guild Invite"}
                         code={invite_data.code}
                     />
                 {:else}
@@ -237,44 +212,26 @@
                 {/if}
                 <h5>Does your server contain an NSFW section?</h5>
                 <label>
-                    <input
-                        type="radio"
-                        name="nsfw"
-                        value="private"
-                        required
-                        checked={form?.nsfw === "private"}
-                    />
+                    <input type="radio" name="nsfw" value="private" required checked={form?.nsfw === "private"} />
                     Yes, hidden from regular users.
                 </label>
                 <label>
-                    <input
-                        type="radio"
-                        name="nsfw"
-                        value="public"
-                        required
-                        checked={form?.nsfw === "public"}
-                    />
+                    <input type="radio" name="nsfw" value="public" required checked={form?.nsfw === "public"} />
                     Yes, visible to regular users.
                 </label>
                 <label>
-                    <input
-                        type="radio"
-                        name="nsfw"
-                        value="no"
-                        required
-                        checked={form?.nsfw === "no"}
-                    />
+                    <input type="radio" name="nsfw" value="no" required checked={form?.nsfw === "no"} />
                     No
                 </label>
             </div>
             <div class="panel">
                 <h5>
-                    Do you have prior experience running a Discord server or similar communities in
-                    a position of management or moderation (e.g. forums, guilds, clans, etc.)?
+                    Do you have prior experience running a Discord server or similar communities in a position of
+                    management or moderation (e.g. forums, guilds, clans, etc.)?
                 </h5>
                 <h6>
-                    You do not have to have been the owner of the server / forum / etc.; any
-                    position of management or moderation is of interest.
+                    You do not have to have been the owner of the server / forum / etc.; any position of management or
+                    moderation is of interest.
                 </h6>
                 <Textarea
                     name="experience"
@@ -300,10 +257,9 @@
                 />
                 <h5>Please give us a rough outline of your server's history.</h5>
                 <h6>
-                    For example, if your server has ever rebranded, please list its former
-                    identities. Additionally, what inspired/motivated you to start the server, and
-                    what notable events or changes have occurred or what troubles have you had to
-                    overcome?
+                    For example, if your server has ever rebranded, please list its former identities. Additionally,
+                    what inspired/motivated you to start the server, and what notable events or changes have occurred or
+                    what troubles have you had to overcome?
                 </h6>
                 <Textarea
                     name="history"

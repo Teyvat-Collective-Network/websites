@@ -1,11 +1,18 @@
+import type { Form } from "$lib/types.js";
 import { fix, markdown_postprocess } from "$lib/util.js";
-import db from "../../../db.js";
+import { DB } from "../../../db.js";
 
-export async function load_data({ params, locals }: any) {
-    const { id } = params;
-    const form = await db.forms.findOne({ id });
+export async function load_data({
+    params,
+    locals,
+}: {
+    params: Partial<Record<string, string>>;
+    locals: App.Locals;
+}): Promise<any> {
+    const id = params.id!;
+    const form = await DB.Forms.get(id);
 
-    if (!form || (form.deleted && !(locals as any).observer))
+    if (!form || (form.deleted && !locals.observer))
         return {
             missing: true,
             id,
@@ -26,14 +33,14 @@ export async function load_data({ params, locals }: any) {
         thumbnail: form.thumbnail,
     };
 
-    const reader = (locals as any).user;
+    const reader = locals.user;
 
-    let access =
+    let access: boolean =
         form.allow_everyone ||
         reader?.id === form.author ||
-        ((locals as any).observer && form.allow_observers) ||
-        ((locals as any).council && form.allow_council) ||
-        (reader && (form.allow_logged_in || form.allowlist.match(new RegExp(`\b${reader.id}\b`))));
+        (locals.observer && form.allow_observers) ||
+        (locals.council && form.allow_council) ||
+        (reader && (form.allow_logged_in || !!form.allowlist.match(new RegExp(`\b${reader.id}\b`))));
 
     if (form.external && !form.allow_everyone && form.external_access) {
         try {
@@ -46,18 +53,17 @@ export async function load_data({ params, locals }: any) {
             return {
                 unauthorized: true,
                 form: min,
-                ext_fault:
-                    "External access check failed; this is an issue with the form creator's API.",
+                ext_fault: "External access check failed; this is an issue with the form creator's API.",
             };
         }
     }
 
-    if (access || (locals as any).observer) {
+    if (access || locals.observer) {
         for (const page of form.pages) {
-            page.description = markdown_postprocess(page.parsed_description, reader);
+            page.description = markdown_postprocess(page.parsed_description!, reader);
 
             for (const question of page.questions) {
-                question.description = markdown_postprocess(question.parsed_description, reader);
+                question.description = markdown_postprocess(question.parsed_description!, reader);
             }
         }
 

@@ -1,5 +1,7 @@
 <script lang="ts">
-    export let data: any;
+    import type { LocalsData } from "$lib/types";
+
+    export let data: LocalsData;
 </script>
 
 <div class="container">

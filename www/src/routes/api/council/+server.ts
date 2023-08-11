@@ -1,17 +1,15 @@
-import { PUBLIC_TCN_API } from "$env/static/public";
 import type { RequestHandler } from "@sveltejs/kit";
-import { hq_bot } from "../../../bot.js";
+import bot from "../../../core/bot.js";
+import { TCN } from "$lib/api.js";
+import type { UserTagEntry } from "$lib/types.js";
 
-export const GET: RequestHandler = async ({ fetch }) => {
-    const request = await fetch(`${PUBLIC_TCN_API}/users`);
-    const response = await request.json();
+export const GET: RequestHandler = async () => {
+    const users: UserTagEntry[] = [];
 
-    const users = [];
-
-    for (const user of response)
+    for (const user of await TCN.users())
         if (user.roles.includes("owner") || user.roles.includes("advisor"))
             try {
-                users.push({ id: user.id, tag: (await hq_bot.users.fetch(user.id)).tag });
+                users.push({ id: user.id, tag: (await bot.users.fetch(user.id)).tag });
             } catch {}
 
     return new Response(JSON.stringify(users));
