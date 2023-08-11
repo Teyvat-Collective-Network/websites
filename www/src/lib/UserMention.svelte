@@ -7,6 +7,6 @@
     export { other_classes as class };
 </script>
 
-<span class="mention user {other_classes}" data-id={id} {...$$props}>
+<span {...$$props} class="mention user {other_classes}" data-id={id}>
     <Icon icon="pending" /> &nbsp; Loading User...
 </span>

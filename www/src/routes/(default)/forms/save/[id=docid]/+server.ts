@@ -42,12 +42,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         if (form.name.length > 100) throw "Name cannot exceed 100 characters.";
         if (form.collect_names && form.allow_everyone)
             throw "You cannot collect names while the form is available to everyone including logged-out users.";
-        if (
-            !form.collect_names &&
-            form.post_to_webhook &&
-            form.is_forum &&
-            form.naming_scheme === 0
-        )
+        if (!form.collect_names && form.post_to_webhook && form.is_forum && form.naming_scheme === 0)
             throw "You cannot use the 'Use Submitter Name' forum post naming scheme when you are not collecting names.";
 
         if (form.external) {
@@ -60,8 +55,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         const questions: Record<number, FormQuestion> = {};
         for (let index = 0; index < form.pages.length; index++) {
             const page = form.pages[index];
-            if (page.name.length > 100)
-                throw `Name cannot exceed 100 characters for page ${index + 1}.`;
+            if (page.name.length > 100) throw `Name cannot exceed 100 characters for page ${index + 1}.`;
             if (page.description.length > 2048)
                 throw `Description cannot exceed 2048 characters for page ${index + 1}.`;
 
@@ -77,11 +71,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                             index + 1
                         } must be a number, multiple-choice, or date question.`;
                     if (condition.type === "number")
-                        if (
-                            !["gt", "ge", "eq", "le", "lt", "ne"].includes(
-                                page.condition.number_op ?? "",
-                            )
-                        )
+                        if (!["gt", "ge", "eq", "le", "lt", "ne"].includes(page.condition.number_op ?? ""))
                             throw `Invalid comparator for condition for page ${index + 1}.`;
                         else if (page.condition.number_value == undefined)
                             throw `Missing comparator value for condition for page ${index + 1}.`;
@@ -93,16 +83,11 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                             throw `Invalid yes/no mode for condition for page ${index + 1}.`;
                         else;
                     else if (condition.type === "date")
-                        if (
-                            !["le", "lt", "ge", "gt", "bw", "nb"].includes(
-                                page.condition.date_op ?? "",
-                            )
-                        )
+                        if (!["le", "lt", "ge", "gt", "bw", "nb"].includes(page.condition.date_op ?? ""))
                             throw `Invalid comparator for condition for page ${index + 1}.`;
                         else if (
                             !page.condition.first_date ||
-                            (["bw", "nb"].includes(page.condition.date_op ?? "") &&
-                                !page.condition.second_date)
+                            (["bw", "nb"].includes(page.condition.date_op ?? "") && !page.condition.second_date)
                         )
                             throw `Missing date for condition for page ${index + 1}.`;
                 }
@@ -110,36 +95,23 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             for (let qi = 0; qi < page.questions.length; qi++) {
                 const question = page.questions[qi];
                 questions[question.id] = question;
-                if (!question.question)
-                    throw `No question provided for page ${index + 1} question ${qi + 1}.`;
+                if (!question.question) throw `No question provided for page ${index + 1} question ${qi + 1}.`;
                 if (question.question.length > 256)
-                    throw `Question cannot exceed 256 characters for page ${index + 1} question ${
-                        qi + 1
-                    }.`;
+                    throw `Question cannot exceed 256 characters for page ${index + 1} question ${qi + 1}.`;
                 if (question.description.length > 1024)
-                    throw `Description cannot exceed 1024 characters for page ${
-                        index + 1
-                    } question ${qi + 1}.`;
+                    throw `Description cannot exceed 1024 characters for page ${index + 1} question ${qi + 1}.`;
                 if (!["short", "long", "number", "mcq", "date"].includes(question.type))
-                    throw `Invalid type "${question.type}" for page ${index + 1} question ${
-                        qi + 1
-                    }.`;
+                    throw `Invalid type "${question.type}" for page ${index + 1} question ${qi + 1}.`;
                 if (question.type === "mcq") {
                     question.selected = {};
 
                     if (question.options.length < 1)
-                        throw `At least one option is required for page ${
-                            index + 1
-                        } multiple choice question ${qi + 1}.`;
+                        throw `At least one option is required for page ${index + 1} multiple choice question ${
+                            qi + 1
+                        }.`;
                     if (question.options.some((x: string) => !x))
-                        throw `All options must be non-empty for page ${
-                            index + 1
-                        } multiple choice question ${qi + 1}.`;
-                    if (
-                        !form.external &&
-                        question.dropdown &&
-                        (question.min !== 1 || question.max !== 1)
-                    )
+                        throw `All options must be non-empty for page ${index + 1} multiple choice question ${qi + 1}.`;
+                    if (!form.external && question.dropdown && (question.min !== 1 || question.max !== 1))
                         throw `Dropdown display is only allowed if min = max = 1 for page ${
                             index + 1
                         } multiple choice question ${qi + 1}.`;
@@ -154,9 +126,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                 }
                 if (question.type === "date")
                     if (!question.show_date && !question.show_time)
-                        throw `Either the date or time must be shown for page ${
-                            index + 1
-                        } date question ${qi + 1}.`;
+                        throw `Either the date or time must be shown for page ${index + 1} date question ${qi + 1}.`;
                 if (
                     !form.external &&
                     ["short", "long", "number", "mcq"].includes(question.type) &&
@@ -164,9 +134,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
                     question.max != undefined &&
                     question.min > question.max
                 )
-                    throw `Min must be less than or equal to max for page ${index + 1} question ${
-                        qi + 1
-                    }.`;
+                    throw `Min must be less than or equal to max for page ${index + 1} question ${qi + 1}.`;
             }
         }
 
@@ -174,13 +142,11 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             if (!form.webhook) throw "Missing webhook URL.";
             if (!form.webhook.match(url_regex)) throw "Invalid webhook URL.";
             if (form.webhook.match(/^https:\/\/(.+?\.)?discord\.com/)) {
-                if (!form.webhook.match(webhook_regex))
-                    throw "Webhook URL is a Discord URL but not a valid webhook.";
+                if (!form.webhook.match(webhook_regex)) throw "Webhook URL is a Discord URL but not a valid webhook.";
 
                 const req = await fetch(form.webhook);
 
-                if (req.status === 404)
-                    throw "Webhook does not exist (format is valid, but could not be found).";
+                if (req.status === 404) throw "Webhook does not exist (format is valid, but could not be found).";
                 if (req.status === 401) throw "Webhook URL token is invalid (unauthorized).";
             }
         }
@@ -196,10 +162,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             while (true) {
                 id = new Array(32)
                     .fill(0)
-                    .map(
-                        (x) =>
-                            "0123456789abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 36)],
-                    )
+                    .map((x) => "0123456789abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 36)])
                     .join("");
                 if (!(await DB.Forms.get(id))) break;
             }

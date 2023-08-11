@@ -8,12 +8,7 @@
     import { tag } from "$lib/util";
     import { Textarea } from "@daedalus-discord/webkit";
 
-    export let data: LocalsData & {
-        missing?: boolean;
-        unauthorized?: boolean;
-        id?: string;
-        doc: Partial<Doc>;
-    };
+    export let data: LocalsData & { missing?: boolean; unauthorized?: boolean; id?: string; doc: Partial<Doc> };
 
     data.doc ??= {
         anon: false,

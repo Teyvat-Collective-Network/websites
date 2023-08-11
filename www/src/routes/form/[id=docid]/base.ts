@@ -1,4 +1,4 @@
-import type { FormLoadData } from "$lib/types.js";
+import type { Form } from "$lib/types.js";
 import { fix, markdown_postprocess } from "$lib/util.js";
 import { DB } from "../../../db.js";
 
@@ -8,7 +8,7 @@ export async function load_data({
 }: {
     params: Partial<Record<string, string>>;
     locals: App.Locals;
-}): Promise<FormLoadData> {
+}): Promise<any> {
     const id = params.id!;
     const form = await DB.Forms.get(id);
 
@@ -53,8 +53,7 @@ export async function load_data({
             return {
                 unauthorized: true,
                 form: min,
-                ext_fault:
-                    "External access check failed; this is an issue with the form creator's API.",
+                ext_fault: "External access check failed; this is an issue with the form creator's API.",
             };
         }
     }

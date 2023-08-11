@@ -10,9 +10,7 @@
 <div class="container">
     <div id="main">
         {#if !data.user}
-            <Redirect
-                to="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/docs`)}"
-            />
+            <Redirect to="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/docs`)}" />
         {:else if !data.council}
             <Callout style="red">
                 <p>You are not authorized to use the TCN Documents feature!</p>
@@ -20,9 +18,8 @@
         {:else}
             <h1>Documents</h1>
             <p>
-                Council members can create markdown documents here, which feature Discord
-                authentication and can be restricted to specified users, the TCN council, TCN staff,
-                observers, etc.
+                Council members can create markdown documents here, which feature Discord authentication and can be
+                restricted to specified users, the TCN council, TCN staff, observers, etc.
             </p>
             <h2>Your Documents</h2>
             {#if data.docs?.length}

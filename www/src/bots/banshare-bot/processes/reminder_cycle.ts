@@ -16,10 +16,7 @@ export default async function () {
 
             const message = await channel.messages.fetch(id);
 
-            if (
-                now - (reminded ?? message.createdTimestamp) >
-                (urgent ? +URGENT_DELAY : +NON_URGENT_DELAY)
-            ) {
+            if (now - (reminded ?? message.createdTimestamp) > (urgent ? +URGENT_DELAY : +NON_URGENT_DELAY)) {
                 notice = true;
                 await DB.Banshares.remind(id);
             }

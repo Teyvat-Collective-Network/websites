@@ -17,10 +17,7 @@ export default async function (button: ButtonInteraction) {
         } catch {}
 
     try {
-        await button.editReply({
-            content: users.join(", "),
-            components: confirm(false, "-ban"),
-        });
+        await button.editReply({ content: users.join(", "), components: confirm(false, "-ban") });
     } catch {
         await button.editReply({
             files: [

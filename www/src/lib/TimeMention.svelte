@@ -12,7 +12,7 @@
 </script>
 
 {#if show_date || show_time}
-    <span class="mention {other_classes}" data-id={show_date && show_time ? timestamp : ""} {...$$props}>
+    <span {...$$props} class="mention {other_classes}" data-id={show_date && show_time ? timestamp : ""}>
         <Icon icon="schedule" />
         {#if show_time}
             &nbsp; <span class="time {show_date ? '' : 'short'}" data-timestamp={timestamp} />

@@ -320,11 +320,7 @@ export async function render(data: Poll, required?: string[]): Promise<MessageCr
 
 export function render_vote(poll: Poll, vote: BaseVote) {
     if (vote.abstain)
-        return {
-            title: "Abstained",
-            description: "You have __abstained__ from this poll.",
-            color: 0x2b2d31,
-        };
+        return { title: "Abstained", description: "You have __abstained__ from this poll.", color: 0x2b2d31 };
     else if (poll.mode === "proposal")
         return {
             title: `Voted In ${vote.yes ? "Favor" : "Opposition"}`,

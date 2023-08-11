@@ -23,9 +23,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
         } catch {
             return new Response(
                 JSON.stringify({
-                    error: `Invalid ID: <code>${escape(
-                        id,
-                    )}</code> did not correspond to a valid user.`,
+                    error: `Invalid ID: <code>${escape(id)}</code> did not correspond to a valid user.`,
                 }),
             );
         }

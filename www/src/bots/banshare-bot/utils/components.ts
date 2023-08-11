@@ -106,12 +106,7 @@ export const autobanning: ActionRow[] = [
 export function controls(published: boolean, severity?: string): ActionRow[] {
     if (published) {
         const components: APIMessageActionRowComponent[] = [
-            {
-                type: ComponentType.Button,
-                style: ButtonStyle.Danger,
-                custom_id: "rescind",
-                label: "Rescind",
-            },
+            { type: ComponentType.Button, style: ButtonStyle.Danger, custom_id: "rescind", label: "Rescind" },
         ];
 
         if (severity === "p2")

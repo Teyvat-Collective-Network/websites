@@ -153,16 +153,18 @@
         display: flex;
         flex-direction: row;
         align-items: center;
+        gap: 0.5em;
 
-        i {
-            padding-right: 0.5em;
-        }
-        Icon icon="       &." class="material"ren {
-            color: green;
-        }
+        :global {
+            i.material-icons {
+                &.green {
+                    color: green;
+                }
 
-        &.red {
-            color: red;
+                &.red {
+                    color: red;
+                }
+            }
         }
     }
 </style>

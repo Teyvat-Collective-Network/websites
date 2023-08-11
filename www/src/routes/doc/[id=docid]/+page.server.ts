@@ -1,6 +1,5 @@
 import type { ServerLoad } from "@sveltejs/kit";
 import { fix, markdown_postprocess } from "$lib/util.js";
-import bot from "../../../core/bot.js";
 import { DB } from "../../../db.js";
 
 export const load: ServerLoad = async ({ params, locals }) => {

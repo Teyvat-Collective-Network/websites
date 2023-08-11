@@ -37,14 +37,7 @@ export const actions: Actions = {
 
         const action = (data.get("submit") as string) ?? "Submit";
 
-        const values: BanshareFormData = {
-            ids,
-            reason,
-            evidence,
-            server,
-            severity,
-            urgent,
-        };
+        const values: BanshareFormData = { ids, reason, evidence, server, severity, urgent };
 
         const abort = (code: number, message: string) =>
             fail(code, {

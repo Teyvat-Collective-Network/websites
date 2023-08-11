@@ -60,10 +60,8 @@
     <h2>Display</h2>
 
     <p>
-        You can use <a
-            href="https://colors-picker.com/hex-color-picker/"
-            target="_blank"
-            rel="noreferrer">https://colors-picker.com/hex-color-picker/</a
+        You can use <a href="https://colors-picker.com/hex-color-picker/" target="_blank" rel="noreferrer"
+            >https://colors-picker.com/hex-color-picker/</a
         > to pick out your colors. Make sure you copy the 6-digit hex code.
     </p>
 
@@ -116,22 +114,14 @@
     <br /><br />
     <button on:click={() => (open = true)}>Preview</button>
 
-    <Modal
-        bind:open
-        background_color="var(--background-1)"
-        overlay_color="rgb(var(--pure-rgb), 80%)"
-    >
+    <Modal bind:open background_color="var(--background-1)" overlay_color="rgb(var(--pure-rgb), 80%)">
         <h2>{data.title ?? ""}</h2>
         {@html parse(data.body ?? "")}
     </Modal>
 
     <h2>Invites</h2>
 
-    <input
-        type="text"
-        bind:value={data.invites}
-        placeholder="Server Invites (space-separated codes, not links)"
-    />
+    <input type="text" bind:value={data.invites} placeholder="Server Invites (space-separated codes, not links)" />
 
     <br /><br />
     <button {disabled} on:click={submit}>Submit</button>

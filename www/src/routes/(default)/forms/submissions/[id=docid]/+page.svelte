@@ -5,7 +5,7 @@
     import Icon from "$lib/Icon.svelte";
     import Redirect from "$lib/Redirect.svelte";
     import User from "$lib/UserMention.svelte";
-    import type { Form, FormQuestion, FormSubmission, LocalsData } from "$lib/types";
+    import type { Form, FormSubmission, LocalsData } from "$lib/types";
 
     export let data: LocalsData & {
         missing?: boolean;

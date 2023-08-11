@@ -33,11 +33,7 @@ export default async function (button: ButtonInteraction) {
         return;
     }
 
-    await button.update({
-        content: "Executing...",
-        files: [],
-        components: [],
-    });
+    await button.update({ content: "Executing...", files: [], components: [] });
 
     await execute(banshare, await DB.BanshareSettings.get(button.guild!.id), button.guild!, message, button.member!);
 

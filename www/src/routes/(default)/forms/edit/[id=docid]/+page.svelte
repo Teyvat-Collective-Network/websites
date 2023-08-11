@@ -565,7 +565,7 @@
                                     class="row"
                                     on:click={() => (webhook_input_show = !webhook_input_show)}
                                 >
-                                    <Icon icon={wbehook_input_show ? "visibility_off" : "visibility"} />
+                                    <Icon icon={webhook_input_show ? "visibility_off" : "visibility"} />
                                 </a>
                             </label>
                         </p>

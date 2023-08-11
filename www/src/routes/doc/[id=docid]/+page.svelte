@@ -12,12 +12,7 @@
     import { highlight } from "$lib/util";
     import { onMount } from "svelte";
 
-    export let data: LocalsData & {
-        missing?: boolean;
-        unauthorized?: boolean;
-        id?: string;
-        doc: Doc;
-    };
+    export let data: LocalsData & { missing?: boolean; unauthorized?: boolean; id?: string; doc: Doc };
 
     const offset = new Date().getTimezoneOffset();
 

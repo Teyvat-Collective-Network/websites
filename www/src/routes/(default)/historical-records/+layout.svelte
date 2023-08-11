@@ -8,9 +8,7 @@
 </script>
 
 {#if !data.user}
-    <Redirect
-        to="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/historical-records`)}"
-    />
+    <Redirect to="{PUBLIC_TCN_AUTH}?redirect={encodeURIComponent(`${PUBLIC_DOMAIN}/historical-records`)}" />
 {:else if !data.council}
     <Callout style="red">
         <p>You are not authorized to access this page!</p>

@@ -58,11 +58,7 @@
                     {#each entry.candidates as candidate, ci}
                         <tr>
                             <td>
-                                <input
-                                    type="text"
-                                    bind:value={candidate.id}
-                                    placeholder="User ID"
-                                />
+                                <input type="text" bind:value={candidate.id} placeholder="User ID" />
                             </td>
                             <td>
                                 <select bind:value={candidate.status}>
@@ -99,9 +95,7 @@
 
         <br />
         <div class="row" style="gap: 10px">
-            <button
-                on:click={() => (data.entries = [{ candidates: [], seats: 0 }, ...data.entries])}
-            >
+            <button on:click={() => (data.entries = [{ candidates: [], seats: 0 }, ...data.entries])}>
                 Add Election
             </button>
             <button on:click={save}>Save</button>
