@@ -60,10 +60,10 @@ export const actions: Actions = {
 
         if (reason.length > 498) return abort(400, "Maximum reason length is 498.");
 
-        if (evidence.length > 1200)
+        if (evidence.length > 1000)
             return abort(
                 400,
-                "Maximum evidence length is 1200. If you need more space, please create and link a document and include some basic information about it in the evidence field.",
+                "Maximum evidence length is 1000. If you need more space, please create and link a document and include some basic information about it in the evidence field.",
             );
 
         const tcn_request = await fetch(`${PUBLIC_TCN_API}/users/${user.id}`);
