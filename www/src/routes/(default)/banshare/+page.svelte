@@ -153,7 +153,7 @@
                             name="evidence"
                             placeholder="Provide sufficient evidence to verify your reason and for other mods to make an informed decision."
                             required
-                            maxlength="1200"
+                            maxlength="1000"
                             autocomplete="off"
                             value={form?.evidence}
                         />
