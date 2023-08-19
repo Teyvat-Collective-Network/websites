@@ -414,7 +414,7 @@ Thanks!`);
 });
 
 hq_bot.on("inviteCreate", async (invite) => {
-    if (invite.inviterId === null || invite.inviterId === hq_bot.user!.id) return;
+    if (invite.guild?.id !== PUBLIC_HQ || invite.inviterId === null || invite.inviterId === hq_bot.user!.id) return;
 
     const channel = await hq_bot.channels.fetch(LOG);
     if (!channel?.isTextBased()) return;
