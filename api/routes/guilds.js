@@ -32,7 +32,7 @@ export default function(fastify, opts, done) {
   });
 
   fastify.post('/', { schema: schemas.post }, async (request, reply) => {
-    if (!request.access(u => u.roles.includes('observer'))) return reply.code(403).send();
+    if (!await request.access(u => u.roles.includes('observer'))) return reply.code(403).send();
     if (await fastify.db.guilds.exists({ id: request.body.id })) return reply.code(409).send();
     const doc = await fastify.db.guilds.create(request.body);
     await updateRoles(doc, true);
@@ -46,7 +46,7 @@ export default function(fastify, opts, done) {
   });
 
   fastify.patch('/:guild', { schema: schemas.patch }, async (request, reply) => {
-    if (!request.access(u => u.roles.includes('observer'))) return reply.code(403).send();
+    if (!await request.access(u => u.roles.includes('observer'))) return reply.code(403).send();
     const doc = await fastify.db.guilds.findOne({ id: request.params.guild });
     if (!doc) return reply.code(404).send();
     const updated = await fastify.db.guilds.findByIdAndUpdate(doc._id, request.body, { new: true });
@@ -55,7 +55,7 @@ export default function(fastify, opts, done) {
   });
 
   fastify.delete('/:guild', { schema: schemas.delete }, async (request, reply) => {
-    if (!request.access(u => u.roles.includes('observer'))) return reply.code(403).send();
+    if (!await request.access(u => u.roles.includes('observer'))) return reply.code(403).send();
     const doc = await fastify.db.guilds.findOne({ id: request.params.guild });
     if (!doc) return reply.code(404).send();
     await doc.deleteOne();
