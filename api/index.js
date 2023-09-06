@@ -28,7 +28,6 @@ fastify.decorateRequest('auth', async function () {
 
 fastify.decorateRequest('access', async function (f) {
   const user = await this.auth();
-  console.log(this.headers, this.cookies);
   return user && await f(user);
 });
 
