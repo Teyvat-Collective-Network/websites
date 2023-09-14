@@ -109,7 +109,6 @@
             </li>
         </ul>
         <Linkable id="election-votes" e="h3" value="Election Votes" />
-        <p>See more information on elections themselves <a href="/info/procedures">here</a>.</p>
         <ul>
             <li>
                 If only one candidate exists, there will just be a proposal vote to decide if they
