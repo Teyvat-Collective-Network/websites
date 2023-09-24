@@ -684,7 +684,7 @@ hq_bot.on(Events.InteractionCreate, async (interaction) => {
             };
 
             for (const line of input.split(/\n+/)) {
-                const match = line.match(/^(.+)\s*:\s*(-1|\d+)$/);
+                const match = line.trim().match(/^(.+)\s*:\s*(-1|\d+)$/);
 
                 if (!match) {
                     reply(
