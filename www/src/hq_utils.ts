@@ -389,7 +389,7 @@ Nominations and statements will be open for one week (until <t:${mid}:F>). If yo
 
 **Important:** To discuss anything related to the election that is not a nomination, statement, or nomination response, please use the pinned discussion post (<#1081829781139623976>).
 
-Thanks!`);
+Thanks!`).catch((error) => console.error("ERROR POSTING ELECTION FOLLOW-UP:", error));
 
             await channel.setAppliedTags([NOMINATING_TAG]);
 
