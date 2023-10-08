@@ -93,7 +93,7 @@
                 You gain access to TCN Banshares, which are a system we have that lets you receive
                 or automatically ban problematic users ahead of time so you don't have to deal with
                 them the hard way. All of our banshares are manually reviewed by our observers. See
-                the <a href="http://localhost:5173/info/banshares">banshare info page</a> for more information.
+                the <a href="/info/banshares">banshare info page</a> for more information.
             </p>
         </div>
         <Linkable id="core-values" e="h2" value="Our Core Values" />
